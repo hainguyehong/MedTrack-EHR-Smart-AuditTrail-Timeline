@@ -73,124 +73,124 @@ header("Location:congratulation.php?goto_page=users.php&message=$message");
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
- <?php include './config/site_css_links.php';?>
 
- <title>Update User  Details - MedTrack-EHR-Smart-AuditTrail-Timeline
-</title>
+<head>
+    <?php include './config/site_css_links.php';?>
+
+    <title>Update User Details - MedTrack-EHR-Smart-AuditTrail-Timeline
+    </title>
 
 </head>
+
 <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
-  <!-- Site wrapper -->
-  <div class="wrapper">
-    <!-- Navbar -->
-    <?php include './config/header.php';
-include './config/sidebar.php';?>  
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-      <!-- Content Header (Page header) -->
-      <section class="content-header">
-        <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <h1>Users</h1>
-            </div>
-          </div>
-        </div><!-- /.container-fluid -->
-      </section>
+    <!-- Site wrapper -->
+    <div class="wrapper">
+        <!-- Navbar -->
+        <?php include './config/header.php';
+include './config/sidebar.php';?>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Users</h1>
+                        </div>
+                    </div>
+                </div><!-- /.container-fluid -->
+            </section>
 
-      <!-- Main content -->
-      <section class="content">
+            <!-- Main content -->
+            <section class="content">
 
-        <!-- Default box -->
-        <div class="card card-outline card-primary rounded-0 shadow">
-          <div class="card-header">
-            <h3 class="card-title">Update User</h3>
+                <!-- Default box -->
+                <div class="card card-outline card-primary rounded-0 shadow">
+                    <div class="card-header">
+                        <h3 class="card-title">Cập nhật Người Dùng</h3>
 
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                <i class="fas fa-minus"></i>
-              </button>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
 
-            </div>
-          </div>
-          <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-              <input type="hidden" name="hidden_id" 
-               value="<?php echo $user_id;?>">
-              <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                  <label>Display Name</label>
-                  <input type="text" id="display_name" name="display_name" required="required"
-                  class="form-control form-control-sm rounded-0" value="<?php echo $row['display_name'];?>" />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="hidden_id" value="<?php echo $user_id;?>">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                    <label>Tên Hiển Thị</label>
+                                    <input type="text" id="display_name" name="display_name" required="required"
+                                        class="form-control form-control-sm rounded-0"
+                                        value="<?php echo $row['display_name'];?>" />
+                                </div>
+                                <br>
+                                <br>
+                                <br>
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                    <label>Tên Đăng Nhập</label>
+                                    <input type="text" id="username" name="username" required="required"
+                                        class="form-control form-control-sm rounded-0"
+                                        value="<?php echo $row['user_name'];?>" />
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                    <label>Mật Khẩu</label>
+                                    <input type="password" id="password" name="password"
+                                        class="form-control form-control-sm rounded-0" />
+
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                    <label>Ảnh Đại Diện</label>
+                                    <input type="file" id="profile_picture" name="profile_picture"
+                                        class="form-control form-control-sm rounded-0" />
+
+                                </div>
+
+                            </div>
+
+                    </div>
+
+                    <div class="clearfix">&nbsp;</div>
+                    <div class="row">
+                        <div class="col-lg-11 col-md-10 col-sm-10">&nbsp;</div>
+                        <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
+                            <button type="submit" id="save_user" name="save_user"
+                                class="btn btn-primary btn-sm btn-flat btn-block">Cập nhật</button>
+                        </div>
+                    </div>
+                    </form>
                 </div>
-                <br>
-                <br>
-                <br>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                  <label>Username</label> 
-                  <input type="text" id="username" name="username" required="required"
-                  class="form-control form-control-sm rounded-0" value="<?php echo $row['user_name'];?>" />
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                  <label>Password</label> 
-                  <input type="password" id="password" name="password" 
-                  class="form-control form-control-sm rounded-0"/>
 
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                  <label>Profile picture</label>
-                  <input type="file" id="profile_picture" name="profile_picture" 
-                  class="form-control form-control-sm rounded-0" />
-
-                </div>
-
-              </div>
-              
-            </div>
-
-            <div class="clearfix">&nbsp;</div>
-            <div class="row">
-              <div class="col-lg-11 col-md-10 col-sm-10">&nbsp;</div>
-              <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
-                <button type="submit" id="save_user" 
-                name="save_user" class="btn btn-primary btn-sm btn-flat btn-block">Update</button>
-              </div>
-            </div>
-          </form>
         </div>
-        
-      </div>
-      
-    </section>
+
+        </section>
 
 
-    <?php 
+        <?php 
     include './config/footer.php';
 
     $message = '';
     if(isset($_GET['message'])) {
       $message = $_GET['message'];
     }
-    ?>  
+    ?>
 
-    <!-- /.control-sidebar -->
-  </div>
-  <!-- ./wrapper -->
+        <!-- /.control-sidebar -->
+    </div>
+    <!-- ./wrapper -->
 
-  <?php include './config/site_js_links.php'; ?>
+    <?php include './config/site_js_links.php'; ?>
 
 
-  <script>
-
+    <script>
     var message = '<?php echo $message;?>';
 
-    if(message !== '') {
-      showCustomMessage(message);
+    if (message !== '') {
+        showCustomMessage(message);
     }
-    
-
-
-  </script>
+    </script>
 </body>
+
 </html>

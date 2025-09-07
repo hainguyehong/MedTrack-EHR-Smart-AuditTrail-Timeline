@@ -6,7 +6,7 @@
   	$query = "SELECT `id`, `packing` from `medicine_details` 
   	where `medicine_id` = $medicineId;";
 
-  	$packings = '<option value="">Select Packing</option>';
+  	$packings = '<option value="">Chọn Số Gói</option>';
 
   	try {
   		$stmt = $con->prepare($query);

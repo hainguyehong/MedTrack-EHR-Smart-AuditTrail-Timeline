@@ -46,110 +46,112 @@ $medicines = getMedicines($con, $medicineId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
- <?php include './config/site_css_links.php';?>
- <?php include './config/data_tables_css.php';?>
- <title>Update Medicine Details - MedTrack-EHR-Smart-AuditTrail-Timeline
-</title>
+    <?php include './config/site_css_links.php';?>
+    <?php include './config/data_tables_css.php';?>
+    <title>Update Medicine Details - MedTrack-EHR-Smart-AuditTrail-Timeline
+    </title>
 
 </head>
+
 <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
-  <!-- Site wrapper -->
-  <div class="wrapper">
-    <!-- Navbar -->
+    <!-- Site wrapper -->
+    <div class="wrapper">
+        <!-- Navbar -->
 
-    <?php include './config/header.php';
-include './config/sidebar.php';?>  
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-      <!-- Content Header (Page header) -->
-      <section class="content-header">
-        <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <h1>Medicine Details</h1>
-            </div>
-          </div>
-        </div><!-- /.container-fluid -->
-      </section>
+        <?php include './config/header.php';
+include './config/sidebar.php';?>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>Danh Sách Chi Tiết Các Loại Thuốc</h1>
+                        </div>
+                    </div>
+                </div><!-- /.container-fluid -->
+            </section>
 
-      <!-- Main content -->
-      <section class="content">
+            <!-- Main content -->
+            <section class="content">
 
-        <!-- Default box -->
-        <div class="card card-outline card-primary rounded-0 shadow">
-          <div class="card-header">
-            <h3 class="card-title">Update Medicine Details</h3>
+                <!-- Default box -->
+                <div class="card card-outline card-primary rounded-0 shadow">
+                    <div class="card-header">
+                        <h3 class="card-title">Cập nhật thông tin chi tiết về thuốc</h3>
 
-            <div class="card-tools">
-              <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                <i class="fas fa-minus"></i>
-              </button>
-              
-            </div>
-          </div>
-          <div class="card-body">
-            <form method="post">
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
 
-              <input type="hidden" name="hidden_id" 
-              value="<?php echo $medicineDetailId;?>" />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
 
-              <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                  <label>Select Medicine</label>
-                  <select id="medicine" name="medicine" class="form-control form-control-sm rounded-0" required="required">
-                    <?php echo $medicines;?>
-                  </select>
+                            <input type="hidden" name="hidden_id" value="<?php echo $medicineDetailId;?>" />
+
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                    <label>Chọn Loại Thuốc</label>
+                                    <select id="medicine" name="medicine" class="form-control form-control-sm rounded-0"
+                                        required="required">
+                                        <?php echo $medicines;?>
+                                    </select>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                                    <label>Số Gói</label>
+                                    <input id="packing" name="packing" class="form-control form-control-sm rounded-0"
+                                        required="required" value="<?php echo $packing;?>" />
+                                </div>
+
+                                <div class="col-lg-1 col-md-2 col-sm-4 col-xs-12">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" id="submit" name="submit"
+                                        class="btn btn-primary btn-sm btn-flat btn-block">Cập Nhật</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.card-body -->
+
                 </div>
+                <!-- /.card -->
 
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                  <label>Packing</label>
-                  <input id="packing" name="packing" class="form-control form-control-sm rounded-0"  required="required" value="<?php echo $packing;?>" />
-                </div>
+            </section>
 
-                <div class="col-lg-1 col-md-2 col-sm-4 col-xs-12">
-                  <label>&nbsp;</label>
-                  <button type="submit" id="submit" name="submit" 
-                  class="btn btn-primary btn-sm btn-flat btn-block">Update</button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <!-- /.card-body -->
-          
+
+
+            <!-- /.content-wrapper -->
         </div>
-        <!-- /.card -->
 
-      </section>
-
-
-
-      <!-- /.content-wrapper -->
-    </div>
-
-    <?php include './config/footer.php';
+        <?php include './config/footer.php';
 
     $message = '';
     if(isset($_GET['message'])) {
       $message = $_GET['message'];
     }
-    ?>  
-    <!-- /.control-sidebar -->
-  </div>
-  <!-- ./wrapper -->
+    ?>
+        <!-- /.control-sidebar -->
+    </div>
+    <!-- ./wrapper -->
 
-  <?php include './config/site_js_links.php'; ?>
-  <?php include './config/data_tables_js.php'; ?>
-  <script>
+    <?php include './config/site_js_links.php'; ?>
+    <?php include './config/data_tables_js.php'; ?>
+    <script>
     showMenuSelected("#mnu_medicines", "#mi_medicine_details");
 
     var message = '<?php echo $message;?>';
 
-    if(message !== '') {
-      showCustomMessage(message);
+    if (message !== '') {
+        showCustomMessage(message);
     }
-
-
-  </script>
+    </script>
 </body>
+
 </html>
