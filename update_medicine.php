@@ -53,7 +53,8 @@ try {
 <html lang="en">
 <head>
  <?php include './config/site_css_links.php';?>
- <title>Update Medicine - Clinic's Patient Management System in PHP</title>
+ <title>Update Medicine - MedTrack-EHR-Smart-AuditTrail-Timeline
+</title>
 
  <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
  <link rel="stylesheet" href="plugins/datatables-responsive/css/responsive.bootstrap4.min.css">

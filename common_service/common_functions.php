@@ -13,9 +13,9 @@ function getGender222() {
 }
 
 function getGender($gender = '') {
-	$data = '<option value="">Select Gender</option>';
-	
-	$arr = array("Male", "Female", "Other");
+	$data = '<option value="">Chọn giới tính</option>';
+
+	$arr = array("Nam", "Nữ", "Khác");
 
 	$i = 0;
 	$size = sizeof($arr);
@@ -47,7 +47,7 @@ function getMedicines($con, $medicineId = 0) {
 		exit;
 	}
 
-	$data = '<option value="">Select Medicine</option>';
+	$data = '<option value="">Chọn loại thuốc</option>';
 
 	while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 		if($medicineId == $row['id']) {
@@ -77,7 +77,7 @@ from `patients` order by `patient_name` asc;";
 		exit;
 	}
 
-	$data = '<option value="">Select Patient</option>';
+	$data = '<option value="">Chọn bệnh nhân</option>';
 
 	while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 		$data = $data.'<option value="'.$row['id'].'">'.$row['patient_name'].' ('.$row['phone_number'].')'.'</option>';

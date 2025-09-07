@@ -49,7 +49,8 @@ try {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Clinic's Patient Management System in PHP</title>
+    <title>Login - MedTrack-EHR-Smart-AuditTrail-Timeline
+</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -79,7 +80,7 @@ try {
     <div class="login-box">
         <div class="login-logo mb-4">
             <img src="dist/img/logo.jpg" class="img-thumbnail p-0 border rounded-circle" id="system-logo">
-            <div class="text-center h2 mb-0">Clinic's Patient Management System - PHP</div>
+            <div class="text-center h2 mb-0">MedTrack-EHR-Smart-AuditTrail-Timeline</div>
         </div>
         <!-- /.login-logo -->
         <div class="card card-outline card-primary rounded-0 shadow">
