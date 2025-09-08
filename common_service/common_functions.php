@@ -65,7 +65,7 @@ function getMedicines($con, $medicineId = 0) {
 
 function getPatients($con) {
 $query = "select `id`, `patient_name`, `phone_number` 
-from `patients` order by `patient_name` asc;";
+from `patients` where `is_deleted` = 0 order by `patient_name` asc;";
 
 	$stmt = $con->prepare($query);
 	try {

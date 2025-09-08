@@ -29,9 +29,8 @@
       while($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $i++;
         $data = $data.'<tr>';
-        
         $data = $data.'<td class="px-2 py-1 align-middle text-center">'.$i.'</td>';
-        $data = $data.'<td class="px-2 py-1 align-middle">'.date("M d, Y", strtotime($r['visit_date'])).'</td>';
+        $data = $data.'<td class="px-2 py-1 align-middle">'.date("d/m/Y", strtotime($r['visit_date'])).'</td>';
         $data = $data.'<td class="px-2 py-1 align-middle">'.$r['disease'].'</td>';
         $data = $data.'<td class="px-2 py-1 align-middle">'.$r['medicine_name'].'</td>';
         $data = $data.'<td class="px-2 py-1 align-middle text-right">'.$r['packing'].'</td>';
@@ -40,7 +39,9 @@
 
         $data = $data.'</tr>';
       }
-
+      if ($i === 0) {
+    $data = '<tr><td colspan="7" class="text-center text-muted">Chưa có dữ liệu cho bệnh nhân này.</td></tr>';
+  }
     } catch(PDOException $ex) {
       echo $ex->getTraceAsString();
       echo $ex->getMessage();

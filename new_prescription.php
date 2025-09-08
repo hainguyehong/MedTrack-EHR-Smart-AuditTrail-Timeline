@@ -18,9 +18,17 @@ if(isset($_POST['submit'])) {
   $quantities = $_POST['quantities'];
   $dosages = $_POST['dosages'];
 
-  $visitDateArr = explode("/", $visitDate);
+//   $visitDateArr = explode("/", $visitDate);
   
-  $visitDate = $visitDateArr[2].'-'.$visitDateArr[0].'-'.$visitDateArr[1];
+//   $visitDate = $visitDateArr[2].'-'.$visitDateArr[0].'-'.$visitDateArr[1];
+$visitDate = !empty($_POST['visit_date']) 
+    ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['visit_date']))) 
+    : null;
+
+$nextVisitDate = !empty($_POST['next_visit_date']) 
+    ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['next_visit_date']))) 
+    : null;
+
 
   if($nextVisitDate != '') {
     $nextVisitDateArr = explode("/", $nextVisitDate);
@@ -65,7 +73,8 @@ if(isset($_POST['submit'])) {
 
     $con->commit();
 
-    $message = 'Thuốc của bệnh nhân đã được lưu trữ thành công.';
+    // $message = 'Thuốc của bệnh nhân đã được lưu trữ thành công.';
+    $_SESSION['success_message'] = 'Thuốc của bệnh nhân đã được lưu trữ thành công.';
 
   }catch(PDOException $ex) {
     $con->rollback();
@@ -75,8 +84,10 @@ if(isset($_POST['submit'])) {
     exit;
   }
 
-  header("location:congratulation.php?goto_page=new_prescription.php&message=$message");
-  exit;
+//   header("location:congratulation.php?goto_page=new_prescription.php&message=$message");
+//   exit;
+header("Location: new_prescription.php");
+exit();
 }
 $patients = getPatients($con);
 $medicines = getMedicines($con);
@@ -287,10 +298,11 @@ include './config/sidebar.php';?>
         <!-- /.content-wrapper -->
 
         <?php include './config/footer.php';
-$message = '';
-if(isset($_GET['message'])) {
-  $message = $_GET['message'];
-}
+    $message = '';
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
 ?>
         <!-- /.control-sidebar -->
     </div>
@@ -300,19 +312,19 @@ if(isset($_GET['message'])) {
 ?>
 
     <script src="plugins/moment/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-
+    <script src="date.js"></script>
     <script>
     var serial = 1;
     showMenuSelected("#mnu_patients", "#mi_new_prescription");
 
-    var message = '<?php echo $message;?>';
 
+    var message = '<?php echo $message;?>';
     if (message !== '') {
         showCustomMessage(message);
     }
-
 
     $(document).ready(function() {
 

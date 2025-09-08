@@ -10,10 +10,10 @@ if (isset($_POST['save_Patient'])) {
     $address = trim($_POST['address']);
     $cnic = trim($_POST['cnic']);
     
-    $dateBirth = trim($_POST['date_of_birth']);
-    $dateArr = explode("/", $dateBirth);
-    
-    $dateBirth = $dateArr[2].'-'.$dateArr[0].'-'.$dateArr[1];
+    $dateBirth = !empty($_POST['date_of_birth']) 
+    ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
+    : null;
+
 
     $phoneNumber = trim($_POST['phone_number']);
 
@@ -36,7 +36,9 @@ try {
 
   $con->commit();
 
-  $message = 'patient added successfully.';
+  
+$_SESSION['success_message'] = 'Thêm mới bệnh nhân thành công.';
+
 
 } catch(PDOException $ex) {
   $con->rollback();
@@ -46,8 +48,8 @@ try {
   exit;
 }
 }
-  header("Location:congratulation.php?goto_page=patients.php&message=$message");
-  exit;
+header("Location: patients.php");
+exit();
 }
 
 
@@ -57,7 +59,7 @@ try {
 $query = "SELECT `id`, `patient_name`, `address`, 
 `cnic`, date_format(`date_of_birth`, '%d %b %Y') as `date_of_birth`, 
 `phone_number`, `gender` 
-FROM `patients` order by `patient_name` asc;";
+FROM `patients` WHERE `is_deleted` = 0 ORDER BY `patient_name` ASC;";
 
   $stmtPatient1 = $con->prepare($query);
   $stmtPatient1->execute();
@@ -67,7 +69,6 @@ FROM `patients` order by `patient_name` asc;";
   echo $ex->getTraceAsString();
   exit;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -229,7 +230,7 @@ include './config/sidebar.php';?>
                                         <td><?php echo $row['patient_name'];?></td>
                                         <td><?php echo $row['address'];?></td>
                                         <td><?php echo $row['cnic'];?></td>
-                                        <td><?php echo $row['date_of_birth'];?></td>
+                                        <td><?php echo date("d/m/Y", strtotime($row['date_of_birth'])); ?></td>
                                         <td><?php echo $row['phone_number'];?></td>
                                         <td><?php echo $row['gender'];?></td>
                                         <td>
@@ -265,10 +266,15 @@ include './config/sidebar.php';?>
         <?php 
  include './config/footer.php';
 
-  $message = '';
-  if(isset($_GET['message'])) {
-    $message = $_GET['message'];
-  }
+//   $message = '';
+//   if(isset($_GET['message'])) {
+//     $message = $_GET['message'];
+//   }
+$message = '';
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+}
 ?>
         <!-- /.control-sidebar -->
 
@@ -278,17 +284,19 @@ include './config/sidebar.php';?>
 
 
         <script src="plugins/moment/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
         <script src="plugins/daterangepicker/daterangepicker.js"></script>
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="date.js"></script>
 
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");
 
         var message = '<?php echo $message;?>';
-
         if (message !== '') {
             showCustomMessage(message);
         }
+
         $('#date_of_birth').datetimepicker({
             format: 'L'
         });

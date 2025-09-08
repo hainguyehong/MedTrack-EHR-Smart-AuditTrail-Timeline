@@ -50,17 +50,18 @@ if(!(isset($_SESSION['user_id']))) {
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="new_prescription.php" class="nav-link" id="mi_new_prescription">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Đơn thuốc mới</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a href="patients.php" class="nav-link" id="mi_patients">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Thêm bệnh nhân</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="new_prescription.php" class="nav-link" id="mi_new_prescription">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Đơn thuốc mới</p>
+                            </a>
+                        </li>
+
                         <li class="nav-item">
                             <a href="patient_history.php" class="nav-link" id="mi_patient_history">
                                 <i class="far fa-circle nav-icon"></i>

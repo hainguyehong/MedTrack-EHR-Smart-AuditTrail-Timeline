@@ -1572,7 +1572,6 @@
         });
         return this;
     };
-
     return DateRangePicker;
-
+    
 }));
