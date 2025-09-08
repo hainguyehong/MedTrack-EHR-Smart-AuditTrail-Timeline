@@ -134,6 +134,8 @@ try {
     <!-- /.login-box -->
 
     <!-- jQuery -->
+    <!-- jQuery -->
+
 
 </body>
 
