@@ -24,7 +24,7 @@ if(isset($_POST['submit'])) {
 
     $con->commit();
 
-    $message = 'medicine details updated successfully.';
+     $_SESSION['success_message'] = 'Cập nhật thành công.';
 
   }  catch(PDOException $ex) {
     $con->rollback();
@@ -33,8 +33,8 @@ if(isset($_POST['submit'])) {
     echo $ex->getTraceAsString();
     exit;
   }
-  header("location:congratulation.php?goto_page=medicine_details.php&message=$message");
-  exit;
+    header("Location: medicine_details.php");
+    exit();
 }
 
 $medicineId = $_GET['medicine_id'];
@@ -133,9 +133,10 @@ include './config/sidebar.php';?>
         <?php include './config/footer.php';
 
     $message = '';
-    if(isset($_GET['message'])) {
-      $message = $_GET['message'];
-    }
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
     ?>
         <!-- /.control-sidebar -->
     </div>

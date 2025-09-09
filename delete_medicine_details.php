@@ -8,29 +8,29 @@ if (!isset($_SESSION['user_id'])) {
 
 // Kiểm tra quyền (chỉ role 1 hoặc 2 mới được xoá)
 if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {
-    die("Bạn không có quyền xoá bệnh nhân.");
+    die("Bạn không có quyền xoá.");
 }
 $message = '';
-if (isset($_POST['delete_Patient'])) {
+if (isset($_POST['delete_medicine'])) {
   $id = $_POST['hidden_id'];
 try {
 
   $con->beginTransaction();
   
      // Soft delete bệnh nhân
-        $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
-        $stmtPatient = $con->prepare($query);
-        $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtPatient->execute();
+        $query = "UPDATE `medicines` SET `is_deleted` = 1 WHERE `id` = :id";
+        $stmtmedicine = $con->prepare($query);
+        $stmtmedicine->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtmedicine->execute();
 
         // Soft delete các lần khám của bệnh nhân
-        $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
-        $stmtVisit = $con->prepare($queryVisit);
-        $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtVisit->execute();
+        $querydetail = "UPDATE `medicine_details` SET `is_deleted` = 1 WHERE `medicine_id` = :id";
+        $stmtdetail = $con->prepare($querydetail);
+        $stmtdetail->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtdetail->execute();
     $con->commit();
     // $message = 'Bệnh nhân đã được xoá (soft delete).';
-    $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
+    $_SESSION['success_message'] = 'Xóa thuốc thành công (soft delete).';
 
 } catch(PDOException $ex) {
   $con->rollback();
@@ -40,30 +40,39 @@ try {
   exit;
 }
 
-    header("Location: patients.php"); // quay về trang danh sách
+    header("Location: medicine_details.php"); // quay về trang danh sách
     exit();
 }
 
 
 
 try {
-$id = $_GET['id'];
-$query = "SELECT `id`, `patient_name`, `address`, 
-`cnic`, date_format(`date_of_birth`, '%m/%d/%Y') as `date_of_birth`,  `phone_number`, `gender` 
-FROM `patients` where `id` = $id;";
+if (isset($_GET['medicine_detail_id'])) {
+    $id = $_GET['medicine_detail_id'];
 
-  $stmtPatient1 = $con->prepare($query);
-  $stmtPatient1->execute();
-  $row = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
+    $query = "SELECT 
+                  m.medicine_name, 
+                  md.id, 
+                  md.packing,  
+                  md.medicine_id 
+              FROM medicines AS m
+              JOIN medicine_details AS md 
+                  ON m.id = md.medicine_id
+              WHERE md.id = :id 
+                AND m.is_deleted = 0 
+                AND md.is_deleted = 0
+              ORDER BY m.id ASC, md.id ASC";
 
-  $gender = $row['gender'];
+    $stmt = $con->prepare($query);
+    $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+    $stmt->execute();
 
-$dob = $row['date_of_birth']; 
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+}
 } catch(PDOException $ex) {
-
-  echo $ex->getMessage();
-  echo $ex->getTraceAsString();
-  exit;
+	echo $ex->getMessage();
+	echo $ex->getTraceAsString();
+  	exit;	
 }
 ?>
 <!DOCTYPE html>
@@ -93,7 +102,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Xóa Bệnh Nhân</h1>
+                            <h1>Xóa Loại Thuốc</h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -105,7 +114,7 @@ include './config/sidebar.php';?>
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Xóa Bệnh Nhân</h3>
+                        <h3 class="card-title">Xóa Loại Thuốc</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -116,76 +125,33 @@ include './config/sidebar.php';?>
                     </div>
                     <div class="card-body">
                         <form method="post" id="deleteForm">
-                            <input type="hidden" name="hidden_id" value="<?php echo $row['id'];?>">
                             <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên Bệnh Nhân</label>
-                                    <input type="text" id="patient_name" name="patient_name" required="required"
-                                        class="form-control form-control-sm rounded-0"
-                                        value="<?php echo $row['patient_name'];?>" />
-                                </div>
-                                <br>
-                                <br>
-                                <br>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Địa Chỉ</label>
-                                    <input type="text" id="address" name="address" required="required"
-                                        class="form-control form-control-sm rounded-0"
-                                        value="<?php echo $row['address'];?>" />
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>CCCD</label>
-                                    <input type="text" id="cnic" name="cnic" required="required"
-                                        class="form-control form-control-sm rounded-0"
-                                        value="<?php echo $row['cnic'];?>" />
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <div class="form-group">
-                                        <label>Ngày Sinh</label>
-                                        <div class="input-group date" id="date_of_birth" data-target-input="nearest">
-                                            <input type="text"
-                                                class="form-control form-control-sm rounded-0 datetimepicker-input"
-                                                data-target="#date_of_birth" name="date_of_birth"
-                                                value="<?php echo (!empty($dob)) ? date('d/m/Y', strtotime($dob)) : ''; ?>" />
-                                            <div class="input-group-append" data-target="#date_of_birth"
-                                                data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div>
-                                        </div>
+                                <input type="hidden" name="hidden_id" id="hidden_id" value="<?php echo $id;?>" />
+
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                        <input type="text" id="medicine_name" name="medicine_name" required="required"
+                                            class="form-control form-control-sm rounded-0"
+                                            value="<?php echo $row['medicine_name'];?>" />
                                     </div>
-
+                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                        <input type="text" id="packing" name="packing" required="required"
+                                            class="form-control form-control-sm rounded-0"
+                                            value="<?php echo $row['packing'];?>" />
+                                    </div>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Số Điện Thoại</label>
-                                    <input type="text" id="phone_number" name="phone_number" required="required"
-                                        class="form-control form-control-sm rounded-0"
-                                        value="<?php echo $row['phone_number'];?>" />
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Giới Tính</label>
-                                    <!-- $gender -->
 
-                                    <select class="form-control form-control-sm rounded-0" id="gender" name="gender">
-                                        <?php echo getGender($gender);?>
-                                    </select>
 
-                                </div>
-                            </div>
-
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10">&nbsp;</div>
+                                <div class="clearfix">&nbsp;</div>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <button type="button" class="btn btn-danger btn-sm btn-flat btn-block"
                                         data-toggle="modal" data-target="#confirmDeleteModal">
                                         Xóa
                                     </button>
                                 </div>
-
                             </div>
                         </form>
                     </div>
-
                 </div>
 
             </section>
@@ -254,12 +220,12 @@ $message = '';
                     </button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xoá bệnh nhân <strong><?php echo $row['patient_name']; ?></strong> không?
+                    Bạn có chắc chắn muốn xóa <strong><?php echo $row['medicine_name']; ?></strong> không?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Huỷ</button>
                     <!-- Nút xác nhận xoá sẽ submit form -->
-                    <button type="submit" form="deleteForm" name="delete_Patient"
+                    <button type="submit" form="deleteForm" name="delete_medicine"
                         class="btn btn-danger btn-sm">Xoá</button>
                 </div>
             </div>

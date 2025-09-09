@@ -3,74 +3,60 @@ include './config/connection.php';
 
 $message = '';
 
-if(isset($_POST['save_user'])) {
-  $displayName = $_POST['display_name'];
-  $userName = $_POST['user_name'];
-  $password = $_POST['password'];
+if (isset($_POST['save_user'])) {
+    $displayName = $_POST['display_name'];
+    $userName = $_POST['user_name'];
+    $password = $_POST['password'];
 
-  $encryptedPassword = md5($password);
+    $encryptedPassword = md5($password);
 
-//$targetDir = "user_images/";
-$baseName = basename($_FILES["profile_picture"]["name"]);
+    $targetFile = null;
+    if (!empty($_FILES["profile_picture"]["name"])) {
+        $baseName = basename($_FILES["profile_picture"]["name"]);
+        $targetFile = time() . $baseName;
+        $status = move_uploaded_file($_FILES["profile_picture"]["tmp_name"], 'user_images/' . $targetFile);
 
-//time is a php function which gives unix time value.
-//unix time value is all seconds from 1970
-
-//abc.x.y.z.png
-
-// $extArr = explode(".", $baseName);
-// $extension = end($extArr);
-
-//$targetFile =  time(). '.'.$extension;
-
-$targetFile =  time().$baseName;
-// 12312312312312312
-//abc.jpg
-//abc.jpg
-//244574700_322087779604661_8207402889226768946_n
-
-  $status = move_uploaded_file($_FILES["profile_picture"]["tmp_name"], 
-    'user_images/'.$targetFile);
-
-  if($status) {
-    try {
-      $con->beginTransaction();
-
-          $query = "INSERT INTO `users`(`display_name`,
-`user_name`, `password`, `profile_picture`) 
-VALUES('$displayName', '$userName', '$encryptedPassword', '$targetFile');";
-
-    $stmtUser = $con->prepare($query);
-    $stmtUser->execute();
-
-    $con->commit();
-
-    $message = 'user registered successfully';    
-
-    } catch(PDOException $ex) {
-      $con->rollback();
-      echo $ex->getTraceAsString();
-      echo $ex->getMessage();
-      exit;
+        if (!$status) {
+            $targetFile = null; 
+        }
     }
 
-  } else {
-    $message = 'a problem occured in image uploading.';
-  }
+    try {
+        $con->beginTransaction();
 
-header("location:congratulation.php?goto_page=users.php&message=$message");
-exit;
+        if ($targetFile) {
+            $query = "INSERT INTO `users`(`display_name`, `user_name`, `password`, `profile_picture`) 
+                      VALUES(:display_name, :user_name, :password, :profile_picture)";
+        } else {
+            $query = "INSERT INTO `users`(`display_name`, `user_name`, `password`) 
+                      VALUES(:display_name, :user_name, :password)";
+        }
+
+        $stmtUser = $con->prepare($query);
+        $stmtUser->bindParam(":display_name", $displayName);
+        $stmtUser->bindParam(":user_name", $userName);
+        $stmtUser->bindParam(":password", $encryptedPassword);
+
+        if ($targetFile) {
+            $stmtUser->bindParam(":profile_picture", $targetFile);
+        }
+
+        $stmtUser->execute();
+
+        $con->commit();
+
+        $_SESSION['success_message'] = 'Tài khoản đã được tạo thành công.';
+    } catch (PDOException $ex) {
+        $con->rollback();
+        echo $ex->getTraceAsString();
+        echo $ex->getMessage();
+        exit;
+    }
+
+    header("Location: users.php");
+    exit();
 }
-  //https://www.w3schools.com/php/php_file_upload.asp
-/**
-we will save the user picture in a separate folder.
-and in database we will store the picture name only.
 
-ON THE OTHER HAND
-mysql supports blob data for storing pictures, 
-but we are not going to use it. why?
-find reason?
-*/
 
 $queryUsers = "select `id`, `display_name`, `user_name`, 
 `profile_picture` from `users` 
@@ -162,8 +148,8 @@ include './config/sidebar.php';?>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Ảnh Đại Diện</label>
-                                    <input type="file" id="profile_picture" name="profile_picture" required="required"
-                                        class="form-control form-control-sm rounded-0" />
+                                    <input type="file" id="profile_picture" name="profile_picture"
+                                        class=" form-control form-control-sm rounded-0" />
                                 </div>
 
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
@@ -223,9 +209,12 @@ include './config/sidebar.php';?>
                                     <tr>
                                         <td class="px-2 py-1 align-middle text-center"><?php echo $serial;?></td>
                                         <td class="px-2 py-1 align-middle text-center">
+                                            <?php if (!empty($row['profile_picture'])): ?>
                                             <img class="img-thumbnail rounded-circle p-0 border user-img"
-                                                src="user_images/<?php echo $row['profile_picture'];?>">
+                                                src="user_images/<?php echo $row['profile_picture']; ?>">
+                                            <?php endif; ?>
                                         </td>
+
 
                                         <td class="px-2 py-1 align-middle"><?php echo $row['display_name'];?></td>
                                         <td class="px-2 py-1 align-middle"><?php echo $row['user_name'];?></td>
@@ -256,9 +245,10 @@ include './config/sidebar.php';?>
 include './config/footer.php';
 
 $message = '';
-if(isset($_GET['message'])) {
-  $message = $_GET['message'];
-}
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
 ?>
         <!-- /.control-sidebar -->
     </div>

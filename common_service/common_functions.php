@@ -35,7 +35,7 @@ function getGender($gender = '') {
 function getMedicines($con, $medicineId = 0) {
 
 	$query = "select `id`, `medicine_name` from `medicines` 
-	order by `medicine_name` asc;";
+	where is_deleted = 0 order by `medicine_name` asc;";
 
 	$stmt = $con->prepare($query);
 	try {

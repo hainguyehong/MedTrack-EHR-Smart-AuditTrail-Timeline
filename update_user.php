@@ -49,6 +49,9 @@ $hiddenId = $_POST['hidden_id'];
    where `id` = $hiddenId";
 }
 else {
+  function showCustomMessage($msg) {
+    echo "<script type='text/javascript'>alert('$msg');</script>";
+  }
   showCustomMessage("please fill");
 }
 
@@ -56,7 +59,7 @@ try {
 	$con->beginTransaction();
   $stmtUpdateUser = $con->prepare($updateUserQuery);
   $stmtUpdateUser->execute();
-  $message = "user update successfully";
+    $_SESSION['success_message'] = 'Cập nhật người dùng thành công.';
   $con->commit();
 
 } catch(PDOException $ex) {
@@ -65,7 +68,8 @@ try {
   echo $ex->getMessage();
   exit;
 }
-header("Location:congratulation.php?goto_page=users.php&message=$message");
+    header("Location: users.php");
+    exit();
 }
 
 
@@ -171,10 +175,11 @@ include './config/sidebar.php';?>
         <?php 
     include './config/footer.php';
 
-    $message = '';
-    if(isset($_GET['message'])) {
-      $message = $_GET['message'];
-    }
+$message = '';
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }   
     ?>
 
         <!-- /.control-sidebar -->

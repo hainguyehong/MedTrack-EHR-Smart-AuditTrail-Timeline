@@ -74,7 +74,7 @@ $nextVisitDate = !empty($_POST['next_visit_date'])
     $con->commit();
 
     // $message = 'Thuốc của bệnh nhân đã được lưu trữ thành công.';
-    $_SESSION['success_message'] = 'Thuốc của bệnh nhân đã được lưu trữ thành công.';
+    $_SESSION['success_message'] = 'Đơn Thuốc của bệnh nhân đã được lưu trữ thành công.';
 
   }catch(PDOException $ex) {
     $con->rollback();
