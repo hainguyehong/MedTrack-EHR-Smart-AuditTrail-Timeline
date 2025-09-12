@@ -160,7 +160,8 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Giới tính</label>
-                                    <select class="form-control form-control-sm rounded-0" id="gender" name="gender">
+                                    <select class="form-control form-control-sm rounded-0" id="gender" name="gender"
+                                        required>
                                         <?php echo getGender();?>
                                     </select>
 

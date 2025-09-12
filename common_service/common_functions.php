@@ -1,5 +1,4 @@
 <?php 
-
 function getGender222() {
 	//do not use this function
 	exit;
@@ -30,6 +29,23 @@ function getGender($gender = '') {
 
 	return $data;
 }
+function getRoles($role = '') {
+    $roles = [
+        1 => "Admin",
+        2 => "Bác sĩ",
+        3 => "Bệnh nhân"
+    ];
+
+    $data = '<option value="">Chọn vai trò</option>';
+    foreach ($roles as $key => $name) {
+        // So sánh key (số) với giá trị role từ DB
+        $selected = ($role == $key) ? ' selected="selected"' : '';
+        $data .= '<option value="'.$key.'"'.$selected.'>'.$name.'</option>';
+    }
+    return $data;
+}
+
+
 
 
 function getMedicines($con, $medicineId = 0) {

@@ -13,19 +13,19 @@ if(!(isset($_SESSION['user_id']))) {
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- Sidebar user (optional) -->
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
+        <div class="user-panel mt-3 pb-3 mb-3">
+            <!-- <div class="image">
                 <img src="user_images/<?php echo $_SESSION['profile_picture'];?>" class="img-circle elevation-2"
                     alt="User Image" />
-            </div>
-            <div class="info">
-                <a href="#" class="d-block"><?php echo $_SESSION['display_name'];?></a>
+            </div> -->
+            <div class="info d-flex justify-content-center">
+                <a href=" #" class="d-block"><?php echo $_SESSION['display_name'];?></a>
             </div>
         </div>
 
 
         <!-- Sidebar Menu -->
-        <nav class="mt-2">
+        <nav class=" mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->

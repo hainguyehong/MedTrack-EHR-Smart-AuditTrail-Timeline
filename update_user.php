@@ -1,15 +1,15 @@
 <?php
 include './config/connection.php';
 include './common_service/common_functions.php';
+// isLogin();
 $message = '';
 $user_id = $_GET['user_id'];
 
-$query = "SELECT `id`, `display_name`, `user_name` from `users`
-where `id` = $user_id;";
-
+$query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `id` = :id";
 
 try {
   $stmtUpdateUser = $con->prepare($query);
+  $stmtUpdateUser->bindParam(':id', $user_id, PDO::PARAM_INT);
   $stmtUpdateUser->execute();
   $row = $stmtUpdateUser->fetch(PDO::FETCH_ASSOC);
 } catch(PDOException $ex) {
@@ -22,37 +22,33 @@ if (isset($_POST['save_user'])) {
  $displayName = trim($_POST['display_name']);
  $userName = trim($_POST['username']);
  $password = $_POST['password'];
+$role = $_POST['role'];
 $hiddenId = $_POST['hidden_id'];
-
- $profilePicture = basename($_FILES["profile_picture"]["name"]);
- $targetFile =  time(). $profilePicture;
- $status = move_uploaded_file($_FILES["profile_picture"]["tmp_name"],
-  'user_images/'.$targetFile);
 
 
  $encryptedPassword = md5($password);
  if($displayName !='' && $userName !='' && $password !='' && $status !='') {
 
   $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' ,`user_name` = '$userName', `password` = 
-  '$encryptedPassword' , `profile_picture` = '$targetFile'
+  '$encryptedPassword' , `role` = '$role'
   where `id` = $hiddenId";
 
-}elseif ($displayName !=='' && $userName !=='' && $password !==''){
+}elseif ($displayName !=='' && $userName !=='' && $password !=='' && $role !==''){
 
   $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' ,`user_name` = '$userName' , `password` = 
-  '$encryptedPassword' 
+  '$encryptedPassword' , `role` = '$role'
   where `id` = $hiddenId";
 
 }elseif ($displayName !=='' && $userName !=='' && $status !==''){
 
-  $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' , `user_name` = '$userName' , `profile_picture` = '$targetFile ' 
+  $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' , `user_name` = '$userName' , `role` = '$role' 
    where `id` = $hiddenId";
 }
 else {
   function showCustomMessage($msg) {
     echo "<script type='text/javascript'>alert('$msg');</script>";
   }
-  showCustomMessage("please fill");
+  showCustomMessage("Vui lòng điền đầy đủ.");
 }
 
 try {
@@ -146,9 +142,11 @@ include './config/sidebar.php';?>
 
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Ảnh Đại Diện</label>
-                                    <input type="file" id="profile_picture" name="profile_picture"
-                                        class="form-control form-control-sm rounded-0" />
+                                    <label>Vai trò</label>
+                                    <select name="role" id="role" class="form-control form-control-sm rounded-0">
+                                        <?php echo getRoles((int)$row['role']); ?>
+                                    </select>
+
 
                                 </div>
 
