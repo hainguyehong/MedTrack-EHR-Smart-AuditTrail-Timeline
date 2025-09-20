@@ -56,18 +56,18 @@ if(!(isset($_SESSION['user_id']))) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="new_prescription.php" class="nav-link" id="mi_new_prescription">
+                            <a href="patients_visit.php" class="nav-link" id="mi_new_prescription">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Đơn thuốc mới</p>
+                                <p>Khám bệnh</p>
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a href="patient_history.php" class="nav-link" id="mi_patient_history">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Tiền sử bệnh nhân</p>
                             </a>
-                        </li>
+                        </li> -->
 
                     </ul>
                 </li>
@@ -125,8 +125,32 @@ if(!(isset($_SESSION['user_id']))) {
                             Người dùng
                         </p>
                     </a>
-                </li>
 
+                </li>
+                <!-- <li class="nav-item" id="mnu_users">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fa fa-users"></i>
+                        <p>
+                            Người dùng
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="users.php" class="nav-link" id="mi_users">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Danh sách admin, bác sỹ</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="user_patients.php" class="nav-link" id="mi_user_patients">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Danh sách bệnh nhân</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li> -->
                 <li class="nav-item">
                     <a href="logout.php" class="nav-link">
                         <i class="nav-icon fa fa-sign-out-alt"></i>

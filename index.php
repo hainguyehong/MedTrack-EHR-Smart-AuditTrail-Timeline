@@ -3,15 +3,60 @@ include './config/connection.php';
 
 $message = '';
 
+// if (isset($_POST['login'])) {
+//     $userName = $_POST['user_name'];
+//     $password = $_POST['password'];
+
+//     $encryptedPassword = md5($password);
+
+//     $query = "SELECT `id`, `display_name`, `user_name`, `profile_picture`, `role`
+//               FROM `users`
+//               WHERE `user_name` = :uname AND `password` = :pwd";
+
+//     try {
+//         $stmtLogin = $con->prepare($query);
+//         $stmtLogin->bindParam(':uname', $userName, PDO::PARAM_STR);
+//         $stmtLogin->bindParam(':pwd', $encryptedPassword, PDO::PARAM_STR);
+//         $stmtLogin->execute();
+
+//         if ($stmtLogin->rowCount() == 1) {
+//             $row = $stmtLogin->fetch(PDO::FETCH_ASSOC);
+
+//             // Lưu thông tin vào session
+//             $_SESSION['user_id']        = $row['id'];
+//             $_SESSION['display_name']   = $row['display_name'];
+//             $_SESSION['user_name']      = $row['user_name'];
+//             $_SESSION['profile_picture']= $row['profile_picture'];
+//             $_SESSION['role']           = $row['role'];  
+
+//             header("location:dashboard.php");
+//             exit;
+//         } else {
+//             $message = 'Tài khoản hoặc mật khẩu không đúng.';
+//         }
+//     } catch (PDOException $ex) {
+//         echo $ex->getMessage();
+//         exit;
+//     }
+// }
 if (isset($_POST['login'])) {
     $userName = $_POST['user_name'];
     $password = $_POST['password'];
 
     $encryptedPassword = md5($password);
 
-    $query = "SELECT `id`, `display_name`, `user_name`, `profile_picture`, `role`
-              FROM `users`
-              WHERE `user_name` = :uname AND `password` = :pwd";
+    // UNION để kiểm tra cả 2 bảng
+    $query = "
+        SELECT id, display_name, user_name, profile_picture, role
+        FROM users
+        WHERE user_name = :uname AND password = :pwd
+
+        UNION
+
+        SELECT id, display_name, user_name, NULL AS profile_picture, 3 AS role
+        FROM user_patients
+        WHERE user_name = :uname AND password = :pwd
+    ";
 
     try {
         $stmtLogin = $con->prepare($query);
@@ -23,13 +68,23 @@ if (isset($_POST['login'])) {
             $row = $stmtLogin->fetch(PDO::FETCH_ASSOC);
 
             // Lưu thông tin vào session
-            $_SESSION['user_id']        = $row['id'];
-            $_SESSION['display_name']   = $row['display_name'];
-            $_SESSION['user_name']      = $row['user_name'];
-            $_SESSION['profile_picture']= $row['profile_picture'];
-            $_SESSION['role']           = $row['role'];  
+            $_SESSION['user_id']         = $row['id'];
+            $_SESSION['display_name']    = $row['display_name'];
+            $_SESSION['user_name']       = $row['user_name'];
+            $_SESSION['profile_picture'] = $row['profile_picture'];
+            $_SESSION['role']            = $row['role'];  
 
-            header("location:dashboard.php");
+            // Điều hướng theo role
+            if ($_SESSION['role'] == 1) {
+                header("location:dashboard.php"); // admin
+            } elseif ($_SESSION['role'] == 3) {
+                header("location:user_medication.php"); // bệnh nhân
+            } elseif ($_SESSION['role'] == 2) {
+                header("location:doctor_patient.php"); // bác sĩ
+            } else {
+                // Nếu có role khác, đưa về trang chung
+                header("location:index.php");
+            }
             exit;
         } else {
             $message = 'Tài khoản hoặc mật khẩu không đúng.';
@@ -39,6 +94,7 @@ if (isset($_POST['login'])) {
         exit;
     }
 }
+
 
 ?>
 <!DOCTYPE html>

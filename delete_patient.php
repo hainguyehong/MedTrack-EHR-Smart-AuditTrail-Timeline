@@ -11,34 +11,88 @@ if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {
     die("Bạn không có quyền xoá bệnh nhân.");
 }
 $message = '';
-if (isset($_POST['delete_Patient'])) {
-  $id = $_POST['hidden_id'];
-try {
+// if (isset($_POST['delete_Patient'])) {
+//   $id = $_POST['hidden_id'];
+// try {
 
-  $con->beginTransaction();
+//   $con->beginTransaction();
   
-     // Soft delete bệnh nhân
-        $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
-        $stmtPatient = $con->prepare($query);
-        $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtPatient->execute();
+//      // Soft delete bệnh nhân
+//         $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
+//         $stmtPatient = $con->prepare($query);
+//         $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
+//         $stmtPatient->execute();
 
-        // Soft delete các lần khám của bệnh nhân
-        $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
-        $stmtVisit = $con->prepare($queryVisit);
-        $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtVisit->execute();
-    $con->commit();
-    // $message = 'Bệnh nhân đã được xoá (soft delete).';
-    $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
+//         // Soft delete các lần khám của bệnh nhân
+//         $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
+//         $stmtVisit = $con->prepare($queryVisit);
+//         $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
+//         $stmtVisit->execute();
+        
+//         // Soft delete user bệnh nhân
+//         $queryUser = "UPDATE `user_patients` SET `is_deleted` = 1 WHERE `user_name` = :cnic";
+//         $stmtUser = $con->prepare($queryUser);
+//         $stmtUser->bindParam(':cnic', $cnic, PDO::PARAM_STR);
+//         $stmtUser->execute();
 
-} catch(PDOException $ex) {
-  $con->rollback();
+//     $con->commit();
+//     // $message = 'Bệnh nhân đã được xoá (soft delete).';
+//     $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
 
-  echo $ex->getMessage();
-  echo $ex->getTraceAsString();
-  exit;
-}
+// } catch(PDOException $ex) {
+//   $con->rollback();
+
+//   echo $ex->getMessage();
+//   echo $ex->getTraceAsString();
+//   exit;
+// }
+
+//     header("Location: patients.php"); // quay về trang danh sách
+//     exit();
+// }
+if (isset($_POST['delete_Patient'])) {
+    $id = $_POST['hidden_id'];
+
+    try {
+        $con->beginTransaction();
+
+        // Lấy cnic của bệnh nhân để xóa user
+        $queryGet = "SELECT cnic FROM `patients` WHERE `id` = :id";
+        $stmtGet = $con->prepare($queryGet);
+        $stmtGet->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtGet->execute();
+        $patient = $stmtGet->fetch(PDO::FETCH_ASSOC);
+
+        if ($patient) {
+            $cnic = $patient['cnic'];
+
+            // Soft delete bệnh nhân
+            $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
+            $stmtPatient = $con->prepare($query);
+            $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtPatient->execute();
+
+            // Soft delete các lần khám của bệnh nhân
+            $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
+            $stmtVisit = $con->prepare($queryVisit);
+            $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtVisit->execute();
+
+            // Soft delete user bệnh nhân (dựa vào cnic)
+            $queryUser = "UPDATE `user_patients` SET `is_deleted` = 1 WHERE `user_name` = :cnic";
+            $stmtUser = $con->prepare($queryUser);
+            $stmtUser->bindParam(':cnic', $cnic, PDO::PARAM_STR);
+            $stmtUser->execute();
+        }
+
+        $con->commit();
+        $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
+    } catch(PDOException $ex) {
+        $con->rollback();
+        echo $ex->getMessage();
+        echo $ex->getTraceAsString();
+        exit;
+    }
 
     header("Location: patients.php"); // quay về trang danh sách
     exit();

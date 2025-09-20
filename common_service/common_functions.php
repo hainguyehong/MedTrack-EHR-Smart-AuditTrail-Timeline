@@ -44,7 +44,20 @@ function getRoles($role = '') {
     }
     return $data;
 }
+function Nhapvien($nv = '') {
+    $nv = [
+        1 => "Có",
+        2 => "Không",
+    ];
 
+    $data = '<option value="">Nhập viện</option>';
+    foreach ($nv as $key => $name) {
+        // So sánh key (số) với giá trị role từ DB
+        $selected = ($nv == $key) ? ' selected="selected"' : '';
+        $data .= '<option value="'.$key.'"'.$selected.'>'.$name.'</option>';
+    }
+    return $data;
+}
 
 
 

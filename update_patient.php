@@ -3,6 +3,59 @@ include './config/connection.php';
 include './common_service/common_functions.php';
 
 $message = '';
+// if (isset($_POST['save_Patient'])) {
+  
+//     $hiddenId = $_POST['hidden_id'];
+
+//     $patientName = trim($_POST['patient_name']);
+//     $address = trim($_POST['address']);
+//     $cnic = trim($_POST['cnic']);
+    
+//     $dateBirth = !empty($_POST['date_of_birth']) 
+//     ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
+//     : null;
+
+//     $phoneNumber = trim($_POST['phone_number']);
+
+//     $patientName = ucwords(strtolower($patientName));
+//     $address = ucwords(strtolower($address));
+
+//     $gender = $_POST['gender'];
+// if ($patientName != '' && $address != '' && 
+//   $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
+//       $query = "update `patients` 
+//     set `patient_name` = '$patientName', 
+//     `address` = '$address', 
+//     `cnic` = '$cnic', 
+//     `date_of_birth` = '$dateBirth', 
+//     `phone_number` = '$phoneNumber', 
+//     `gender` = '$gender' 
+// where `id` = $hiddenId;";
+// try {
+
+//   $con->beginTransaction();
+
+//   $stmtPatient = $con->prepare($query);
+//   $stmtPatient->execute();
+
+//   $con->commit();
+
+// //   $message = 'Cập Nhật Dữ liệu thành công.';
+// $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
+
+// } catch(PDOException $ex) {
+//   $con->rollback();
+
+//   echo $ex->getMessage();
+//   echo $ex->getTraceAsString();
+//   exit;
+// }
+// }
+// //   header("Location:congratulation.php?goto_page=patients.php&message=$message");
+// //   exit();
+// header("Location: patients.php"); // quay lại thẳng patients.php
+// exit();
+// }
 if (isset($_POST['save_Patient'])) {
   
     $hiddenId = $_POST['hidden_id'];
@@ -12,8 +65,8 @@ if (isset($_POST['save_Patient'])) {
     $cnic = trim($_POST['cnic']);
     
     $dateBirth = !empty($_POST['date_of_birth']) 
-    ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
-    : null;
+        ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
+        : null;
 
     $phoneNumber = trim($_POST['phone_number']);
 
@@ -21,43 +74,78 @@ if (isset($_POST['save_Patient'])) {
     $address = ucwords(strtolower($address));
 
     $gender = $_POST['gender'];
-if ($patientName != '' && $address != '' && 
-  $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
-      $query = "update `patients` 
-    set `patient_name` = '$patientName', 
-    `address` = '$address', 
-    `cnic` = '$cnic', 
-    `date_of_birth` = '$dateBirth', 
-    `phone_number` = '$phoneNumber', 
-    `gender` = '$gender' 
-where `id` = $hiddenId;";
-try {
 
-  $con->beginTransaction();
+    if ($patientName != '' && $address != '' && 
+        $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
 
-  $stmtPatient = $con->prepare($query);
-  $stmtPatient->execute();
+        try {
+            // ✅ Kiểm tra trùng user_name (cnic)
+            $checkQuery = "SELECT COUNT(*) FROM user_patients 
+                           WHERE user_name = :user_name AND id_patient != :id_patient";
+            $stmtCheck = $con->prepare($checkQuery);
+            $stmtCheck->execute([
+                ':user_name' => $cnic,
+                ':id_patient' => $hiddenId
+            ]);
+            $exists = $stmtCheck->fetchColumn();
 
-  $con->commit();
+            if ($exists > 0) {
+                $_SESSION['error_message'] = "CCCD/Tên đăng nhập đã tồn tại. Vui lòng chọn giá trị khác.";
+                header("Location: patients.php");
+                exit();
+            }
 
-//   $message = 'Cập Nhật Dữ liệu thành công.';
-$_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
+            $con->beginTransaction();
 
-} catch(PDOException $ex) {
-  $con->rollback();
+            // ✅ Update bảng patients
+            $queryPatient = "UPDATE `patients` 
+                SET `patient_name` = :patient_name, 
+                    `address` = :address, 
+                    `cnic` = :cnic, 
+                    `date_of_birth` = :date_of_birth, 
+                    `phone_number` = :phone_number, 
+                    `gender` = :gender 
+                WHERE `id` = :id";
 
-  echo $ex->getMessage();
-  echo $ex->getTraceAsString();
-  exit;
+            $stmtPatient = $con->prepare($queryPatient);
+            $stmtPatient->execute([
+                ':patient_name' => $patientName,
+                ':address' => $address,
+                ':cnic' => $cnic,
+                ':date_of_birth' => $dateBirth,
+                ':phone_number' => $phoneNumber,
+                ':gender' => $gender,
+                ':id' => $hiddenId
+            ]);
+
+            // ✅ Update bảng user_patients
+            $queryUser = "UPDATE `user_patients` 
+                SET `user_name` = :user_name, 
+                    `display_name` = :display_name 
+                WHERE `id_patient` = :id_patient";
+
+            $stmtUser = $con->prepare($queryUser);
+            $stmtUser->execute([
+                ':user_name' => $cnic,            // CCCD làm username
+                ':display_name' => $patientName, // tên hiển thị
+                ':id_patient' => $hiddenId
+            ]);
+
+            $con->commit();
+
+            $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
+
+        } catch(PDOException $ex) {
+            $con->rollback();
+            $_SESSION['error_message'] = "Lỗi khi cập nhật: " . $ex->getMessage();
+            header("Location: patients.php");
+            exit;
+        }
+    }
+
+    header("Location: patients.php"); 
+    exit();
 }
-}
-//   header("Location:congratulation.php?goto_page=patients.php&message=$message");
-//   exit();
-header("Location: patients.php"); // quay lại thẳng patients.php
-exit();
-}
-
-
 
 try {
 $id = $_GET['id'];
