@@ -1,47 +1,43 @@
 <?php
 include './config/connection.php';
 include './common_service/common_functions.php';
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit;
+}
 
+// Kiểm tra quyền (chỉ role 1 hoặc 2 mới được xoá)
+if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {
+    die("Bạn không có quyền xoá bệnh nhân.");
+}
 $message = '';
-// if (isset($_POST['save_Patient'])) {
-  
-//     $hiddenId = $_POST['hidden_id'];
-
-//     $patientName = trim($_POST['patient_name']);
-//     $address = trim($_POST['address']);
-//     $cnic = trim($_POST['cnic']);
-    
-//     $dateBirth = !empty($_POST['date_of_birth']) 
-//     ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
-//     : null;
-
-//     $phoneNumber = trim($_POST['phone_number']);
-
-//     $patientName = ucwords(strtolower($patientName));
-//     $address = ucwords(strtolower($address));
-
-//     $gender = $_POST['gender'];
-// if ($patientName != '' && $address != '' && 
-//   $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
-//       $query = "update `patients` 
-//     set `patient_name` = '$patientName', 
-//     `address` = '$address', 
-//     `cnic` = '$cnic', 
-//     `date_of_birth` = '$dateBirth', 
-//     `phone_number` = '$phoneNumber', 
-//     `gender` = '$gender' 
-// where `id` = $hiddenId;";
+// if (isset($_POST['delete_Patient'])) {
+//   $id = $_POST['hidden_id'];
 // try {
 
 //   $con->beginTransaction();
+  
+//      // Soft delete bệnh nhân
+//         $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
+//         $stmtPatient = $con->prepare($query);
+//         $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
+//         $stmtPatient->execute();
 
-//   $stmtPatient = $con->prepare($query);
-//   $stmtPatient->execute();
+//         // Soft delete các lần khám của bệnh nhân
+//         $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
+//         $stmtVisit = $con->prepare($queryVisit);
+//         $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
+//         $stmtVisit->execute();
+        
+//         // Soft delete user bệnh nhân
+//         $queryUser = "UPDATE `user_patients` SET `is_deleted` = 1 WHERE `user_name` = :cnic";
+//         $stmtUser = $con->prepare($queryUser);
+//         $stmtUser->bindParam(':cnic', $cnic, PDO::PARAM_STR);
+//         $stmtUser->execute();
 
-//   $con->commit();
-
-// //   $message = 'Cập Nhật Dữ liệu thành công.';
-// $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
+//     $con->commit();
+//     // $message = 'Bệnh nhân đã được xoá (soft delete).';
+//     $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
 
 // } catch(PDOException $ex) {
 //   $con->rollback();
@@ -50,102 +46,59 @@ $message = '';
 //   echo $ex->getTraceAsString();
 //   exit;
 // }
+
+//     header("Location: patients.php"); // quay về trang danh sách
+//     exit();
 // }
-// //   header("Location:congratulation.php?goto_page=patients.php&message=$message");
-// //   exit();
-// header("Location: patients.php"); // quay lại thẳng patients.php
-// exit();
-// }
-if (isset($_POST['save_Patient'])) {
-  
-    $hiddenId = $_POST['hidden_id'];
+if (isset($_POST['delete_Patient'])) {
+    $id = $_POST['hidden_id'];
 
-    $patientName = trim($_POST['patient_name']);
-    $address = trim($_POST['address']);
-    $cnic = trim($_POST['cnic']);
-    
-    $dateBirth = !empty($_POST['date_of_birth']) 
-        ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
-        : null;
+    try {
+        $con->beginTransaction();
 
-    $phoneNumber = trim($_POST['phone_number']);
+        // Lấy cnic của bệnh nhân để xóa user
+        $queryGet = "SELECT cnic FROM `patients` WHERE `id` = :id";
+        $stmtGet = $con->prepare($queryGet);
+        $stmtGet->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtGet->execute();
+        $patient = $stmtGet->fetch(PDO::FETCH_ASSOC);
 
-    $patientName = ucwords(strtolower($patientName));
-    $address = ucwords(strtolower($address));
+        if ($patient) {
+            $cnic = $patient['cnic'];
 
-    $gender = $_POST['gender'];
+            // Soft delete bệnh nhân
+            $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
+            $stmtPatient = $con->prepare($query);
+            $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtPatient->execute();
 
-    if ($patientName != '' && $address != '' && 
-        $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
+            // Soft delete các lần khám của bệnh nhân
+            $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
+            $stmtVisit = $con->prepare($queryVisit);
+            $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtVisit->execute();
 
-        try {
-            // ✅ Kiểm tra trùng user_name (cnic)
-            $checkQuery = "SELECT COUNT(*) FROM user_patients 
-                           WHERE user_name = :user_name AND id_patient != :id_patient";
-            $stmtCheck = $con->prepare($checkQuery);
-            $stmtCheck->execute([
-                ':user_name' => $cnic,
-                ':id_patient' => $hiddenId
-            ]);
-            $exists = $stmtCheck->fetchColumn();
-
-            if ($exists > 0) {
-                $_SESSION['error_message'] = "CCCD/Tên đăng nhập đã tồn tại. Vui lòng chọn giá trị khác.";
-                header("Location: patients.php");
-                exit();
-            }
-
-            $con->beginTransaction();
-
-            // ✅ Update bảng patients
-            $queryPatient = "UPDATE `patients` 
-                SET `patient_name` = :patient_name, 
-                    `address` = :address, 
-                    `cnic` = :cnic, 
-                    `date_of_birth` = :date_of_birth, 
-                    `phone_number` = :phone_number, 
-                    `gender` = :gender 
-                WHERE `id` = :id";
-
-            $stmtPatient = $con->prepare($queryPatient);
-            $stmtPatient->execute([
-                ':patient_name' => $patientName,
-                ':address' => $address,
-                ':cnic' => $cnic,
-                ':date_of_birth' => $dateBirth,
-                ':phone_number' => $phoneNumber,
-                ':gender' => $gender,
-                ':id' => $hiddenId
-            ]);
-
-            // ✅ Update bảng user_patients
-            $queryUser = "UPDATE `user_patients` 
-                SET `user_name` = :user_name, 
-                    `display_name` = :display_name 
-                WHERE `id_patient` = :id_patient";
-
+            // Soft delete user bệnh nhân (dựa vào cnic)
+            $queryUser = "UPDATE `user_patients` SET `is_deleted` = 1 WHERE `user_name` = :cnic";
             $stmtUser = $con->prepare($queryUser);
-            $stmtUser->execute([
-                ':user_name' => $cnic,            // CCCD làm username
-                ':display_name' => $patientName, // tên hiển thị
-                ':id_patient' => $hiddenId
-            ]);
-
-            $con->commit();
-
-            $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
-
-        } catch(PDOException $ex) {
-            $con->rollback();
-            $_SESSION['error_message'] = "Lỗi khi cập nhật: " . $ex->getMessage();
-            header("Location: patients.php");
-            exit;
+            $stmtUser->bindParam(':cnic', $cnic, PDO::PARAM_STR);
+            $stmtUser->execute();
         }
+
+        $con->commit();
+        $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
+    } catch(PDOException $ex) {
+        $con->rollback();
+        echo $ex->getMessage();
+        echo $ex->getTraceAsString();
+        exit;
     }
 
-    header("Location: patients.php"); 
+    header("Location: patients.php"); // quay về trang danh sách
     exit();
 }
+
+
 
 try {
 $id = $_GET['id'];
@@ -176,7 +129,7 @@ $dob = $row['date_of_birth'];
     <?php include './config/data_tables_css.php';?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <title>Update Pateint Details - MedTrack-EHR-Smart-AuditTrail-Timeline
+    <title>Delete Pateint Details - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
 
 </head>
@@ -194,7 +147,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Bệnh Nhân</h1>
+                            <h1>Xóa Bệnh Nhân</h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -206,7 +159,7 @@ include './config/sidebar.php';?>
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Chỉnh Sửa Thông Tin Bệnh Nhân</h3>
+                        <h3 class="card-title">Xóa Bệnh Nhân</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -216,7 +169,7 @@ include './config/sidebar.php';?>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="post">
+                        <form method="post" id="deleteForm">
                             <input type="hidden" name="hidden_id" value="<?php echo $row['id'];?>">
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
@@ -246,15 +199,13 @@ include './config/sidebar.php';?>
                                         <div class="input-group date" id="date_of_birth" data-target-input="nearest">
                                             <input type="text"
                                                 class="form-control form-control-sm rounded-0 datetimepicker-input"
-                                                data-target="#date_of_birth" data-toggle="datetimepicker"
-                                                name="date_of_birth"
+                                                data-target="#date_of_birth" name="date_of_birth"
                                                 value="<?php echo (!empty($dob)) ? date('d/m/Y', strtotime($dob)) : ''; ?>" />
                                             <div class="input-group-append" data-target="#date_of_birth"
                                                 data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
                                         </div>
-
                                     </div>
 
                                 </div>
@@ -279,9 +230,12 @@ include './config/sidebar.php';?>
                             <div class="row">
                                 <div class="col-lg-11 col-md-10 col-sm-10">&nbsp;</div>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
-                                    <button type="submit" id="save_Patient" name="save_Patient"
-                                        class="btn btn-primary btn-sm btn-flat btn-block">Cập nhật</button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-flat btn-block"
+                                        data-toggle="modal" data-target="#confirmDeleteModal">
+                                        Xóa
+                                    </button>
                                 </div>
+
                             </div>
                         </form>
                     </div>
@@ -300,10 +254,11 @@ include './config/sidebar.php';?>
         <?php 
  include './config/footer.php';
 
-  $message = '';
-  if(isset($_GET['message'])) {
-    $message = $_GET['message'];
-  }
+$message = '';
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
 ?>
         <!-- /.control-sidebar -->
     </div>
@@ -331,16 +286,40 @@ include './config/sidebar.php';?>
     });
 
 
-    $(function() {
-        $("#all_patients").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-        }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
+    // $(function() {
+    //     $("#all_patients").DataTable({
+    //         "responsive": true,
+    //         "lengthChange": false,
+    //         "autoWidth": false,
+    //         "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    //     }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
 
-    });
+    // });
     </script>
+
+    <!-- Modal xác nhận xoá -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Xác nhận xoá</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xoá bệnh nhân <strong><?php echo $row['patient_name']; ?></strong> không?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Huỷ</button>
+                    <!-- Nút xác nhận xoá sẽ submit form -->
+                    <button type="submit" form="deleteForm" name="delete_Patient"
+                        class="btn btn-danger btn-sm">Xoá</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

@@ -1,15 +1,15 @@
 <?php
 include './config/connection.php';
 include './common_service/common_functions.php';
+// isLogin();
 $message = '';
 $user_id = $_GET['user_id'];
 
-$query = "SELECT `id`, `display_name`, `user_name` from `users`
-where `id` = $user_id;";
-
+$query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `id` = :id";
 
 try {
   $stmtUpdateUser = $con->prepare($query);
+  $stmtUpdateUser->bindParam(':id', $user_id, PDO::PARAM_INT);
   $stmtUpdateUser->execute();
   $row = $stmtUpdateUser->fetch(PDO::FETCH_ASSOC);
 } catch(PDOException $ex) {
@@ -22,41 +22,40 @@ if (isset($_POST['save_user'])) {
  $displayName = trim($_POST['display_name']);
  $userName = trim($_POST['username']);
  $password = $_POST['password'];
+$role = $_POST['role'];
 $hiddenId = $_POST['hidden_id'];
-
- $profilePicture = basename($_FILES["profile_picture"]["name"]);
- $targetFile =  time(). $profilePicture;
- $status = move_uploaded_file($_FILES["profile_picture"]["tmp_name"],
-  'user_images/'.$targetFile);
 
 
  $encryptedPassword = md5($password);
  if($displayName !='' && $userName !='' && $password !='' && $status !='') {
 
   $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' ,`user_name` = '$userName', `password` = 
-  '$encryptedPassword' , `profile_picture` = '$targetFile'
+  '$encryptedPassword' , `role` = '$role'
   where `id` = $hiddenId";
 
-}elseif ($displayName !=='' && $userName !=='' && $password !==''){
+}elseif ($displayName !=='' && $userName !=='' && $password !=='' && $role !==''){
 
   $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' ,`user_name` = '$userName' , `password` = 
-  '$encryptedPassword' 
+  '$encryptedPassword' , `role` = '$role'
   where `id` = $hiddenId";
 
 }elseif ($displayName !=='' && $userName !=='' && $status !==''){
 
-  $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' , `user_name` = '$userName' , `profile_picture` = '$targetFile ' 
+  $updateUserQuery = "UPDATE `users` set `display_name` = '$displayName' , `user_name` = '$userName' , `role` = '$role' 
    where `id` = $hiddenId";
 }
 else {
-  showCustomMessage("please fill");
+  function showCustomMessage($msg) {
+    echo "<script type='text/javascript'>alert('$msg');</script>";
+  }
+  showCustomMessage("Vui lòng điền đầy đủ.");
 }
 
 try {
 	$con->beginTransaction();
   $stmtUpdateUser = $con->prepare($updateUserQuery);
   $stmtUpdateUser->execute();
-  $message = "user update successfully";
+    $_SESSION['success_message'] = 'Cập nhật người dùng thành công.';
   $con->commit();
 
 } catch(PDOException $ex) {
@@ -65,7 +64,8 @@ try {
   echo $ex->getMessage();
   exit;
 }
-header("Location:congratulation.php?goto_page=users.php&message=$message");
+    header("Location: users.php");
+    exit();
 }
 
 
@@ -142,9 +142,11 @@ include './config/sidebar.php';?>
 
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Ảnh Đại Diện</label>
-                                    <input type="file" id="profile_picture" name="profile_picture"
-                                        class="form-control form-control-sm rounded-0" />
+                                    <label>Vai trò</label>
+                                    <select name="role" id="role" class="form-control form-control-sm rounded-0">
+                                        <?php echo getRoles((int)$row['role']); ?>
+                                    </select>
+
 
                                 </div>
 
@@ -171,10 +173,11 @@ include './config/sidebar.php';?>
         <?php 
     include './config/footer.php';
 
-    $message = '';
-    if(isset($_GET['message'])) {
-      $message = $_GET['message'];
-    }
+$message = '';
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }   
     ?>
 
         <!-- /.control-sidebar -->

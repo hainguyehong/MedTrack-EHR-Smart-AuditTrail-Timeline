@@ -20,7 +20,7 @@ if(isset($_POST['save_medicine'])) {
 	   
 	   $con->commit();
        
-	   $message = "Record updated sucessfully.";
+        $_SESSION['success_message'] = 'Cập nhật loại thuốc thành công.';
 
     }catch(PDOException $ex){
     	$con->rollback();
@@ -30,8 +30,8 @@ if(isset($_POST['save_medicine'])) {
     }
 
 }
-header("Location:congratulation.php?goto_page=medicines.php&message=$message");
-exit;
+    header("Location: medicines.php");
+    exit();
 }
 
 try {
@@ -124,15 +124,35 @@ include './config/sidebar.php';?>
  include './config/footer.php';
 
 	$message = '';
-	if(isset($_GET['message'])) {
-		$message = $_GET['message'];
-	}
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
 ?>
         <!-- /.control-sidebar -->
     </div>
     <!-- ./wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
+    <?php include './config/data_tables_js.php'; ?>
+    <script>
+    showMenuSelected("#mnu_medicines", "#mi_medicine_details");
+
+    var message = '<?php echo $message;?>';
+
+    if (message !== '') {
+        showCustomMessage(message);
+    }
+    $(function() {
+        $("#medicine_details").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
+
+    });
+    </script>
 
 </body>
 

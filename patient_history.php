@@ -143,6 +143,8 @@ include './config/sidebar.php';?>
 
                 //alert('hello');
 
+            } else {
+                showCustomMessage('Vui lòng chọn bệnh nhân.');
             }
 
         });

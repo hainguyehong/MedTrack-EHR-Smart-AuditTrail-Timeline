@@ -1,4 +1,5 @@
 <?php 
+session_start();
 $host = "localhost";
 $user = "root";
 $password = "";
@@ -17,8 +18,6 @@ try {
   echo $e->getTraceAsString();
   exit;
 }
-
-session_start();
 
 //24 minutes default idle time
 // if(isset($_SESSION['ABC'])) {

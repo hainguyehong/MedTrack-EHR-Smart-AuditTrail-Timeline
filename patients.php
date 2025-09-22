@@ -1,19 +1,68 @@
 <?php
 include './config/connection.php';
 include './common_service/common_functions.php';
-
+include './common_service/date.php';
 
 $message = '';
+// if (isset($_POST['save_Patient'])) {
+
+//     $patientName = trim($_POST['patient_name']);
+//     $address = trim($_POST['address']);
+//     $cnic = trim($_POST['cnic']);
+    
+//     $dateBirth = !empty($_POST['date_of_birth']) 
+//     ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
+//     : null;
+
+
+//     $phoneNumber = trim($_POST['phone_number']);
+
+//     $patientName = ucwords(strtolower($patientName));
+//     $address = ucwords(strtolower($address));
+
+//     $gender = $_POST['gender'];
+//     $createdAt = date("Y-m-d H:i:s");
+// if ($patientName != '' && $address != '' && 
+//   $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
+//       $query = "INSERT INTO `patients`(`patient_name`, 
+//     `address`, `cnic`, `date_of_birth`, `phone_number`, `gender`, `created_at`)
+// VALUES('$patientName', '$address', '$cnic', '$dateBirth',
+// '$phoneNumber', '$gender', '$createdAt');";
+// $queryUser = "INSERT INTO `users`(`user_name`, `password`, `display_name`, `role`, `created_at`) 
+//             VALUES(:user_name, :password, :display_name, :role, :created_at)";
+// try {
+
+//   $con->beginTransaction();
+
+//   $stmtPatient = $con->prepare($query);
+//   $stmtPatient->execute();
+
+//   $con->commit();
+
+  
+// $_SESSION['success_message'] = 'Thêm mới bệnh nhân thành công.';
+
+
+// } catch(PDOException $ex) {
+//   $con->rollback();
+
+//   echo $ex->getMessage();
+//   echo $ex->getTraceAsString();
+//   exit;
+// }
+// }
+// header("Location: patients.php");
+// exit();
+// }
 if (isset($_POST['save_Patient'])) {
 
     $patientName = trim($_POST['patient_name']);
     $address = trim($_POST['address']);
     $cnic = trim($_POST['cnic']);
     
-    $dateBirth = trim($_POST['date_of_birth']);
-    $dateArr = explode("/", $dateBirth);
-    
-    $dateBirth = $dateArr[2].'-'.$dateArr[0].'-'.$dateArr[1];
+    $dateBirth = !empty($_POST['date_of_birth']) 
+        ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
+        : null;
 
     $phoneNumber = trim($_POST['phone_number']);
 
@@ -21,43 +70,74 @@ if (isset($_POST['save_Patient'])) {
     $address = ucwords(strtolower($address));
 
     $gender = $_POST['gender'];
-if ($patientName != '' && $address != '' && 
-  $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
-      $query = "INSERT INTO `patients`(`patient_name`, 
-    `address`, `cnic`, `date_of_birth`, `phone_number`, `gender`)
-VALUES('$patientName', '$address', '$cnic', '$dateBirth',
-'$phoneNumber', '$gender');";
-try {
+    $createdAt = date("Y-m-d H:i:s");
 
-  $con->beginTransaction();
+    if ($patientName != '' && $address != '' && 
+        $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
 
-  $stmtPatient = $con->prepare($query);
-  $stmtPatient->execute();
+        // query insert patient
+        $queryPatient = "INSERT INTO `patients`(`patient_name`, 
+            `address`, `cnic`, `date_of_birth`, `phone_number`, `gender`, `created_at`)
+            VALUES(:patient_name, :address, :cnic, :date_of_birth,
+            :phone_number, :gender, :created_at)";
 
-  $con->commit();
+        // query insert user
+        $queryUser = "INSERT INTO `user_patients`(`user_name`, `password`, 
+    `display_name`, `role`, `created_at`, `id_patient`) 
+    VALUES(:user_name, :password, :display_name, :role, :created_at, :id_patient)";
 
-  $message = 'patient added successfully.';
+        try {
+            $con->beginTransaction();
 
-} catch(PDOException $ex) {
-  $con->rollback();
+            // insert patient
+            $stmtPatient = $con->prepare($queryPatient);
+            $stmtPatient->execute([
+                ':patient_name' => $patientName,
+                ':address' => $address,
+                ':cnic' => $cnic,
+                ':date_of_birth' => $dateBirth,
+                ':phone_number' => $phoneNumber,
+                ':gender' => $gender,
+                ':created_at' => $createdAt
+            ]);
+            // lấy id bệnh nhân vừa thêm
+                $idPatient = $con->lastInsertId();  
+            // insert default user account
+            $stmtUser = $con->prepare($queryUser);
+            $stmtUser->execute([
+                ':user_name' => $cnic,
+                ':password' => md5("1"),
+                ':display_name' => $patientName,
+                ':role' => 3,
+                ':created_at' => $createdAt,
+                ':id_patient' => $idPatient
+            ]);
 
-  echo $ex->getMessage();
-  echo $ex->getTraceAsString();
-  exit;
+            $con->commit();
+
+            $_SESSION['success_message'] = 'Thêm mới bệnh nhân thành công.';
+
+        } catch(PDOException $ex) {
+            $con->rollback();
+
+            echo $ex->getMessage();
+            echo $ex->getTraceAsString();
+            exit;
+        }
+    }
+    header("Location: patients.php");
+    exit();
 }
-}
-  header("Location:congratulation.php?goto_page=patients.php&message=$message");
-  exit;
-}
 
 
 
-try {
+
+try { // lấy danh sách bệnh nhân
 
 $query = "SELECT `id`, `patient_name`, `address`, 
 `cnic`, date_format(`date_of_birth`, '%d %b %Y') as `date_of_birth`, 
-`phone_number`, `gender` 
-FROM `patients` order by `patient_name` asc;";
+`phone_number`, `gender`, `created_at`
+FROM `patients` WHERE `is_deleted` = 0 ORDER BY `created_at` DESC;";
 
   $stmtPatient1 = $con->prepare($query);
   $stmtPatient1->execute();
@@ -67,7 +147,6 @@ FROM `patients` order by `patient_name` asc;";
   echo $ex->getTraceAsString();
   exit;
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -159,7 +238,8 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Giới tính</label>
-                                    <select class="form-control form-control-sm rounded-0" id="gender" name="gender">
+                                    <select class="form-control form-control-sm rounded-0" id="gender" name="gender"
+                                        required>
                                         <?php echo getGender();?>
                                     </select>
 
@@ -183,10 +263,10 @@ include './config/sidebar.php';?>
 
             </section>
 
+            </section>
             <br />
             <br />
             <br />
-
             <section class="content">
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
@@ -214,24 +294,35 @@ include './config/sidebar.php';?>
                                         <th>Ngày sinh</th>
                                         <th>Số điện thoại</th>
                                         <th>Giới tính</th>
+                                        <th>Thời gian tạo</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     <?php 
-                  $count = 0;
-                  while($row =$stmtPatient1->fetch(PDO::FETCH_ASSOC)){
-                    $count++;
-                  ?>
+                                    $count = 0;
+                                    while($row =$stmtPatient1->fetch(PDO::FETCH_ASSOC)){
+                                        $count++;
+                                    ?>
                                     <tr style="text-align:center;">
                                         <td><?php echo $count; ?></td>
                                         <td><?php echo $row['patient_name'];?></td>
                                         <td><?php echo $row['address'];?></td>
                                         <td><?php echo $row['cnic'];?></td>
-                                        <td><?php echo $row['date_of_birth'];?></td>
+                                        <td><?php echo date("d/m/Y", strtotime($row['date_of_birth'])); ?></td>
                                         <td><?php echo $row['phone_number'];?></td>
                                         <td><?php echo $row['gender'];?></td>
+                                        <td>
+                                            <?php 
+                                                if (!empty($row['created_at']) && $row['created_at'] !== '0000-00-00 00:00:00') {
+                                                    echo date("d/m/Y H:i:s", strtotime($row['created_at']));
+                                                } else {
+                                                    echo ""; // hoặc echo "Chưa có dữ liệu";
+                                                }
+                                            ?>
+                                        </td>
+
                                         <td>
                                             <a href="update_patient.php?id=<?php echo $row['id'];?>"
                                                 class="btn btn-primary btn-sm btn-flat">
@@ -245,8 +336,8 @@ include './config/sidebar.php';?>
 
                                     </tr>
                                     <?php
-                }
-                ?>
+                                    }
+                                    ?>
                                 </tbody>
                             </table>
                         </div>
@@ -265,10 +356,15 @@ include './config/sidebar.php';?>
         <?php 
  include './config/footer.php';
 
-  $message = '';
-  if(isset($_GET['message'])) {
-    $message = $_GET['message'];
-  }
+//   $message = '';
+//   if(isset($_GET['message'])) {
+//     $message = $_GET['message'];
+//   }
+$message = '';
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+}
 ?>
         <!-- /.control-sidebar -->
 
@@ -278,17 +374,19 @@ include './config/sidebar.php';?>
 
 
         <script src="plugins/moment/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
         <script src="plugins/daterangepicker/daterangepicker.js"></script>
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="date.js"></script>
 
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");
 
         var message = '<?php echo $message;?>';
-
         if (message !== '') {
             showCustomMessage(message);
         }
+
         $('#date_of_birth').datetimepicker({
             format: 'L'
         });

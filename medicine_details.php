@@ -4,44 +4,75 @@ include './common_service/common_functions.php';
 
 $message = '';
 
-if(isset($_POST['submit'])) {
-  $medicineId = $_POST['medicine'];
-  $packing = $_POST['packing'];
-  
+if (isset($_POST['submit'])) {
+    $medicineId = $_POST['medicine'];
+    $packing = $_POST['packing'];
 
-  $query = "insert into `medicine_details` (`medicine_id`, `packing`) values($medicineId, '$packing');";
-  try {
+    try {
+        $con->beginTransaction();
 
-    $con->beginTransaction();
-    
-    $stmtDetails = $con->prepare($query);
-    $stmtDetails->execute();
+        // Kiểm tra xem thuốc đã có trong bảng chưa
+        $checkQuery = "SELECT id, packing 
+                       FROM medicine_details 
+                       WHERE medicine_id = :medicine_id 
+                         AND is_deleted = 0
+                       LIMIT 1";
+        $stmtCheck = $con->prepare($checkQuery);
+        $stmtCheck->bindParam(":medicine_id", $medicineId, PDO::PARAM_INT);
+        $stmtCheck->execute();
+        $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-    $con->commit();
+        if ($existing) {
+            // Nếu đã tồn tại → cập nhật số lượng
+            $newPacking = $existing['packing'] + $packing;
 
-    $message = 'Packing saved successfully.';
+            $updateQuery = "UPDATE medicine_details 
+                            SET packing = :packing 
+                            WHERE id = :id";
+            $stmtUpdate = $con->prepare($updateQuery);
+            $stmtUpdate->bindParam(":packing", $newPacking, PDO::PARAM_INT);
+            $stmtUpdate->bindParam(":id", $existing['id'], PDO::PARAM_INT);
+            $stmtUpdate->execute();
+        } else {
+            // Nếu chưa tồn tại → thêm mới
+            $insertQuery = "INSERT INTO medicine_details (medicine_id, packing) 
+                            VALUES (:medicine_id, :packing)";
+            $stmtInsert = $con->prepare($insertQuery);
+            $stmtInsert->bindParam(":medicine_id", $medicineId, PDO::PARAM_INT);
+            $stmtInsert->bindParam(":packing", $packing, PDO::PARAM_INT);
+            $stmtInsert->execute();
+        }
 
-  } catch(PDOException $ex) {
+        $con->commit();
+        $_SESSION['success_message'] = 'Thêm / cập nhật thành công.';
 
-   $con->rollback();
+    } catch (PDOException $ex) {
+        $con->rollback();
+        echo $ex->getMessage();
+        echo $ex->getTraceAsString();
+        exit;
+    }
 
-   echo $ex->getMessage();
-   echo $ex->getTraceAsString();
-   exit;
- }
- header("location:congratulation.php?goto_page=medicine_details.php&message=$message");
- exit;
+    header("Location: medicine_details.php");
+    exit();
 }
+
 
 
 $medicines = getMedicines($con);
 
-$query = "select `m`.`medicine_name`, 
-`md`.`id`, `md`.`packing`,  `md`.`medicine_id` 
-from `medicines` as `m`, 
-`medicine_details` as `md` 
-where `m`.`id` = `md`.`medicine_id` 
-order by `m`.`id` asc, `md`.`id` asc;";
+$query = "SELECT 
+              m.medicine_name, 
+              md.id, 
+              md.packing,  
+              md.medicine_id 
+          FROM medicines AS m
+          JOIN medicine_details AS md 
+              ON m.id = md.medicine_id
+          WHERE m.is_deleted = 0 
+            AND md.is_deleted = 0
+          ORDER BY m.id ASC, md.id ASC";
+
 
  try {
   
@@ -187,8 +218,7 @@ include './config/sidebar.php';?>
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             <a href="delete_medicine_details.php?medicine_detail_id=<?php echo $row['id'];?>"
-                                                class="btn btn-danger btn-sm btn-flat"
-                                                onclick="return confirm('Are you sure you want to delete this item?');">
+                                                class="btn btn-danger btn-sm btn-flat">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
@@ -211,9 +241,10 @@ include './config/sidebar.php';?>
         <?php include './config/footer.php';
 
 $message = '';
-if(isset($_GET['message'])) {
-  $message = $_GET['message'];
-}
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
   ?>
         <!-- /.control-sidebar -->
     </div>

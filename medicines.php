@@ -19,7 +19,9 @@ if(isset($_POST['save_medicine'])) {
 
     $con->commit();
 
-    $message = 'Medicine added successfully.';
+    // $message = 'Medicine added successfully.';
+    $_SESSION['success_message'] = 'Thêm thuốc thành công.';
+    
   }catch(PDOException $ex) {
    $con->rollback();
 
@@ -29,15 +31,15 @@ if(isset($_POST['save_medicine'])) {
  }
 
 } else {
- $message = 'Empty form can not be submitted.';
+ $message = 'Vui lòng điền đấy đủ thông tin.';
 }
-header("Location:congratulation.php?goto_page=medicines.php&message=$message");
-exit;
-}
+    header("Location: medicines.php");
+    exit();
+}else
 
 try {
   $query = "select `id`, `medicine_name` from `medicines` 
-  order by `medicine_name` asc;";
+   WHERE `is_deleted` = 0 order by `medicine_name` asc;";
   $stmt = $con->prepare($query);
   $stmt->execute();
 
@@ -154,6 +156,10 @@ include './config/sidebar.php';?>
                                                 class="btn btn-primary btn-sm btn-flat">
                                                 <i class="fa fa-edit"></i>
                                             </a>
+                                            <a href="delete_medicine.php?id=<?php echo $row['id'];?>"
+                                                class="btn btn-danger btn-sm btn-flat">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                     <?php } ?>
@@ -173,10 +179,11 @@ include './config/sidebar.php';?>
         <?php 
 include './config/footer.php';
 
-$message = '';
-if(isset($_GET['message'])) {
-  $message = $_GET['message'];
-}
+        $message = '';
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
 ?>
         <!-- /.control-sidebar -->
     </div>
@@ -190,10 +197,11 @@ if(isset($_GET['message'])) {
     showMenuSelected("#mnu_medicines", "#mi_medicines");
 
     var message = '<?php echo $message;?>';
-
     if (message !== '') {
         showCustomMessage(message);
     }
+
+
 
     $(function() {
         $("#all_medicines").DataTable({
@@ -223,7 +231,7 @@ if(isset($_GET['message'])) {
                     success: function(count, status, xhr) {
                         if (count > 0) {
                             showCustomMessage(
-                                "This medicine name has already been stored. Please choose another name"
+                                "Tên thuốc này đã được lưu trữ. Vui lòng chọn tên khác"
                             );
                             $("#save_medicine").attr("disabled", "disabled");
                         } else {

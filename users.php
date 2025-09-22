@@ -1,80 +1,48 @@
 <?php 
 include './config/connection.php';
-
+include './common_service/common_functions.php';
 $message = '';
 
-if(isset($_POST['save_user'])) {
-  $displayName = $_POST['display_name'];
-  $userName = $_POST['user_name'];
-  $password = $_POST['password'];
+if (isset($_POST['save_user'])) {
+    $displayName = $_POST['display_name'];
+    $userName = $_POST['user_name'];
+    $password = $_POST['password'];
+    $role = $_POST['role'];
+    $encryptedPassword = md5($password);
 
-  $encryptedPassword = md5($password);
-
-//$targetDir = "user_images/";
-$baseName = basename($_FILES["profile_picture"]["name"]);
-
-//time is a php function which gives unix time value.
-//unix time value is all seconds from 1970
-
-//abc.x.y.z.png
-
-// $extArr = explode(".", $baseName);
-// $extension = end($extArr);
-
-//$targetFile =  time(). '.'.$extension;
-
-$targetFile =  time().$baseName;
-// 12312312312312312
-//abc.jpg
-//abc.jpg
-//244574700_322087779604661_8207402889226768946_n
-
-  $status = move_uploaded_file($_FILES["profile_picture"]["tmp_name"], 
-    'user_images/'.$targetFile);
-
-  if($status) {
     try {
-      $con->beginTransaction();
+        $con->beginTransaction();
+        
+            $query = "INSERT INTO `users`(`display_name`, `user_name`, `role`, `password`) 
+            VALUES(:display_name, :user_name, :role, :password)";
 
-          $query = "INSERT INTO `users`(`display_name`,
-`user_name`, `password`, `profile_picture`) 
-VALUES('$displayName', '$userName', '$encryptedPassword', '$targetFile');";
+        $stmtUser = $con->prepare($query);
+        $stmtUser->bindParam(":display_name", $displayName);
+        $stmtUser->bindParam(":user_name", $userName);
+        $stmtUser->bindParam(":role", $role);    
+        $stmtUser->bindParam(":password", $encryptedPassword);
+        // var_dump($_POST['role']); exit;
 
-    $stmtUser = $con->prepare($query);
-    $stmtUser->execute();
+        $stmtUser->execute();
 
-    $con->commit();
+        $con->commit();
 
-    $message = 'user registered successfully';    
-
-    } catch(PDOException $ex) {
-      $con->rollback();
-      echo $ex->getTraceAsString();
-      echo $ex->getMessage();
-      exit;
+        $_SESSION['success_message'] = 'Tài khoản đã được tạo thành công.';
+    } catch (PDOException $ex) {
+        $con->rollback();
+        echo $ex->getTraceAsString();
+        echo $ex->getMessage();
+        exit;
     }
 
-  } else {
-    $message = 'a problem occured in image uploading.';
-  }
-
-header("location:congratulation.php?goto_page=users.php&message=$message");
-exit;
+    header("Location: users.php");
+    exit();
 }
-  //https://www.w3schools.com/php/php_file_upload.asp
-/**
-we will save the user picture in a separate folder.
-and in database we will store the picture name only.
 
-ON THE OTHER HAND
-mysql supports blob data for storing pictures, 
-but we are not going to use it. why?
-find reason?
-*/
 
 $queryUsers = "select `id`, `display_name`, `user_name`, 
-`profile_picture` from `users` 
-order by `display_name` asc;";
+`role` from `users` where `is_deleted` = 0 
+order by `role` asc;";
 $stmtUsers = '';
 
 try {
@@ -161,9 +129,10 @@ include './config/sidebar.php';?>
                                 </div>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Ảnh Đại Diện</label>
-                                    <input type="file" id="profile_picture" name="profile_picture" required="required"
-                                        class="form-control form-control-sm rounded-0" />
+                                    <label>Chọn vai trò</label>
+                                    <select class="form-control form-control-sm rounded-0" id="role" name="role">
+                                        <?php echo getRoles();?>
+                                    </select>
                                 </div>
 
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
@@ -199,15 +168,15 @@ include './config/sidebar.php';?>
                                 role="grid" aria-describedby="all_users_info">
                                 <colgroup>
                                     <col width="5%">
-                                    <col width="10%">
-                                    <col width="50%">
+                                    <col width="15%">
+                                    <col width="30%">
                                     <col width="25%">
                                     <col width="10%">
                                 </colgroup>
                                 <thead>
                                     <tr>
                                         <th class="p-1 text-center">STT</th>
-                                        <th class="p-1 text-center">Hình Ảnh</th>
+                                        <th class="p-1 text-center">Vai trò</th>
                                         <th class="p-1 text-center">Tên Hiển Thị</th>
                                         <th class="p-1 text-center">Tên Đăng Nhập</th>
                                         <th class="p-1 text-center">Hành Động</th>
@@ -223,9 +192,26 @@ include './config/sidebar.php';?>
                                     <tr>
                                         <td class="px-2 py-1 align-middle text-center"><?php echo $serial;?></td>
                                         <td class="px-2 py-1 align-middle text-center">
-                                            <img class="img-thumbnail rounded-circle p-0 border user-img"
-                                                src="user_images/<?php echo $row['profile_picture'];?>">
+                                            <?php 
+                                            if (!empty($row['role'])) {
+                                                if($row['role'] == '1') {
+                                                    echo '<span class="badge badge-primary" style="font-size: 13px;">Admin</span>';
+                                                } else if($row['role'] == '2') {
+                                                    echo '<span class="badge badge-success" style="font-size: 13px;">Bác Sĩ</span>';
+                                                } else if($row['role'] == '3') {
+                                                    echo '<span class="badge badge-info" style="font-size: 13px;">Bệnh Nhân</span>';
+                                                } else {
+                                                    echo '<span class="badge badge-secondary" style="font-size: 13px;">'.htmlspecialchars($row['role']).'</span>';
+                                                }
+                                            }else{
+                                                echo '<span class="badge badge-secondary" style="font-size: 14px;">Chưa phân vai trò</span>';
+                                            }
+                                                
+                                            ?>
+
+
                                         </td>
+
 
                                         <td class="px-2 py-1 align-middle"><?php echo $row['display_name'];?></td>
                                         <td class="px-2 py-1 align-middle"><?php echo $row['user_name'];?></td>
@@ -234,6 +220,10 @@ include './config/sidebar.php';?>
                                             <a href="update_user.php?user_id=<?php echo $row['id']; ?>"
                                                 class="btn btn-primary btn-sm btn-flat">
                                                 <i class="fa fa-edit"></i>
+                                            </a>
+                                            <a href="delete_user.php?user_id=<?php echo $row['id']; ?>"
+                                                class="btn btn-danger btn-sm btn-flat">
+                                                <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -256,9 +246,10 @@ include './config/sidebar.php';?>
 include './config/footer.php';
 
 $message = '';
-if(isset($_GET['message'])) {
-  $message = $_GET['message'];
-}
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+        }
 ?>
         <!-- /.control-sidebar -->
     </div>
@@ -266,7 +257,11 @@ if(isset($_GET['message'])) {
 
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
-
+    <script src="plugins/moment/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
+    <script src="plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="date.js"></script>
 
     <script>
     showMenuSelected("#mnu_users", "");
@@ -296,7 +291,7 @@ if(isset($_GET['message'])) {
                     success: function(count, status, xhr) {
                         if (count > 0) {
                             showCustomMessage(
-                                "This user name exists. Please choose another username");
+                                "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác.");
                             $("#save_user").attr("disabled", "disabled");
 
                         } else {
@@ -310,6 +305,15 @@ if(isset($_GET['message'])) {
             }
 
         });
+    });
+    $(function() {
+        $("#all_users").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('#all_users_wrapper .col-md-6:eq(0)');
+
     });
     </script>
 </body>
