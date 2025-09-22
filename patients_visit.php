@@ -113,10 +113,51 @@ $medicines = getMedicines($con);
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
+        <style>
+            body {
+                background: #f8fafc;
+            }
+            .card-primary.card-outline {
+                /* border-top: 0px solid #007bff; */
+            }
+            .card {
+                /* background: #fff; */
+                border-radius: 12px;
+                /* border: 1.5px solid #007bff; */
+                box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            }
+            .card-header {
+                background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+                color: #fff;
+                border-radius: 12px 12px 0 0;
+            }
+            .btn-primary, .btn-danger, .btn-outline-danger {
+                border-radius: 20px;
+                transition: 0.2s;
+            }
+            .btn-primary:hover, .btn-danger:hover, .btn-outline-danger:hover {
+                filter: brightness(1.1);
+                box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+            }
+            .table {
+                /* background: #fff; */
+            }
+            .form-control, .form-select {
+                border-radius: 8px;
+            }
+            .card-title {
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+            label {
+                font-weight: 500;
+            }
+        </style>
+        </head>
 
 </head>
 
-<body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -352,7 +393,7 @@ include './config/sidebar.php';?>
                                 <br><br><br><br>
                                 <div class="clearfix">&nbsp;</div>
                                 <div class="row table-responsive">
-                                    <table id="medication_list" class="table table-striped table-bordered">
+                                    <table id="medication_list" class="table table-striped table-hover table-bordered">
                                         <colgroup>
                                             <col width="10%">
                                             <col width="30%">
@@ -383,7 +424,7 @@ include './config/sidebar.php';?>
                                     <div class="col-md-16">&nbsp;</div>
                                     <div class="col-md-20">
                                         <button type="submit" id="submit" name="submit"
-                                            class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
+                                            class="btn btn-primary btn-sm btn-block">Lưu</button>
                                     </div>
                                 </div>
                         </form>

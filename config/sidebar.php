@@ -4,29 +4,87 @@ if(!(isset($_SESSION['user_id']))) {
   exit;
 }
 ?>
-<aside class="main-sidebar sidebar-dark-primary bg-black elevation-4">
-    <a href="" class="brand-link logo-switch bg-black">
-        <h4 class="brand-image-xl logo-xs mb-0 text-center"><b>CMS</b></h4>
-        <h4 class="brand-image-xl logo-xl mb-0 text-center">Clinic's <b>CMS</b></h4>
+<aside class="main-sidebar elevation-4" style="background: #fff; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.3);">
+<style>
+    .nav-sidebar .nav-link {
+        color: #222 !important;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: background 0.2s, color 0.2s;
+    }
+    .nav-sidebar .nav-link .nav-icon,
+    .nav-sidebar .nav-link i {
+        color: #222 !important;
+        transition: color 0.2s;
+    }
+    .nav-sidebar .nav-link.active, .nav-sidebar .nav-link:focus, .nav-sidebar .nav-link:hover {
+        background: #e7f2ff !important;
+        color: #007bff !important;
+    }
+    .nav-sidebar .nav-link.active .nav-icon,
+    .nav-sidebar .nav-link.active i,
+    .nav-sidebar .nav-link:focus .nav-icon,
+    .nav-sidebar .nav-link:focus i,
+    .nav-sidebar .nav-link:hover .nav-icon,
+    .nav-sidebar .nav-link:hover i {
+        color: #007bff !important;
+    }
+    .nav-sidebar .nav-treeview .nav-link {
+        color: #222 !important;
+        font-weight: 400;
+        margin-left: 10px;
+    }
+    .nav-sidebar .nav-treeview .nav-link .nav-icon,
+    .nav-sidebar .nav-treeview .nav-link i {
+        color: #222 !important;
+        transition: color 0.2s;
+    }
+    .nav-sidebar .nav-treeview .nav-link.active,
+    .nav-sidebar .nav-treeview .nav-link:focus,
+    .nav-sidebar .nav-treeview .nav-link:hover {
+        background: #e7f2ff !important;
+        color: #007bff !important;
+    }
+    .nav-sidebar .nav-treeview .nav-link.active .nav-icon,
+    .nav-sidebar .nav-treeview .nav-link.active i,
+    .nav-sidebar .nav-treeview .nav-link:focus .nav-icon,
+    .nav-sidebar .nav-treeview .nav-link:focus i,
+    .nav-sidebar .nav-treeview .nav-link:hover .nav-icon,
+    .nav-sidebar .nav-treeview .nav-link:hover i {
+        color: #007bff !important;
+    }
+    .brand-link {
+        background: linear-gradient(90deg, #e7f2ff 60%, #ebfbff 100%) !important;
+        color: #222 !important;
+    }
+    .user-panel .d-block {
+        color: #007bff !important;
+    }
+</style>
+    <a href="" class="brand-link logo-switch">
+        <!-- <h4 class="brand-image-xl logo-xs mb-0 text-center"><b>CMS</b></h4> -->
+        <!-- <h4 class="brand-image-xl logo-xl mb-0 text-center">Clinic's <b>CMS</b></h4> -->
+        <h4 class="brand-image-xl logo-xl mb-0 text-center"><b>MedTrack</b></h4>
+    
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" style="background: #fff;">
         <!-- Sidebar user (optional) -->
-        <div class="user-panel mt-3 pb-3 mb-3">
+    <div class="user-panel mt-3 pb-3 mb-3">
             <!-- <div class="image">
                 <img src="user_images/<?php echo $_SESSION['profile_picture'];?>" class="img-circle elevation-2"
                     alt="User Image" />
             </div> -->
             <div class="info d-flex justify-content-center">
-                <a href=" #" class="d-block"><?php echo $_SESSION['display_name'];?></a>
+                <a href="#" class="d-block" style="font-weight: 600; font-size: 1.1rem;"><?php echo $_SESSION['display_name'];?></a>
             </div>
         </div>
 
 
         <!-- Sidebar Menu -->
-        <nav class=" mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style="background: #fff;">
                 <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
                 <li class="nav-item" id="mnu_dashboard">

@@ -95,10 +95,46 @@ $query = "SELECT
     <?php include './config/data_tables_css.php';?>
     <title>Medicine Details - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
+    <style>
+    body {
+        background: #f8fafc;
+    }
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        /* border: 1.5px solid #007bff; */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+    .btn-primary, .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+    
+    .btn-primary:hover, .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+    }
+    .form-control, .form-select {
+        /* border-radius: 8px; */
+    }
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    label {
+        font-weight: 500;
+    }
+</style>
 
 </head>
 
-<body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
+<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
+    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -122,7 +158,7 @@ include './config/sidebar.php';?>
             <section class="content">
 
                 <!-- Default box -->
-                <div class="card card-outline card-primary rounded-0 shadow">
+                <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Thêm thông tin chi tiết về thuốc</h3>
 
@@ -138,7 +174,7 @@ include './config/sidebar.php';?>
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                     <label>Chọn Loại Thuốc</label>
-                                    <select id="medicine" name="medicine" class="form-control form-control-sm rounded-0"
+                                    <select id="medicine" name="medicine" class="orm-control form-control-sm"
                                         required="required">
                                         <?php echo $medicines;?>
                                     </select>
@@ -153,7 +189,7 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-1 col-md-2 col-sm-4 col-xs-12">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="submit" name="submit"
-                                        class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -214,11 +250,11 @@ include './config/sidebar.php';?>
 
                                         <td class="text-center">
                                             <a href="update_medicine_details.php?medicine_id=<?php echo $row['medicine_id'];?>&medicine_detail_id=<?php echo $row['id'];?>&packing=<?php echo $row['packing'];?>"
-                                                class="btn btn-primary btn-sm btn-flat">
+                                                class="btn btn-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             <a href="delete_medicine_details.php?medicine_detail_id=<?php echo $row['id'];?>"
-                                                class="btn btn-danger btn-sm btn-flat">
+                                                class="btn btn-danger btn-sm">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
