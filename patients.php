@@ -395,7 +395,15 @@ if (isset($_SESSION['success_message'])) {
                 "responsive": true,
                 "lengthChange": false,
                 "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+                // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                 "buttons": ["pdf", "print"],
+                "language": {
+                    "info": " Tổng cộng _TOTAL_ bệnh nhân",
+                    "paginate": {
+                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                        "next": "<span style='font-size:18px;'>&#8594;</span>"
+                    }
+                }
             }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
 
         });

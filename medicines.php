@@ -247,7 +247,15 @@ include './config/footer.php';
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+             "buttons": ["pdf", "print"],
+            "language": {
+              "info": " Tổng cộng _TOTAL_ loại thuốc",
+              "paginate": {
+                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                        "next": "<span style='font-size:18px;'>&#8594;</span>"
+                    }
+         },
         }).buttons().container().appendTo('#all_medicines_wrapper .col-md-6:eq(0)');
 
     });

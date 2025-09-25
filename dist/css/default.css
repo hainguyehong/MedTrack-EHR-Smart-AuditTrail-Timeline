@@ -15,7 +15,7 @@ body>.wrapper>.content-wrapper {
 }
 
 section.content-header {
-    border-bottom: 1px solid #707070;
+    border-bottom: 0px solid #707070;
     margin-bottom: 1em;
 }
 
