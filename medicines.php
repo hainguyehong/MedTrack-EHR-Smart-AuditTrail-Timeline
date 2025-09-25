@@ -92,6 +92,9 @@ try {
     label {
         font-weight: 500;
     }
+    .card-primary.card-outline {
+    border-top: 0px solid #007bff;
+    }
 </style>
 </head>
 

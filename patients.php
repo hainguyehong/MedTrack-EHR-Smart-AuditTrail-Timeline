@@ -146,6 +146,9 @@ FROM `patients` WHERE `is_deleted` = 0 ORDER BY `created_at` DESC;";
         label {
             font-weight: 500;
         }
+        .card-primary.card-outline {
+    border-top: 0px solid #007bff;
+    }
     </style>
 </head>
 

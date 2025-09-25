@@ -169,14 +169,14 @@ $medicines = getMedicines($con);
             color: #fff;
         }
         .section-title {
-            color: #007bff;
+            color: #5c5c5cff;
             font-weight: 600;
             margin-bottom: 15px;
             padding-bottom: 5px;
             border-bottom: 2px solid #e9ecef;
         }
         .btn-next {
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background: linear-gradient(45deg, #285ba7, #20c997);
             border: none;
             color: white;
             padding: 10px 30px;
