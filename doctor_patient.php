@@ -3,7 +3,7 @@ include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
 $message = '';
-$userId = $_SESSION['user_id']; // lấy id user sau khi login 
+$userId = $_SESSION['user_id']; 
 
 if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     $patientId = intval($_POST['patient_id']);
@@ -32,7 +32,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
         'patient' => $patient,
         'prescriptions' => $prescriptions
     ]);
-    exit; // dừng ở đây, không load HTML bên dưới
+    exit; 
 }
 ?>
 <!DOCTYPE html>
@@ -89,7 +89,8 @@ include './config/sidebar.php';
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                     <label>Chọn bệnh nhân</label>
-                                    <select id="patient" name="patient" class="form-control form-control-sm rounded-0">
+                                    <select id="patient" name="patient"
+                                        class="form-control form-control-sm rounded-0 setupSelect2">
                                         <?php echo getPatients($con); ?>
                                     </select>
                                 </div>
@@ -227,6 +228,8 @@ if (isset($_SESSION['success_message'])) {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
         <script src="plugins/daterangepicker/daterangepicker.js"></script>
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+        <?php include './common_service/loaduser.php';?>
+
         <script src="date.js"></script>
 
         <script>
@@ -257,14 +260,14 @@ if (isset($_SESSION['success_message'])) {
         function formatDate(dateStr) {
             if (!dateStr) return "";
             const parts = dateStr.split("-");
-            return parts.reverse().join("/"); // từ 2025-09-21 -> 21/09/2025
+            return parts.reverse().join("/");
         }
         $(document).ready(function() {
             $('#patient').change(function() {
                 var patientId = $(this).val();
                 if (patientId) {
                     $.ajax({
-                        url: '', // chính file này
+                        url: '',
                         type: 'POST',
                         data: {
                             action: 'get_patient_data',

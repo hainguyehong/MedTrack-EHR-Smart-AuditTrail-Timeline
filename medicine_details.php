@@ -252,6 +252,7 @@ $message = '';
 
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
+
     <script>
     showMenuSelected("#mnu_medicines", "#mi_medicine_details");
 
@@ -269,7 +270,7 @@ $message = '';
         }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
 
     });
-    </script>
+    </script>`
 </body>
 
 </html>
