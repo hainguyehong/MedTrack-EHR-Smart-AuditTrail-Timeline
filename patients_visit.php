@@ -117,7 +117,7 @@ $medicines = getMedicines($con);
             border-radius: 12px 12px 0 0;
         }
         .nav-tabs {
-            border-bottom: 2px solid #007bff;
+            border-bottom: 1px solid #007bff;
             background: #fff;
             border-radius: 8px 8px 0 0;
         }
@@ -170,10 +170,11 @@ $medicines = getMedicines($con);
         }
         .section-title {
             color: #5c5c5cff;
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 15px;
             padding-bottom: 5px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+            /* margin-top: 10px; */
         }
         .btn-next {
             background: linear-gradient(45deg, #285ba7, #20c997);
@@ -233,6 +234,10 @@ $medicines = getMedicines($con);
     position: absolute;
     top: 0;
     left: 0;
+    }
+    .fas, .fa, .bi {
+    /* color: #007bff !important; */
+    font-size: 0.9em;
     }
     </style>
 </head>
@@ -318,7 +323,7 @@ $medicines = getMedicines($con);
                                     <div class="row">
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                             <label>Huyết áp (mmHg) *</label>
-                                            <input type="number" id="bp" class="form-control" name="bp" required placeholder="120/80" />
+                                            <input type="text" id="bp" class="form-control" name="bp" required placeholder="120/80" />
                                         </div>
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                             <label>Cân nặng (kg) *</label>
@@ -384,7 +389,7 @@ $medicines = getMedicines($con);
                                     </div>
                                 </div>
 
-                                <h5 class="section-title"><i class="fas fa-clipboard-check"></i> Chuẩn đoán và điều trị</h5>
+                                <h5 class="section-title" style="margin-top: 20px;"><i class="fas fa-clipboard-check"></i> Chuẩn đoán và điều trị</h5>
                                 <div class="row">
                                     <div class="col-lg-6 mb-3">
                                         <label>Triệu chứng *</label>

@@ -61,11 +61,9 @@ if(!(isset($_SESSION['user_id']))) {
         color: #007bff !important;
     }
 </style>
-    <a href="" class="brand-link logo-switch">
-        <!-- <h4 class="brand-image-xl logo-xs mb-0 text-center"><b>CMS</b></h4> -->
-        <!-- <h4 class="brand-image-xl logo-xl mb-0 text-center">Clinic's <b>CMS</b></h4> -->
-        <h4 class="brand-image-xl logo-xl mb-0 text-center"><b>MedTrack</b></h4>
-    
+    <a href="" class="brand-link logo-switch" style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+        <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
+        <span style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
     </a>
 
     <!-- Sidebar -->
@@ -119,7 +117,13 @@ if(!(isset($_SESSION['user_id']))) {
                                 <p>Khám bệnh</p>
                             </a>
                         </li>
-
+                    <!-- mục Quản lý bệnh nhân của bác sĩ -->
+                        <li class="nav-item">
+                            <a href="doctor_patient.php" class="nav-link" id="mi_doctor_patient">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Quản lý bệnh nhân</p>
+                            </a>
+                        </li>
                         <!-- <li class="nav-item">
                             <a href="patient_history.php" class="nav-link" id="mi_patient_history">
                                 <i class="far fa-circle nav-icon"></i>
