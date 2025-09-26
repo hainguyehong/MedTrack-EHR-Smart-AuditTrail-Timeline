@@ -1,19 +1,19 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-dark navbar-light fixed-top">
+<nav class="main-header navbar navbar-expand fixed-top" style="background: #E9F6FF !important; color: #222 !important;">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button" style="color: #222;"><i class="fas fa-bars" style="color: #222;"></i></a>
         </li>
     </ul>
-    <a href="index3.html" class="navbar-brand">
-        <span class="brand-text font-weight-light">MedTrack-EHR-Smart-AuditTrail-Timeline
+    <a href="index3.html" class="navbar-brand" style="color: #222;">
+        <span class="brand-text font-weight-light" style="color: #222;">MedTrack-EHR-Smart-AuditTrail-Timeline
         </span>
     </a>
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-            <div class="login-user text-light font-weight-bolder">Xin chào, <?= $_SESSION['display_name'] ?>!</div>
+            <div class="login-user font-weight-bolder" style="color: #222;">Xin chào, <?= $_SESSION['display_name'] ?>!</div>
         </li>
     </ul>
 </nav>
