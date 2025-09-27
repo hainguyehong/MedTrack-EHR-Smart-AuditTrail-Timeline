@@ -1,8 +1,6 @@
 <?php 
 include './config/connection.php';
-
-
-  $date = date('Y-m-d');
+$date = date('Y-m-d');
 $year = date('Y');
 $month = date('m');
 
@@ -14,7 +12,6 @@ $queryWeek = "SELECT COUNT(*) as `week`
   FROM `patients`
   WHERE YEARWEEK(`created_at`, 1) = YEARWEEK('$date', 1);";
 
-
 $queryYear = "SELECT COUNT(*) as `year`
   FROM `patients`
   WHERE YEAR(`created_at`) = YEAR('$date');";
@@ -24,15 +21,12 @@ $queryMonth = "SELECT COUNT(*) as `month`
   WHERE YEAR(`created_at`) = $year 
     AND MONTH(`created_at`) = $month;";
 
-
 $todaysCount = 0;
 $currentWeekCount = 0;
 $currentMonthCount = 0;
 $currentYearCount = 0;
 
-
 try {
-
     $stmtToday = $con->prepare($queryToday);
     $stmtToday->execute();
     $r = $stmtToday->fetch(PDO::FETCH_ASSOC);
@@ -53,41 +47,12 @@ try {
     $r = $stmtMonth->fetch(PDO::FETCH_ASSOC);
     $currentMonthCount = $r['month'];
 
-
 } catch(PDOException $ex) {
     echo $ex->getMessage();
     echo $ex->getTraceAsString();
     exit;
 }
 
-
-    // Get yearly data with complete year range
-    $stmtYearly = $con->prepare($queryYearly);
-    $stmtYearly->execute();
-    $dbDataYearly = [];
-    while($row = $stmtYearly->fetch(PDO::FETCH_ASSOC)) {
-        $dbDataYearly[$row['year']] = $row['count'];
-    }
-    
-    // Generate complete 5 years data
-    for($i = 4; $i >= 0; $i--) {
-        $checkYear = date('Y', strtotime("-$i years"));
-        $chartDataYearly[] = [
-            'year' => $checkYear,
-            'count' => isset($dbDataYearly[$checkYear]) ? $dbDataYearly[$checkYear] : 0
-        ];
-    }
-
-} catch(PDOException $ex) {
-    echo $ex->getMessage();
-    echo $ex->getTraceAsString();
-    exit;
-}
-
-// Prepare data for JavaScript
-$chartData7DaysJson = json_encode($chartData7Days);
-$chartDataMonthlyJson = json_encode($chartDataMonthly);
-$chartDataYearlyJson = json_encode($chartDataYearly);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -101,32 +66,39 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
     .dark-mode .bg-maroon {
         color: #fff !important;
     }
+
     .dark-mode .content-wrapper {
         background-color: #F4F6F9;
         color: #fff;
     }
+
     .dark-mode .main-footer {
         background-color: #F4F6F9;
         border-color: #a5a5a5ff;
     }
+
     .chart-container {
         background: white;
         border-radius: 8px;
         padding: 20px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     .chart-controls {
         margin-bottom: 15px;
     }
+
     .chart-controls .btn {
         margin-right: 10px;
     }
+
     .chart-controls .btn.active {
         background-color: #17a2b8;
         border-color: #17a2b8;
         color: white;
     }
+
     #chartCanvas {
         max-height: 400px;
     }
@@ -139,7 +111,7 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
         include './config/header.php';
         include './config/sidebar.php';
         ?>
-        
+
         <div class="content-wrapper">
             <section class="content-header">
                 <div class="container-fluid">
@@ -207,9 +179,12 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
                             <div class="chart-container">
                                 <h3>Biểu đồ thống kê bệnh nhân</h3>
                                 <div class="chart-controls">
-                                    <button type="button" class="btn btn-outline-info active" data-period="7days">7 ngày gần nhất</button>
-                                    <button type="button" class="btn btn-outline-info" data-period="monthly">Theo tháng</button>
-                                    <button type="button" class="btn btn-outline-info" data-period="yearly">Theo năm</button>
+                                    <button type="button" class="btn btn-outline-info active" data-period="7days">7 ngày
+                                        gần nhất</button>
+                                    <button type="button" class="btn btn-outline-info" data-period="monthly">Theo
+                                        tháng</button>
+                                    <button type="button" class="btn btn-outline-info" data-period="yearly">Theo
+                                        năm</button>
                                 </div>
                                 <canvas id="chartCanvas"></canvas>
                             </div>
@@ -226,37 +201,57 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
     <script>
     $(function() {
         showMenuSelected("#mnu_dashboard", "");
-        
+
         // Chart data from PHP
         const chartData7Days = <?php echo $chartData7DaysJson; ?>;
         const chartDataMonthly = <?php echo $chartDataMonthlyJson; ?>;
         const chartDataYearly = <?php echo $chartDataYearlyJson; ?>;
-        
+
         let currentChart = null;
         const ctx = document.getElementById('chartCanvas').getContext('2d');
-        
+
         // Function to create chart
         function createChart(data, type) {
             if (currentChart) {
                 currentChart.destroy();
             }
-            
+
             let labels = [];
             let values = [];
             let backgroundColor = [];
             let borderColor = [];
-            
+
             // Generate vibrant colors for bars
-            const colors = [
-                { bg: 'rgba(255, 99, 132, 0.8)', border: 'rgba(255, 99, 132, 1)' },
-                { bg: 'rgba(54, 162, 235, 0.8)', border: 'rgba(54, 162, 235, 1)' },
-                { bg: 'rgba(255, 205, 86, 0.8)', border: 'rgba(255, 205, 86, 1)' },
-                { bg: 'rgba(75, 192, 192, 0.8)', border: 'rgba(75, 192, 192, 1)' },
-                { bg: 'rgba(153, 102, 255, 0.8)', border: 'rgba(153, 102, 255, 1)' },
-                { bg: 'rgba(255, 159, 64, 0.8)', border: 'rgba(255, 159, 64, 1)' },
-                { bg: 'rgba(199, 199, 199, 0.8)', border: 'rgba(199, 199, 199, 1)' }
+            const colors = [{
+                    bg: 'rgba(255, 99, 132, 0.8)',
+                    border: 'rgba(255, 99, 132, 1)'
+                },
+                {
+                    bg: 'rgba(54, 162, 235, 0.8)',
+                    border: 'rgba(54, 162, 235, 1)'
+                },
+                {
+                    bg: 'rgba(255, 205, 86, 0.8)',
+                    border: 'rgba(255, 205, 86, 1)'
+                },
+                {
+                    bg: 'rgba(75, 192, 192, 0.8)',
+                    border: 'rgba(75, 192, 192, 1)'
+                },
+                {
+                    bg: 'rgba(153, 102, 255, 0.8)',
+                    border: 'rgba(153, 102, 255, 1)'
+                },
+                {
+                    bg: 'rgba(255, 159, 64, 0.8)',
+                    border: 'rgba(255, 159, 64, 1)'
+                },
+                {
+                    bg: 'rgba(199, 199, 199, 0.8)',
+                    border: 'rgba(199, 199, 199, 1)'
+                }
             ];
-            
+
             if (type === '7days') {
                 data.forEach((item, index) => {
                     const date = new Date(item.visit_day);
@@ -283,7 +278,7 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
                     borderColor.push(colors[colorIndex].border);
                 });
             }
-            
+
             currentChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -321,18 +316,18 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
                 }
             });
         }
-        
+
         // Initialize with 7 days chart
         createChart(chartData7Days, '7days');
-        
+
         // Handle period change
         $('.chart-controls .btn').on('click', function() {
             $('.chart-controls .btn').removeClass('active');
             $(this).addClass('active');
-            
+
             const period = $(this).data('period');
-            
-            switch(period) {
+
+            switch (period) {
                 case '7days':
                     createChart(chartData7Days, '7days');
                     break;
