@@ -1,67 +1,38 @@
 <?php 
 include './config/connection.php';
 
-$date = date('Y-m-d');
-$year = date('Y'); 
+
+  $date = date('Y-m-d');
+$year = date('Y');
 $month = date('m');
 
-// Queries for different time periods
-$queryToday = "SELECT count(*) as `today` 
-  from `patient_visits` 
-  where `visit_date` = '$date';";
+$queryToday = "SELECT COUNT(*) as `today`
+  FROM `patients`
+  WHERE DATE(`created_at`) = '$date';";
 
-$queryWeek = "SELECT count(*) as `week` 
-  from `patient_visits` 
-  where YEARWEEK(`visit_date`) = YEARWEEK('$date');";
+$queryWeek = "SELECT COUNT(*) as `week`
+  FROM `patients`
+  WHERE YEARWEEK(`created_at`, 1) = YEARWEEK('$date', 1);";
 
-$queryYear = "SELECT count(*) as `year` 
-  from `patient_visits` 
-  where YEAR(`visit_date`) = YEAR('$date');";
 
-$queryMonth = "SELECT count(*) as `month` 
-  from `patient_visits` 
-  where YEAR(`visit_date`) = $year and 
-  MONTH(`visit_date`) = $month;";
+$queryYear = "SELECT COUNT(*) as `year`
+  FROM `patients`
+  WHERE YEAR(`created_at`) = YEAR('$date');";
 
-// Query for 7 days chart data
-$query7Days = "SELECT 
-    DATE(`visit_date`) as visit_day,
-    COUNT(*) as count
-    FROM `patient_visits` 
-    WHERE `visit_date` >= DATE_SUB('$date', INTERVAL 6 DAY) 
-    AND `visit_date` <= '$date'
-    GROUP BY DATE(`visit_date`)
-    ORDER BY `visit_date`";
+$queryMonth = "SELECT COUNT(*) as `month`
+  FROM `patients`
+  WHERE YEAR(`created_at`) = $year 
+    AND MONTH(`created_at`) = $month;";
 
-// Query for monthly chart data (last 12 months)
-$queryMonthly = "SELECT 
-    YEAR(`visit_date`) as year,
-    MONTH(`visit_date`) as month,
-    COUNT(*) as count
-    FROM `patient_visits` 
-    WHERE `visit_date` >= DATE_SUB('$date', INTERVAL 11 MONTH)
-    GROUP BY YEAR(`visit_date`), MONTH(`visit_date`)
-    ORDER BY YEAR(`visit_date`), MONTH(`visit_date`)";
-
-// Query for yearly chart data (last 5 years)
-$queryYearly = "SELECT 
-    YEAR(`visit_date`) as year,
-    COUNT(*) as count
-    FROM `patient_visits` 
-    WHERE `visit_date` >= DATE_SUB('$date', INTERVAL 4 YEAR)
-    GROUP BY YEAR(`visit_date`)
-    ORDER BY YEAR(`visit_date`)";
 
 $todaysCount = 0;
 $currentWeekCount = 0;
 $currentMonthCount = 0;
 $currentYearCount = 0;
-$chartData7Days = [];
-$chartDataMonthly = [];
-$chartDataYearly = [];
+
 
 try {
-    // Get summary counts
+
     $stmtToday = $con->prepare($queryToday);
     $stmtToday->execute();
     $r = $stmtToday->fetch(PDO::FETCH_ASSOC);
@@ -82,45 +53,13 @@ try {
     $r = $stmtMonth->fetch(PDO::FETCH_ASSOC);
     $currentMonthCount = $r['month'];
 
-    // Get 7 days data with complete date range
-    $stmt7Days = $con->prepare($query7Days);
-    $stmt7Days->execute();
-    $dbData7Days = [];
-    while($row = $stmt7Days->fetch(PDO::FETCH_ASSOC)) {
-        $dbData7Days[$row['visit_day']] = $row['count'];
-    }
-    
-    // Generate complete 7 days data
-    for($i = 6; $i >= 0; $i--) {
-        $checkDate = date('Y-m-d', strtotime("-$i days"));
-        $chartData7Days[] = [
-            'visit_day' => $checkDate,
-            'count' => isset($dbData7Days[$checkDate]) ? $dbData7Days[$checkDate] : 0
-        ];
-    }
 
-    // Get monthly data with complete month range
-    $stmtMonthly = $con->prepare($queryMonthly);
-    $stmtMonthly->execute();
-    $dbDataMonthly = [];
-    while($row = $stmtMonthly->fetch(PDO::FETCH_ASSOC)) {
-        $key = $row['year'] . '-' . str_pad($row['month'], 2, '0', STR_PAD_LEFT);
-        $dbDataMonthly[$key] = $row['count'];
-    }
-    
-    // Generate complete 12 months data
-    for($i = 11; $i >= 0; $i--) {
-        $checkDate = date('Y-m-d', strtotime("-$i months"));
-        $checkYear = date('Y', strtotime($checkDate));
-        $checkMonth = date('m', strtotime($checkDate));
-        $key = $checkYear . '-' . $checkMonth;
-        
-        $chartDataMonthly[] = [
-            'year' => $checkYear,
-            'month' => $checkMonth,
-            'count' => isset($dbDataMonthly[$key]) ? $dbDataMonthly[$key] : 0
-        ];
-    }
+} catch(PDOException $ex) {
+    echo $ex->getMessage();
+    echo $ex->getTraceAsString();
+    exit;
+}
+
 
     // Get yearly data with complete year range
     $stmtYearly = $con->prepare($queryYearly);
