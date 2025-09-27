@@ -59,9 +59,47 @@ try {
     <?php include './config/data_tables_css.php';?>
     <title>Medicines - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
+    <style>
+    body {
+        background: #f8fafc;
+    }
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        /* border: 1.5px solid #007bff; */
+        /* box-shadow: 0 2px 8px rgba(0,0,0,0.04); */
+    }
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        /* border-radius: 12px 12px 0 0; */
+    }
+    .btn-primary, .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+    .btn-primary:hover, .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+    }
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    label {
+        font-weight: 500;
+    }
+    .card-primary.card-outline {
+    border-top: 0px solid #007bff;
+    }
+</style>
 </head>
 
-<body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
+<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
+    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -82,7 +120,8 @@ include './config/sidebar.php';?>
             <!-- Main content -->
             <section class="content">
                 <!-- Default box -->
-                <div class="card card-outline card-primary rounded-0 shadow">
+                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                    <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Thêm mới Loại thuốc</h3>
                         <div class="card-tools">
@@ -97,12 +136,12 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên thuốc</label>
                                     <input type="text" id="medicine_name" name="medicine_name" required="required"
-                                        class="form-control form-control-sm rounded-0" />
+                                        class="form-control form-control-sm" />
                                 </div>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
-                                        class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -153,11 +192,11 @@ include './config/sidebar.php';?>
                                         <td><?php echo $row['medicine_name'];?></td>
                                         <td class="text-center">
                                             <a href="update_medicine.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-primary btn-sm btn-flat">
+                                                class="btn btn-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             <a href="delete_medicine.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-danger btn-sm btn-flat">
+                                                class="btn btn-danger btn-sm">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
@@ -208,7 +247,15 @@ include './config/footer.php';
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+             "buttons": ["pdf", "print"],
+            "language": {
+              "info": " Tổng cộng _TOTAL_ loại thuốc",
+              "paginate": {
+                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                        "next": "<span style='font-size:18px;'>&#8594;</span>"
+                    }
+         },
         }).buttons().container().appendTo('#all_medicines_wrapper .col-md-6:eq(0)');
 
     });
