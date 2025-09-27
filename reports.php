@@ -44,6 +44,9 @@ include './common_service/common_functions.php';
     label {
         font-weight: 500;
     }
+    .card-primary.card-outline {
+    border-top: 0px solid #007bff;
+    }
 </style>
 </head>
 
@@ -75,7 +78,7 @@ include './config/sidebar.php';?>
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                     <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Các Chuyến Thăm Bệnh Nhân Giữa Hai Ngày</h3>
+                        <h3 class="card-title">Lịch Sử Khám Bệnh Trong Khoảng Thời Gian</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -111,7 +114,7 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                     <div class="card-header">
-                        <h3 class="card-title">Báo Cáo Dựa Trên Bệnh Lý Giữa Hai Ngày</h3>
+                        <h3 class="card-title">Báo Cáo Bệnh Lý Trong Khoảng Thời Gian</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">

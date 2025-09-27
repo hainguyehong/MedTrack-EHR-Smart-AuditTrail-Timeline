@@ -45,10 +45,85 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <style>
 
+    body {
+
+        background: #f8fafc;
+
+    }
+
+    .card {
+
+        background: #fff;
+
+        border-radius: 12px;
+
+        /* border: 1.5px solid #007bff; */
+
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+    }
+
+    .card-header {
+
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+
+        color: #fff;
+
+        border-radius: 12px 12px 0 0;
+
+    }
+
+    .btn-primary, .btn-danger {
+
+        border-radius: 20px;
+
+        transition: 0.2s;
+
+    }
+
+    
+
+    .btn-primary:hover, .btn-danger:hover {
+
+        filter: brightness(1.1);
+
+        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+
+    }
+
+    .form-control, .form-select {
+
+        /* border-radius: 8px; */
+
+    }
+
+    .card-title {
+
+        font-weight: 600;
+
+        letter-spacing: 0.5px;
+
+    }
+
+    label {
+
+        font-weight: 500;
+
+    }
+
+    .card-primary.card-outline {
+
+    border-top: 0px solid #007bff;
+
+    }
+
+</style>
 </head>
 
-<body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
+<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
+    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -73,7 +148,9 @@ include './config/sidebar.php';
             <section class="content">
                 <?php include 'ajax/get_patient_data.php'; ?>
                 <!-- Default box -->
-                <div class="card card-outline card-primary rounded-0 shadow">
+                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                <div class="card card-outline card-primary shadow">
+
                     <div class="card-header">
                         <h3 class="card-title">Thông tin bệnh nhân</h3>
 

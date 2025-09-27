@@ -105,6 +105,7 @@ $medicines = getMedicines($con);
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+
     body {
         background: #f8fafc;
     }
@@ -210,6 +211,7 @@ $medicines = getMedicines($con);
         border-radius: 8px;
         margin-bottom: 20px;
     }
+
     </style>
     <!-- style của upload ảnh -->
     <style>
@@ -254,6 +256,10 @@ $medicines = getMedicines($con);
         position: absolute;
         top: 0;
         left: 0;
+    }
+    .fas, .fa, .bi {
+    /* color: #007bff !important; */
+    font-size: 0.9em;
     }
     </style>
 </head>
@@ -347,8 +353,10 @@ $medicines = getMedicines($con);
                                     <div class="row">
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                             <label>Huyết áp (mmHg) *</label>
+
                                             <input type="text" id="bp" class="form-control" name="bp" required
                                                 placeholder="120/80" />
+
                                         </div>
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                             <label>Cân nặng (kg) *</label>
@@ -420,8 +428,10 @@ $medicines = getMedicines($con);
                                     </div>
                                 </div>
 
+
                                 <h5 class="section-title"><i class="fas fa-clipboard-check"></i> Chuẩn đoán và điều trị
                                 </h5>
+
                                 <div class="row">
                                     <div class="col-lg-6 mb-3">
                                         <label>Triệu chứng *</label>
