@@ -53,6 +53,75 @@ try {
     exit;
 }
 
+
+// 7 ngày gần nhất 
+$chartData7Days = [];
+$dates = [];
+for ($i = 6; $i >= 0; $i--) {
+    $d = date('Y-m-d', strtotime("-$i days"));
+    $dates[$d] = 0;
+}
+$sql7days = "SELECT DATE(`created_at`) as visit_day, COUNT(*) as count
+             FROM patients
+             WHERE `created_at` >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+             GROUP BY visit_day";
+$stmt = $con->prepare($sql7days);
+$stmt->execute();
+$result7days = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($result7days as $row) {
+    $dates[$row['visit_day']] = (int)$row['count'];
+}
+foreach ($dates as $day => $count) {
+    $chartData7Days[] = ['visit_day' => $day, 'count' => $count];
+}
+
+//  12 tháng của năm
+$chartDataMonthly = [];
+$months = [];
+for ($m = 1; $m <= 12; $m++) {
+    $months[$m] = 0;
+}
+$sqlMonthly = "SELECT MONTH(`created_at`) as month, COUNT(*) as count
+               FROM patients
+               WHERE YEAR(`created_at`) = ?
+               GROUP BY month";
+$stmt = $con->prepare($sqlMonthly);
+$stmt->execute([$year]);
+$resultMonthly = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($resultMonthly as $row) {
+    $months[(int)$row['month']] = (int)$row['count'];
+}
+foreach ($months as $m => $count) {
+    $chartDataMonthly[] = ['month' => $m, 'year' => (int)$year, 'count' => $count];
+}
+
+//  5 năm gần nhất
+$chartDataYearly = [];
+$years = [];
+$currentYear = (int)$year;
+for ($y = $currentYear - 4; $y <= $currentYear; $y++) {
+    $years[$y] = 0;
+}
+$sqlYearly = "SELECT YEAR(`created_at`) as year, COUNT(*) as count
+              FROM patients
+              WHERE YEAR(`created_at`) >= ?
+              GROUP BY year";
+$stmt = $con->prepare($sqlYearly);
+$stmt->execute([$currentYear - 4]);
+$resultYearly = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($resultYearly as $row) {
+    $years[(int)$row['year']] = (int)$row['count'];
+}
+foreach ($years as $y => $count) {
+    $chartDataYearly[] = ['year' => $y, 'count' => $count];
+}
+
+// Chuyển sang JSON
+$chartData7DaysJson = json_encode($chartData7Days);
+$chartDataMonthlyJson = json_encode($chartDataMonthly);
+$chartDataYearlyJson = json_encode($chartDataYearly);
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,7 +186,9 @@ try {
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6" style="color:black">
-                            <h1>Thống kê</h1>
+                            <h1>
+                                Thống kê hôm nay ngày <?php echo date('d/m/Y'); ?>
+                            </h1>
                         </div>
                     </div>
                 </div>
@@ -177,10 +248,11 @@ try {
                     <div class="row">
                         <div class="col-12">
                             <div class="chart-container">
-                                <h3>Biểu đồ thống kê bệnh nhân</h3>
+                                <h3 style="color: #2b2b2bff;">Báo cáo chi tiết</h3>
+                                <br/>
                                 <div class="chart-controls">
-                                    <button type="button" class="btn btn-outline-info active" data-period="7days">7 ngày
-                                        gần nhất</button>
+                                    <button type="button" class="btn btn-outline-info active" data-period="7days">Theo tuần
+                                    </button>
                                     <button type="button" class="btn btn-outline-info" data-period="monthly">Theo
                                         tháng</button>
                                     <button type="button" class="btn btn-outline-info" data-period="yearly">Theo
@@ -202,7 +274,7 @@ try {
     $(function() {
         showMenuSelected("#mnu_dashboard", "");
 
-        // Chart data from PHP
+    
         const chartData7Days = <?php echo $chartData7DaysJson; ?>;
         const chartDataMonthly = <?php echo $chartDataMonthlyJson; ?>;
         const chartDataYearly = <?php echo $chartDataYearlyJson; ?>;
@@ -210,7 +282,6 @@ try {
         let currentChart = null;
         const ctx = document.getElementById('chartCanvas').getContext('2d');
 
-        // Function to create chart
         function createChart(data, type) {
             if (currentChart) {
                 currentChart.destroy();
@@ -221,7 +292,6 @@ try {
             let backgroundColor = [];
             let borderColor = [];
 
-            // Generate vibrant colors for bars
             const colors = [{
                     bg: 'rgba(255, 99, 132, 0.8)',
                     border: 'rgba(255, 99, 132, 1)'
@@ -317,10 +387,8 @@ try {
             });
         }
 
-        // Initialize with 7 days chart
         createChart(chartData7Days, '7days');
 
-        // Handle period change
         $('.chart-controls .btn').on('click', function() {
             $('.chart-controls .btn').removeClass('active');
             $(this).addClass('active');

@@ -3,6 +3,7 @@ if(!(isset($_SESSION['user_id']))) {
   header("location:index.php");
   exit;
 }
+$role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 ?>
 <aside class="main-sidebar elevation-4" style="background: #fff; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.3);">
 <style>
@@ -69,7 +70,7 @@ if(!(isset($_SESSION['user_id']))) {
     <!-- Sidebar -->
     <div class="sidebar" style="background: #fff;">
         <!-- Sidebar user (optional) -->
-    <div class="user-panel mt-3 pb-3 mb-3">
+        <div class="user-panel mt-3 pb-3 mb-3">
             <!-- <div class="image">
                 <img src="user_images/<?php echo $_SESSION['profile_picture'];?>" class="img-circle elevation-2"
                     alt="User Image" />
@@ -83,9 +84,7 @@ if(!(isset($_SESSION['user_id']))) {
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style="background: #fff;">
-                <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-                <li class="nav-item" id="mnu_dashboard">
+                <li class="nav-item" id="mnu_dashboard" <?php if($role == 3) echo 'style="display:none;"'; ?>>
                     <a href="dashboard.php" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
@@ -93,8 +92,19 @@ if(!(isset($_SESSION['user_id']))) {
                         </p>
                     </a>
                 </li>
+<!-- check role 3: BNhan -->
+                <?php if($role == 3): ?>
+                <li class="nav-item" id="mnu_medical_record">
+                    <a href="user_medication.php" class="nav-link">
+                        <i class="nav-icon fas fa-notes-medical"></i>
+                        <p>
+                            Bệnh án
+                        </p>
+                    </a>
+                </li>
+                <?php endif; ?>
 
-
+                <?php if($role != 3): ?>
                 <li class="nav-item" id="mnu_patients">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-injured"></i>
@@ -117,25 +127,14 @@ if(!(isset($_SESSION['user_id']))) {
                                 <p>Khám bệnh</p>
                             </a>
                         </li>
-                    <!-- mục Quản lý bệnh nhân của bác sĩ -->
                         <li class="nav-item">
                             <a href="doctor_patient.php" class="nav-link" id="mi_doctor_patient">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Quản lý bệnh nhân</p>
                             </a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a href="patient_history.php" class="nav-link" id="mi_patient_history">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Tiền sử bệnh nhân</p>
-                            </a>
-                        </li> -->
-
                     </ul>
                 </li>
-
-
-
                 <li class="nav-item" id="mnu_medicines">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-pills"></i>
@@ -157,10 +156,8 @@ if(!(isset($_SESSION['user_id']))) {
                                 <p>Chi tiết thuốc</p>
                             </a>
                         </li>
-
                     </ul>
                 </li>
-
                 <li class="nav-item" id="mnu_reports">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-edit"></i>
@@ -176,10 +173,8 @@ if(!(isset($_SESSION['user_id']))) {
                                 <p>Báo cáo</p>
                             </a>
                         </li>
-
                     </ul>
                 </li>
-
                 <li class="nav-item" id="mnu_users">
                     <a href="users.php" class="nav-link">
                         <i class="nav-icon fa fa-users"></i>
@@ -187,32 +182,8 @@ if(!(isset($_SESSION['user_id']))) {
                             Người dùng
                         </p>
                     </a>
-
                 </li>
-                <!-- <li class="nav-item" id="mnu_users">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fa fa-users"></i>
-                        <p>
-                            Người dùng
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="users.php" class="nav-link" id="mi_users">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Danh sách admin, bác sỹ</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="user_patients.php" class="nav-link" id="mi_user_patients">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Danh sách bệnh nhân</p>
-                            </a>
-                        </li>
-
-                    </ul>
-                </li> -->
+                <?php endif; ?>
                 <li class="nav-item">
                     <a href="logout.php" class="nav-link">
                         <i class="nav-icon fa fa-sign-out-alt"></i>
@@ -221,10 +192,43 @@ if(!(isset($_SESSION['user_id']))) {
                         </p>
                     </a>
                 </li>
-
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->
 </aside>
+<script>
+    // Highlight menu/submenu when active
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lấy pathname hiện tại
+        var path = window.location.pathname.split('/').pop();
+
+        // Map file sang id menu con
+        var map = {
+            'patients.php': 'mi_patients',
+            'patients_visit.php': 'mi_new_prescription',
+            'doctor_patient.php': 'mi_doctor_patient'
+        };
+
+        // Nếu là 1 trong các trang con thì active cả menu cha và con
+        if (map[path]) {
+            var sub = document.getElementById(map[path]);
+            if (sub) {
+                sub.classList.add('active');
+                // Active menu cha
+                var parent = document.getElementById('mnu_patients');
+                if (parent) {
+                    parent.querySelector('.nav-link').classList.add('active');
+                }
+            }
+        }
+        // Nếu không phải trang con, loại bỏ active khỏi các menu con
+        else {
+            Object.values(map).forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+        }
+    });
+</script>
