@@ -153,7 +153,6 @@ include './config/sidebar.php';
 
                     <div class="card-header">
                         <h3 class="card-title">Thông tin bệnh nhân</h3>
-
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
@@ -210,12 +209,9 @@ include './config/sidebar.php';
 
                                 </div>
                             </div>
-
                             <div class="clearfix">&nbsp;</div>
-
                             <div class="row">
                                 <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-
                                 <!-- <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
                                     <button type="submit" id="save_Patient" name="save_Patient"
                                         class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
@@ -223,11 +219,12 @@ include './config/sidebar.php';
                             </div>
                         </form>
                     </div>
-
                 </div>
-
             </section>
 
+            <!-- Thông tin các lần khám bệnh -->
+            <section class="content" id="visit-history-section" style="display:none;">
+                <div id="visit-history-list"></div>
             </section>
             <br />
             <br />
@@ -356,12 +353,12 @@ if (isset($_SESSION['success_message'])) {
                                 $('#patient_name').val(response.patient.patient_name);
                                 $('#address').val(response.patient.address);
                                 $('#cnic').val(response.patient.cnic);
-                                $('#date_of_birth').val(formatDate(response.patient
-                                    .date_of_birth));
+                                $('#date_of_birth').val(formatDate(response.patient.date_of_birth));
                                 $('#phone_number').val(response.patient.phone_number);
                                 $('#gender').val(response.patient.gender);
                             }
 
+                            // Đổ bảng đơn thuốc
                             var tbody = '';
                             if (response.prescriptions.length > 0) {
                                 $.each(response.prescriptions, function(index, row) {
@@ -378,8 +375,90 @@ if (isset($_SESSION['success_message'])) {
                                     '<tr><td colspan="5" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>';
                             }
                             $('#prescriptionTable').html(tbody);
+
+                            // Lấy thông tin các lần khám bệnh
+                            $.ajax({
+                                url: 'ajax/get_patient_visits.php',
+                                type: 'POST',
+                                data: { patient_id: patientId },
+                                dataType: 'json',
+                                success: function(visits) {
+                                    var html = '';
+                                    if (visits.length > 0) {
+                                        visits.forEach(function(visit, idx) {
+                                            html += `
+                                            <div class="card mb-4">
+                                                <div class="card-header bg-info text-white">
+                                                    <strong>Lần khám ${idx + 1} - ${visit.created_at ? moment(visit.created_at).format('DD/MM/YYYY HH:mm') : ''}</strong>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                            <label>Huyết áp (mmHg)</label>
+                                                            <input type="text" class="form-control" value="${visit.huyet_ap || ''}" readonly>
+                                                        </div>
+                                                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                            <label>Cân nặng (kg)</label>
+                                                            <input type="text" class="form-control" value="${visit.can_nang || ''}" readonly>
+                                                        </div>
+                                                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                            <label>Chiều cao (cm)</label>
+                                                            <input type="text" class="form-control" value="${visit.chieu_cao || ''}" readonly>
+                                                        </div>
+                                                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                            <label>Nhiệt độ (°C)</label>
+                                                            <input type="text" class="form-control" value="${visit.nhiet_do || ''}" readonly>
+                                                        </div>
+                                                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                            <label>Mạch đập (bpm)</label>
+                                                            <input type="text" class="form-control" value="${visit.mach_dap || ''}" readonly>
+                                                        </div>
+                                                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                            <label>Nhịp tim (bpm)</label>
+                                                            <input type="text" class="form-control" value="${visit.nhip_tim || ''}" readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6 mb-3">
+                                                            <label>Triệu chứng</label>
+                                                            <textarea class="form-control" rows="3" readonly>${visit.trieu_chung || ''}</textarea>
+                                                        </div>
+                                                        <div class="col-lg-6 mb-3">
+                                                            <label>Tiền sử bệnh</label>
+                                                            <textarea class="form-control" rows="3" readonly>${visit.tien_su_benh || ''}</textarea>
+                                                        </div>
+                                                        <div class="col-lg-6 mb-3">
+                                                            <label>Chuẩn đoán</label>
+                                                            <textarea class="form-control" rows="3" readonly>${visit.chuan_doan || ''}</textarea>
+                                                        </div>
+                                                        <div class="col-lg-6 mb-3">
+                                                            <label>Biện pháp xử lý</label>
+                                                            <textarea class="form-control" rows="3" readonly>${visit.bien_phap || ''}</textarea>
+                                                        </div>
+                                                        <div class="col-lg-4 mb-3">
+                                                            <label>Yêu cầu nhập viện</label>
+                                                            <input type="text" class="form-control" value="${visit.nhap_vien == '1' ? 'Có' : (visit.nhap_vien == '2' ? 'Không' : (visit.nhap_vien || ''))}" readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            `;
+                                        });
+                                    } else {
+                                        html = '<div class="alert alert-info text-center">Chưa có bệnh án nào.</div>';
+                                    }
+                                    $('#visit-history-list').html(html);
+                                    $('#visit-history-section').show();
+                                }
+                            });
                         }
                     });
+                } else {
+                    // Clear info if no patient selected
+                    $('#patient_name, #address, #cnic, #date_of_birth, #phone_number, #gender').val('');
+                    $('#prescriptionTable').html('<tr><td colspan="5" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>');
+                    $('#visit-history-list').html('');
+                    $('#visit-history-section').hide();
                 }
             });
         });
