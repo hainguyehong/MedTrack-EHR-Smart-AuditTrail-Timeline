@@ -249,17 +249,17 @@ include './config/sidebar.php';
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
+                                        <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
                                         <th>Liều dùng</th>
                                         <th>Ghi chú</th>
-
                                     </tr>
                                 </thead>
 
                                 <tbody id="prescriptionTable">
                                     <tr>
-                                        <td colspan="5" style="text-align:center;">Chưa có đơn thuốc nào.</td>
+                                        <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
                                     </tr>
                                 </tbody>
 
@@ -364,6 +364,7 @@ if (isset($_SESSION['success_message'])) {
                                 $.each(response.prescriptions, function(index, row) {
                                     tbody += '<tr style="text-align:center;">' +
                                         '<td>' + (index + 1) + '</td>' +
+                                        '<td>' + (row.created_at ? moment(row.created_at).format("DD/MM/YYYY HH:mm") : '') + '</td>' +
                                         '<td>' + row.medicine_name + '</td>' +
                                         '<td>' + row.quantity + '</td>' +
                                         '<td>' + row.dosage + '</td>' +
@@ -372,7 +373,7 @@ if (isset($_SESSION['success_message'])) {
                                 });
                             } else {
                                 tbody =
-                                    '<tr><td colspan="5" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>';
+                                    '<tr><td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>';
                             }
                             $('#prescriptionTable').html(tbody);
 
@@ -456,7 +457,7 @@ if (isset($_SESSION['success_message'])) {
                 } else {
                     // Clear info if no patient selected
                     $('#patient_name, #address, #cnic, #date_of_birth, #phone_number, #gender').val('');
-                    $('#prescriptionTable').html('<tr><td colspan="5" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>');
+                    $('#prescriptionTable').html('<tr><td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>');
                     $('#visit-history-list').html('');
                     $('#visit-history-section').hide();
                 }
