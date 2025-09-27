@@ -74,9 +74,46 @@ try {
         object-position: center center;
     }
     </style>
+    <style>
+    body {
+        background: #f8fafc;
+    }
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+    .btn-primary, .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+    .card-primary.card-outline {
+    border-top: 0px solid #007bff;
+    }
+    .btn-primary:hover, .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+    }
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    label {
+        font-weight: 500;
+    }
+</style>
 </head>
 
-<body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
+<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
+    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -97,7 +134,8 @@ include './config/sidebar.php';?>
             <!-- Main content -->
             <section class="content">
                 <!-- Default box -->
-                <div class="card card-outline card-primary rounded-0 shadow">
+                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                    <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Thêm mới tài khoản</h3>
                         <div class="card-tools">
@@ -113,24 +151,24 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên Hiển Thị</label>
                                     <input type="text" id="display_name" name="display_name" required="required"
-                                        class="form-control form-control-sm rounded-0" />
+                                        class="form-control form-control-sm" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên Đăng Nhập</label>
                                     <input type="text" id="user_name" name="user_name" required="required"
-                                        class="form-control form-control-sm rounded-0" />
+                                        class="form-control form-control-sm"/>
                                 </div>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Mật Khẩu</label>
                                     <input type="password" id="password" name="password" required="required"
-                                        class="form-control form-control-sm rounded-0" />
+                                       class="form-control form-control-sm" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Chọn vai trò</label>
-                                    <select class="form-control form-control-sm rounded-0" id="role" name="role">
+                                    <select class="form-control form-control-sm" id="role" name="role">
                                         <?php echo getRoles();?>
                                     </select>
                                 </div>
@@ -138,7 +176,7 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_user"
-                                        class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -150,7 +188,8 @@ include './config/sidebar.php';?>
             <section class="content">
                 <!-- Default box -->
 
-                <div class="card card-outline card-primary rounded-0 shadow">
+                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                    <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Danh Sách Tài Khoản</h3>
 
@@ -218,11 +257,11 @@ include './config/sidebar.php';?>
 
                                         <td class="px-2 py-1 align-middle text-center">
                                             <a href="update_user.php?user_id=<?php echo $row['id']; ?>"
-                                                class="btn btn-primary btn-sm btn-flat">
+                                                class="btn btn-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             <a href="delete_user.php?user_id=<?php echo $row['id']; ?>"
-                                                class="btn btn-danger btn-sm btn-flat">
+                                                class="btn btn-danger btn-sm">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </td>
@@ -311,7 +350,16 @@ $message = '';
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+            "buttons": ["pdf", "print"],
+
+            "language": {
+              "info": " Tổng cộng _TOTAL_ người dùng",
+              "paginate": {
+                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                        "next": "<span style='font-size:18px;'>&#8594;</span>"
+                    }
+         }
         }).buttons().container().appendTo('#all_users_wrapper .col-md-6:eq(0)');
 
     });

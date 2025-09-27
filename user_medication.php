@@ -45,10 +45,85 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <style>
 
+    body {
+
+        background: #f8fafc;
+
+    }
+
+    .card {
+
+        background: #fff;
+
+        border-radius: 12px;
+
+        /* border: 1.5px solid #007bff; */
+
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+    }
+
+    .card-header {
+
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+
+        color: #fff;
+
+        border-radius: 12px 12px 0 0;
+
+    }
+
+    .btn-primary, .btn-danger {
+
+        border-radius: 20px;
+
+        transition: 0.2s;
+
+    }
+
+    
+
+    .btn-primary:hover, .btn-danger:hover {
+
+        filter: brightness(1.1);
+
+        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+
+    }
+
+    .form-control, .form-select {
+
+        /* border-radius: 8px; */
+
+    }
+
+    .card-title {
+
+        font-weight: 600;
+
+        letter-spacing: 0.5px;
+
+    }
+
+    label {
+
+        font-weight: 500;
+
+    }
+
+    .card-primary.card-outline {
+
+    border-top: 0px solid #007bff;
+
+    }
+
+</style>
 </head>
 
-<body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">
+<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
+    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -71,7 +146,9 @@ include './config/sidebar.php';?>
             <section class="content">
 
                 <!-- Default box -->
-                <div class="card card-outline card-primary rounded-0 shadow">
+                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                <div class="card card-outline card-primary shadow">
+
                     <div class="card-header">
                         <h3 class="card-title">Thông tin bệnh nhân</h3>
 
@@ -88,7 +165,7 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên bệnh nhân</label>
                                     <input type="text" id="patient_name" name="patient_name" readonly"
-                                        class="form-control form-control-sm rounded-0"
+                                        class="form-control form-control-sm"
                                         value="<?php echo htmlspecialchars($patient['patient_name'] ?? ''); ?>" />
                                 </div>
                                 <br>
@@ -293,15 +370,22 @@ if (isset($_SESSION['success_message'])) {
         });
 
 
-        $(function() {
-            $("#all_patients").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
-
-        });
+       $(function() {
+        $("#medicine_details").DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+             "buttons": ["pdf", "print"],
+            "language": {   
+              "info": " Tổng cộng _TOTAL_ loại thuốc",
+              "paginate": {
+                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                        "next": "<span style='font-size:18px;'>&#8594;</span>"
+                    }
+         }
+        }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
+    });
         </script>
 </body>
 
