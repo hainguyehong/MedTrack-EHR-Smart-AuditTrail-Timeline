@@ -26,18 +26,30 @@ if (isset($_POST['save_Patient'])) {
     if ($patientName != '' && $address != '' && 
         $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
 
-        // query insert patient
-        $queryPatient = "INSERT INTO `patients`(`patient_name`, 
-            `address`, `cnic`, `date_of_birth`, `phone_number`, `gender`, `created_at`)
-            VALUES(:patient_name, :address, :cnic, :date_of_birth,
-            :phone_number, :gender, :created_at)";
-
-        // query insert user
-        $queryUser = "INSERT INTO `user_patients`(`user_name`, `password`, 
-    `display_name`, `role`, `created_at`, `id_patient`) 
-    VALUES(:user_name, :password, :display_name, :role, :created_at, :id_patient)";
-
         try {
+            // kiểm tra cccd đã tồn tại chưa
+            $checkQuery = "SELECT COUNT(*) as cnt FROM `patients` WHERE `cnic` = :cnic";
+            $stmtCheck = $con->prepare($checkQuery);
+            $stmtCheck->execute([':cnic' => $cnic]);
+            $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+            if ($row['cnt'] > 0) {
+                $_SESSION['error_message'] = 'CCCD đã tồn tại, vui lòng nhập CCCD khác.';
+                header("Location: patients.php");
+                exit();
+            }
+
+            // query insert patient
+            $queryPatient = "INSERT INTO `patients`(`patient_name`, 
+                `address`, `cnic`, `date_of_birth`, `phone_number`, `gender`, `created_at`)
+                VALUES(:patient_name, :address, :cnic, :date_of_birth,
+                :phone_number, :gender, :created_at)";
+
+            // query insert user
+            $queryUser = "INSERT INTO `user_patients`(`user_name`, `password`, 
+                `display_name`, `role`, `created_at`, `id_patient`) 
+                VALUES(:user_name, :password, :display_name, :role, :created_at, :id_patient)";
+
             $con->beginTransaction();
 
             // insert patient
@@ -51,8 +63,10 @@ if (isset($_POST['save_Patient'])) {
                 ':gender' => $gender,
                 ':created_at' => $createdAt
             ]);
+
             // lấy id bệnh nhân vừa thêm
-                $idPatient = $con->lastInsertId();  
+            $idPatient = $con->lastInsertId();  
+
             // insert default user account
             $stmtUser = $con->prepare($queryUser);
             $stmtUser->execute([
@@ -82,7 +96,6 @@ if (isset($_POST['save_Patient'])) {
 
 
 
-
 try { // lấy danh sách bệnh nhân
 
 $query = "SELECT `id`, `patient_name`, `address`, 
@@ -108,46 +121,59 @@ FROM `patients` WHERE `is_deleted` = 0 ORDER BY `created_at` DESC;";
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-        body {
-            background: #f8fafc;
-        }
-        .card-primary.card-outline {
-                /* border-top: 0px solid #007bff; */
-            }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            /* border: 1.5px solid #007bff; */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .card-header {
-            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-            color: #fff;
-            border-radius: 12px 12px 0 0;
-        }
-        .btn-primary, .btn-danger {
-            border-radius: 20px;
-            transition: 0.2s;
-        }
-        .btn-primary:hover, .btn-danger:hover {
-            filter: brightness(1.1);
-            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
-        }
-        .table {
-            background: #fff;
-        }
-        .form-control, .form-select {
-            border-radius: 8px;
-        }
-        .card-title {
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        label {
-            font-weight: 500;
-        }
-        .card-primary.card-outline {
-    border-top: 0px solid #007bff;
+    body {
+        background: #f8fafc;
+    }
+
+    .card-primary.card-outline {
+        /* border-top: 0px solid #007bff; */
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        /* border: 1.5px solid #007bff; */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .table {
+        background: #fff;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+    }
+
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    label {
+        font-weight: 500;
+    }
+
+    .card-primary.card-outline {
+        border-top: 0px solid #007bff;
     }
     </style>
 </head>
@@ -178,12 +204,14 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <!-- <h3 class="card-title">Thêm mới bệnh nhân</h3> -->
-                         <h3 class="card-title">
-                       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                          <path d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z"/>
-                       </svg>
-                           Thêm mới bệnh nhân
-                          </h3>
+                        <h3 class="card-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
+                                <path
+                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
+                            </svg>
+                            Thêm mới bệnh nhân
+                        </h3>
 
 
                         <div class="card-tools">
@@ -218,8 +246,7 @@ include './config/sidebar.php';?>
                                     <div class="form-group">
                                         <label>Ngày sinh</label>
                                         <div class="input-group date" id="date_of_birth" data-target-input="nearest">
-                                            <input type="text"
-                                                class="form-control form-control-sm datetimepicker-input"
+                                            <input type="text" class="form-control form-control-sm datetimepicker-input"
                                                 data-target="#date_of_birth" name="date_of_birth"
                                                 data-toggle="datetimepicker" autocomplete="off" />
                                             <div class="input-group-append" data-target="#date_of_birth"
@@ -236,8 +263,7 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Giới tính</label>
-                                    <select class="form-control form-control-sm" id="gender" name="gender"
-                                        required>
+                                    <select class="form-control form-control-sm" id="gender" name="gender" required>
                                         <?php echo getGender();?>
                                     </select>
 
@@ -280,8 +306,9 @@ include './config/sidebar.php';?>
                     </div>
                     <div class="card-body">
                         <div class="row table-responsive">
-                            <table id="all_patients" class="table table-striped table-hover dataTable table-bordered dtr-inline"
-                                role="grid" aria-describedby="all_patients_info">
+                            <table id="all_patients"
+                                class="table table-striped table-hover dataTable table-bordered dtr-inline" role="grid"
+                                aria-describedby="all_patients_info">
 
                                 <thead style="text-align:center;">
                                     <tr>
@@ -362,6 +389,9 @@ $message = '';
 if (isset($_SESSION['success_message'])) {
     $message = $_SESSION['success_message'];
     unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+}elseif (isset($_SESSION['error_message'])) {
+    $message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
 }
 ?>
         <!-- /.control-sidebar -->
@@ -396,7 +426,7 @@ if (isset($_SESSION['success_message'])) {
                 "lengthChange": false,
                 "autoWidth": false,
                 // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-                 "buttons": ["pdf", "print"],
+                "buttons": ["pdf", "print"],
                 "language": {
                     "info": " Tổng cộng _TOTAL_ bệnh nhân",
                     "paginate": {

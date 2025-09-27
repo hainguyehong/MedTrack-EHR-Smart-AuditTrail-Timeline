@@ -2,35 +2,32 @@
 include './config/connection.php';
 
   $date = date('Y-m-d');
-  
-  $year =  date('Y'); 
-  $month =  date('m');
+$year = date('Y');
+$month = date('m');
 
-  $queryToday = "SELECT count(*) as `today` 
-  from `patient_visits` 
-  where `visit_date` = '$date';";
+$queryToday = "SELECT COUNT(*) as `today`
+  FROM `patients`
+  WHERE DATE(`created_at`) = '$date';";
 
-  $queryWeek = "SELECT count(*) as `week` 
-  from `patient_visits` 
-  where YEARWEEK(`visit_date`) = YEARWEEK('$date');";
+$queryWeek = "SELECT COUNT(*) as `week`
+  FROM `patients`
+  WHERE YEARWEEK(`created_at`, 1) = YEARWEEK('$date', 1);";
 
-$queryYear = "SELECT count(*) as `year` 
-  from `patient_visits` 
-  where YEAR(`visit_date`) = YEAR('$date');";
+$queryYear = "SELECT COUNT(*) as `year`
+  FROM `patients`
+  WHERE YEAR(`created_at`) = YEAR('$date');";
 
-$queryMonth = "SELECT count(*) as `month` 
-  from `patient_visits` 
-  where YEAR(`visit_date`) = $year and 
-  MONTH(`visit_date`) = $month;";
+$queryMonth = "SELECT COUNT(*) as `month`
+  FROM `patients`
+  WHERE YEAR(`created_at`) = $year 
+    AND MONTH(`created_at`) = $month;";
 
-  $todaysCount = 0;
-  $currentWeekCount = 0;
-  $currentMonthCount = 0;
-  $currentYearCount = 0;
+$todaysCount = 0;
+$currentWeekCount = 0;
+$currentMonthCount = 0;
+$currentYearCount = 0;
 
-
-  try {
-
+try {
     $stmtToday = $con->prepare($queryToday);
     $stmtToday->execute();
     $r = $stmtToday->fetch(PDO::FETCH_ASSOC);
@@ -51,11 +48,11 @@ $queryMonth = "SELECT count(*) as `month`
     $r = $stmtMonth->fetch(PDO::FETCH_ASSOC);
     $currentMonthCount = $r['month'];
 
-  } catch(PDOException $ex) {
-     echo $ex->getMessage();
-   echo $ex->getTraceAsString();
-   exit;
-  }
+} catch(PDOException $ex) {
+    echo $ex->getMessage();
+    echo $ex->getTraceAsString();
+    exit;
+}
 
 ?>
 <!DOCTYPE html>
