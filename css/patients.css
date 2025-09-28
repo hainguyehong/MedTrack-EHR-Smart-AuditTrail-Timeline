@@ -1,0 +1,86 @@
+body { 
+    background: #f8fafc; 
+}
+
+.card { 
+    background: #fff; 
+    border-radius: 12px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
+}
+
+.card-header { 
+    background: linear-gradient(90deg,#007bff 60%,#00c6ff 100%); 
+    color:#fff; 
+    border-radius:12px 12px 0 0;
+}
+
+.form-control, .form-select { 
+    border-radius:8px; 
+}
+
+.btn-primary,.btn-danger {
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.btn-primary:hover, .btn-danger:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.table {
+    background: #fff;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+}
+
+.card-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+label {
+    font-weight: 500;
+}
+
+.card-primary.card-outline {
+    border-top: 0px solid #007bff;
+}
+
+.error-text { 
+    color: #e74c3c; 
+    display: block; 
+    margin-top:6px; 
+    font-size:0.9em; 
+}
+   
+.error-message {
+    display: block;
+    margin-top: 4px;
+    color: #dc3545;
+    font-size: 0.875em;
+}
+
+.is-invalid {
+    border: 1px solid #dc3545 !important;
+    box-shadow: none !important;
+}
+
+.form-control.is-invalid,
+.was-validated .form-control:invalid {
+    background-image: none !important; /* bỏ icon ❗ */
+    padding-right: .75rem !important;  /* cân lại padding */
+}
+
+#save_Patient i, .card-title i {
+    margin-right: 5px; /* khoảng cách giữa icon và chữ */
+}
+
+label.required::after {
+    content: " *";
+    color: red;
+    font-weight: bold;
+}
+
