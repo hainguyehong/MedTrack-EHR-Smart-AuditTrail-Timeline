@@ -55,10 +55,10 @@ if (isset($_POST['login'])) {
 
     // Kiểm tra bỏ trống
     if (empty($userName)) {
-        $message_user = 'Vui lòng nhập tên đăng nhập';
+        $message_user = 'Vui lòng nhập tên đăng nhập!';
     }
     if (empty($password)) {
-        $message_pass = 'Vui lòng nhập mật khẩu';
+        $message_pass = 'Vui lòng nhập mật khẩu!';
     }
 
     // Chỉ kiểm tra DB nếu có nhập username hoặc password
@@ -77,7 +77,7 @@ if (isset($_POST['login'])) {
             $stmtCheckUser->execute();
 
             if ($stmtCheckUser->rowCount() == 0 && !empty($userName)) {
-                $message_user = 'Tên đăng nhập không tồn tại';
+                $message_user = 'Tên đăng nhập không tồn tại!';
             } else {
                 // Kiểm tra user + password
                 $query = "
@@ -114,7 +114,7 @@ if (isset($_POST['login'])) {
                     }
                     exit;
                 } elseif (!empty($password)) {
-                    $message_pass = 'Mật khẩu không đúng';
+                    $message_pass = 'Mật khẩu không đúng!';
                 }
             }
         } catch (PDOException $ex) {
@@ -133,251 +133,7 @@ if (isset($_POST['login'])) {
   <title>Đăng nhập</title>
 
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
-  <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-      font-family:'Source Sans Pro',sans-serif;
-    }
-
-    body {
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#e9eff5;
-    }
-
-    .container {
-      display:flex;
-      width:1000px;
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    /* Left side */
-    .login-left {
-      flex:1;
-      background:linear-gradient(135deg,#2563eb,#1e40af);
-      color:#fff;
-      padding:50px;
-    }
-    .login-left h2 {
-      font-size:28px;
-      margin-bottom:20px;
-    }
-    .login-left ul {
-      list-style:none;
-    }
-    .login-left ul li {
-      margin:12px 0;
-      font-size:16px;
-    }
-    .login-left ul li i {
-      margin-right:10px;
-      color:#cbd5e1;
-    }
-
-    /* Right side */
-    .login-right {
-      flex:1;
-      padding:50px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-
-    .login-right img {
-      width:80px;
-      height:80px;
-      object-fit:cover;
-      border-radius:50%;
-      margin:0 auto 15px auto;
-      display:block;
-    }
-
-    .login-right h3 {
-      text-align:center;
-      margin-bottom:25px;
-      font-size:22px;
-      color:#1f2937;
-    }
-
-    .form-floating-custom {
-      position: relative;
-      margin-bottom: 1.5rem;
-      width: 100%;
-    }
-    .form-floating-custom input {
-      width: 100%;
-      padding: 14px 40px 14px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-      background: #f9fafb;
-      color: #111;
-    }
-    .form-floating-custom label {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 16px;
-      color: #6b7280;
-      pointer-events: none;
-      transition: 0.2s ease all;
-    }
-    .form-floating-custom input:focus + label,
-    .form-floating-custom input:not(:placeholder-shown) + label {
-      top: 12px;
-      font-size: 14px;
-      color: #2563eb;
-    }
-    .form-floating-custom .input-icon {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9ca3af;
-    }
-
-    .btn-login {
-      width:100%;
-      padding:12px;
-      background:#2563eb;
-      color:#fff;
-      font-size:16px;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-      transition:0.3s;
-    }
-    .btn-login:hover {
-      background:#1e40af;
-    }
-
-    .error-input {
-      border: 1.5px solid red !important;
-    }
-    .error-message {
-      color: red;
-      font-size: 0.85em;
-      display: flex;
-      align-items: center;
-      margin-top: -8px;
-      margin-bottom: 10px;
-    }
-    .error-message i {
-      margin-right: 4px;
-      font-size: 0.9em;
-    }
-
-    /* --- Responsive --- */
-@media (max-width: 992px) {
-  .container {
-    width: 95%;
-    flex-direction: column;
-  }
-
-  .login-left, .login-right {
-    flex: none;
-    width: 100%;
-    padding: 30px 20px;
-    text-align: center;
-  }
-
-  .login-left {
-    border-radius: 12px 12px 0 0;
-  }
-
-  .login-right {
-    border-radius: 0 0 12px 12px;
-  }
-
-  .login-left h2 {
-    font-size: 22px;
-  }
-
-  .login-left ul li {
-    font-size: 14px;
-  }
-
-  .login-right h3 {
-    font-size: 18px;
-  }
-
-  .form-floating-custom input {
-    font-size: 14px;
-    padding: 12px 35px 12px 10px;
-  }
-
-  .btn-login {
-    font-size: 14px;
-    padding: 10px;
-  }
-}
-
-/* Mobile cực nhỏ */
-@media (max-width: 576px) {
-  body {
-    padding: 10px;
-  }
-
-  .login-left {
-    display: none;
-  }
-
-  .container {
-    width: 100%;
-    box-shadow: none;
-  }
-
-  .login-right {
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  }
-
-  .login-right img {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 10px;
-  }
-
-  .login-right h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
-  }
-
-  .btn-login {
-    font-size: 14px;
-    padding: 8px;
-  }
-}
-
-.form-floating-custom input {
-  width: 100%;
-  padding: 18px 40px 10px 12px; 
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-  background: #f9fafb;
-  color: #111;
-  line-height: 2.0; 
-}
-
-.form-floating-custom input:focus {
-  outline: none;             
-  border: 1pt solid #2563eb;  
-  box-shadow: none;          
-}
-
-
-
-  </style>
+  <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
   <div class="container">
