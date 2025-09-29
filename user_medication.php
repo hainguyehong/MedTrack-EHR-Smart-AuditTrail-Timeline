@@ -48,78 +48,106 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
     <style>
 
     body {
-
-        background: #f8fafc;
-
+        background: #f4f7fb;
     }
-
     .card {
-
         background: #fff;
-
-        border-radius: 12px;
-
-        /* border: 1.5px solid #007bff; */
-
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.07), 0 1.5px 4px rgba(0,0,0,0.03);
+        border: none;
+        margin-bottom: 24px;
+        transition: box-shadow 0.2s;
     }
-
+    .card:hover {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    }
     .card-header {
-
         background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-
         color: #fff;
-
-        border-radius: 12px 12px 0 0;
-
-    }
-
-    .btn-primary, .btn-danger {
-
-        border-radius: 20px;
-
-        transition: 0.2s;
-
-    }
-
-    
-
-    .btn-primary:hover, .btn-danger:hover {
-
-        filter: brightness(1.1);
-
-        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
-
-    }
-
-    .form-control, .form-select {
-
-        /* border-radius: 8px; */
-
-    }
-
-    .card-title {
-
+        border-radius: 14px 14px 0 0;
+        border: none;
+        font-size: 1.1rem;
         font-weight: 600;
-
         letter-spacing: 0.5px;
-
+        box-shadow: 0 2px 8px rgba(90,156,248,0.07);
     }
-
-    label {
-
+    .btn-primary, .btn-danger {
+        border-radius: 22px;
+        transition: 0.2s;
         font-weight: 500;
-
+        padding: 7px 22px;
     }
-
+    .btn-primary:hover, .btn-danger:hover {
+        filter: brightness(1.08);
+        box-shadow: 0 2px 12px rgba(90,156,248,0.13);
+    }
+    .card-title {
+        font-weight: 700;
+        letter-spacing: 0.7px;
+        font-size: 1.15rem;
+    }
+    label {
+        font-weight: 600;
+        color: #3b4256;
+        margin-bottom: 6px;
+        letter-spacing: 0.2px;
+    }
+    .form-control, .form-select, textarea.form-control {
+        border-radius: 10px !important;
+        border: 1.5px solid #e3e7ed;
+        background: #fafdff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-shadow: none;
+        font-size: 1rem;
+        padding: 8px 14px;
+    }
+    .form-control:focus, .form-select:focus, textarea.form-control:focus {
+        border-color: #5a9cf8;
+        box-shadow: 0 0 0 2px #e3f0ff;
+        background: #fff;
+    }
+    input[readonly], textarea[readonly] {
+        background: #f4f7fb !important;
+        color: #6b7280;
+        border-color: #e3e7ed;
+    }
+    .section-title {
+        margin-top: 18px;
+        margin-bottom: 10px;
+        color: #5b5b5bff;
+        font-size: 1.08rem;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+    .mb-3 {
+        margin-bottom: 1.2rem !important;
+    }
+    .table {
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .table th, .table td {
+        vertical-align: middle !important;
+    }
+    .alert-info {
+        border-radius: 12px;
+        background: #e0f2fe;
+        color: #2563eb;
+        border: none;
+        font-weight: 500;
+    }
+    .table-striped tbody tr:hover {
+        background-color: #f1f5f9;
+        transition: background 0.2s;
+    }
+    [class*="col-"] {
+        padding-bottom: 12px;
+    }
     .card-primary.card-outline {
-
     border-top: 0px solid #007bff;
-
-    }
-
-</style>
+}
+    </style>
 </head>
 
 <!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
@@ -229,9 +257,124 @@ include './config/sidebar.php';?>
                 </div>
 
             </section>
+            <br/>
 
-            </section>
-            <br />
+
+            <!-- bệnh án select -->
+            <section class="content">
+                <?php
+                    $query = "SELECT 
+                                pd.id,
+                                pd.created_at,
+                                pd.huyet_ap,
+                                pd.can_nang,
+                                pd.chieu_cao,
+                                pd.nhiet_do,
+                                pd.mach_dap,
+                                pd.nhip_tim,
+                                pd.trieu_chung,
+                                pd.chuan_doan,
+                                pd.bien_phap,
+                                pd.nhap_vien,
+                                pd.tien_su_benh
+                            FROM user_patients AS up
+                            JOIN patients AS p ON up.id_patient = p.id
+                            JOIN patient_diseases AS pd ON pd.patient_id = p.id
+                            WHERE up.is_deleted = 0
+                            AND p.is_deleted = 0
+                            AND up.id = :user_id
+                            ORDER BY pd.created_at ASC"; 
+                    $stmt = $con->prepare($query);
+                    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $diseases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    if (count($diseases) > 0):
+                        foreach ($diseases as $index => $row):
+                            $visitNumber = $index + 1; // lần 1 2 3 ...
+                    ?>
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <strong>Lần khám <?php echo $visitNumber; ?> - <?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></strong>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row">
+                                    <!-- <div class="col-lg-4 col-md-6 mb-3">
+                                        <label>Ngày khám</label>
+                                        <input type="text" class="form-control" 
+                                            value="<?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?>" readonly>
+                                    </div> -->
+                                </div>
+                                <h5 class="section-title"><i class="fas fa-heartbeat"></i> Chỉ số sinh hiệu</h5>
+                                <div class="row">
+                                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                        <label>Huyết áp (mmHg)</label>
+                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['huyet_ap']); ?>" readonly>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                        <label>Cân nặng (kg)</label>
+                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['can_nang']); ?>" readonly>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                        <label>Chiều cao (cm)</label>
+                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['chieu_cao']); ?>" readonly>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                        <label>Nhiệt độ (°C)</label>
+                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['nhiet_do']); ?>" readonly>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                        <label>Mạch đập (bpm)</label>
+                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['mach_dap']); ?>" readonly>
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                        <label>Nhịp tim (bpm)</label>
+                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['nhip_tim']); ?>" readonly>
+                                    </div>
+                                </div>
+                                <h5 class="section-title"><i class="fas fa-clipboard-check"></i> Chuẩn đoán và điều trị</h5>
+                                <div class="row">
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Triệu chứng</label>
+                                        <textarea class="form-control" rows="3" readonly><?php echo htmlspecialchars($row['trieu_chung']); ?></textarea>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Tiền sử bệnh</label>
+                                        <textarea class="form-control" rows="3" readonly><?php echo htmlspecialchars($row['tien_su_benh']); ?></textarea>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Chuẩn đoán</label>
+                                        <textarea class="form-control" rows="3" readonly><?php echo htmlspecialchars($row['chuan_doan']); ?></textarea>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Biện pháp xử lý</label>
+                                        <textarea class="form-control" rows="3" readonly><?php echo htmlspecialchars($row['bien_phap']); ?></textarea>
+                                    </div>
+                                    <div class="col-lg-4 mb-3">
+                                        <label>Yêu cầu nhập viện</label>
+                                        <input type="text" class="form-control" 
+                                            value="<?php 
+                                                if (isset($row['nhap_vien'])) {
+                                                    if ($row['nhap_vien'] == '1') echo 'Có';
+                                                    else if ($row['nhap_vien'] == '2') echo 'Không';
+                                                    else echo htmlspecialchars($row['nhap_vien']);
+                                                }
+                                            ?>" readonly>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <?php
+                        endforeach;
+                    else:
+                    ?>
+                    <div class="alert alert-info text-center">Chưa có bệnh án nào.</div>
+                <?php endif; ?>
+             </section>
+        
+            <!-- đơn thuốc select -->
             <br />
             <section class="content">
                 <!-- Default box -->
@@ -254,72 +397,80 @@ include './config/sidebar.php';?>
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
+                                        <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
                                         <th>Liều dùng</th>
                                         <th>Ghi chú</th>
-
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     <?php
-$query = "SELECT 
-            up.id AS user_id,
-            up.user_name,
-            up.display_name,
-            p.id AS patient_id,
-            p.patient_name,
+                        $query = "SELECT 
+                                    up.id AS user_id,
+                                    up.user_name,
+                                    up.display_name,
+                                    p.id AS patient_id,
+                                    p.patient_name,
 
-            pmh.id AS prescription_id,
-            pmh.quantity,
-            pmh.dosage,
-            pmh.note,
-            pmh.visit_date,
-            pmh.next_visit_date,
+                                    pmh.id AS prescription_id,
+                                    pmh.quantity,
+                                    pmh.dosage,
+                                    pmh.note,
+                                    pmh.visit_date,
+                                    pmh.next_visit_date,
+                                    pmh.created_at, 
 
-            m.id AS medicine_id,
-            m.medicine_name
-        FROM user_patients AS up
-        JOIN patients AS p ON up.id_patient = p.id
-        JOIN patient_medication_history AS pmh ON pmh.patient_id = p.id
-        JOIN medicines AS m ON pmh.medicine_id = m.id
-        WHERE up.is_deleted = 0
-          AND p.is_deleted = 0
-          AND up.id = :user_id
-        ORDER BY pmh.visit_date DESC";
+                                    m.id AS medicine_id,
+                                    m.medicine_name
+                                FROM user_patients AS up
+                                JOIN patients AS p ON up.id_patient = p.id
+                                JOIN patient_medication_history AS pmh ON pmh.patient_id = p.id
+                                JOIN medicines AS m ON pmh.medicine_id = m.id
+                                WHERE up.is_deleted = 0
+                                AND p.is_deleted = 0
+                                AND up.id = :user_id
+                                ORDER BY pmh.visit_date DESC";
 
-$stmt = $con->prepare($query);
-$stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-$stmt->execute();
+                        $stmt = $con->prepare($query);
+                        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                        $stmt->execute();
 
-$prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if (!empty($prescriptions)):
-    $count = 0;
-    foreach ($prescriptions as $row):
-        $count++;
-?>
-                                    <tr style="text-align:center;">
-                                        <td><?php echo $count; ?></td>
-                                        <td><?php echo htmlspecialchars($row['medicine_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['quantity']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['dosage']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['note']); ?></td>
-                                    </tr>
+                        if (!empty($prescriptions)):
+                            $count = 0;
+                            foreach ($prescriptions as $row):
+                                $count++;
+                        ?>
+                            <tr style="text-align:center;">
+                                <td><?php echo $count; ?></td>
+                                <td>
                                     <?php
-    endforeach;
-else:
-?>
-                                    <tr>
-                                        <td colspan="5" style="text-align:center;">Chưa có đơn thuốc nào.</td>
-                                    </tr>
-                                    <?php endif; ?>
-                                </tbody>
+                                    echo !empty($row['created_at']) && $row['created_at'] !== '0000-00-00 00:00:00'
+                                        ? date('d/m/Y H:i', strtotime($row['created_at']))
+                                        : '';
+                                    ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($row['medicine_name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['quantity']); ?></td>
+                                <td><?php echo htmlspecialchars($row['dosage']); ?></td>
+                                <td><?php echo htmlspecialchars($row['note']); ?></td>
+                            </tr>
+                        <?php
+                            endforeach;
+                        else:
+                        ?>
+                            <tr>
+                                <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
+                            </tr>
+                        <?php endif; ?>
+                            </tbody>
 
-                            </table>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
                     <!-- /.card-footer-->
                 </div>
@@ -327,6 +478,7 @@ else:
 
 
             </section>
+            
         </div>
         <!-- /.content -->
 

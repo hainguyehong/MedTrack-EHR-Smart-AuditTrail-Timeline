@@ -102,6 +102,7 @@ $medicines = getMedicines($con);
 
 <head>
     <?php include './config/site_css_links.php' ?>
+      <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
@@ -387,19 +388,6 @@ $medicines = getMedicines($con);
                                 </div>
 
                                 <h5 class="section-title"><i class="fas fa-file-medical"></i> Hình ảnh y tế</h5>
-                                <!-- <div class="row">
-                                    <div class="col-lg-6 mb-3">
-                                        <label>Ảnh siêu âm</label>
-                                        <input type="file" id="ultrasound" name="ultrasound" class="form-control" accept="image/*" />
-                                        <small class="text-muted">Kéo thả file ảnh vào đây hoặc click để tải lên</small>
-                                    </div>
-                                    <div class="col-lg-6 mb-3">
-                                        <label>Ảnh X-quang</label>
-                                        <input type="file" id="xray" name="xray" class="form-control" accept="image/*" />
-                                        <small class="text-muted">Kéo thả file ảnh vào đây hoặc click để tải lên</small>
-                                    </div>
-                                </div> -->
-
                                 <div class="medical-images">
                                     <h6><i class="bi bi-image"></i> Hình ảnh y tế</h6>
                                     <div class="row">
