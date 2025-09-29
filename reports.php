@@ -12,47 +12,59 @@ include './common_service/common_functions.php';
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Reports - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
-<style>
+    <style>
     body {
         background: #f8fafc;
     }
+
     .card {
         background: #fff;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
+
     .card-header {
         background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
         color: #fff;
         border-radius: 12px 12px 0 0;
     }
-    .btn-primary, .btn-danger {
+
+    .btn-primary,
+    .btn-danger {
         border-radius: 20px;
         transition: 0.2s;
     }
-    .btn-primary:hover, .btn-danger:hover {
+
+    .btn-primary:hover,
+    .btn-danger:hover {
         filter: brightness(1.1);
-        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
     }
-    .form-control, .form-select {
+
+    .form-control,
+    .form-select {
         border-radius: 8px;
     }
+
     .card-title {
         font-weight: 600;
         letter-spacing: 0.5px;
     }
+
     label {
         font-weight: 500;
     }
+
     .card-primary.card-outline {
-    border-top: 0px solid #007bff;
+        border-top: 0px solid #007bff;
     }
-</style>
+    </style>
 </head>
 
 <!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
+
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
-<!-- Site wrapper -->
+    <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
 
@@ -76,7 +88,7 @@ include './config/sidebar.php';?>
 
                 <!-- Default box -->
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
-                    <div class="card card-outline card-primary shadow">
+                <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Lịch Sử Khám Bệnh Trong Khoảng Thời Gian</h3>
 
@@ -98,8 +110,8 @@ include './config/sidebar.php';?>
 
                             <div class="col-md-2">
                                 <label>&nbsp;</label>
-                                <button type="button" id="print_visits"
-                                    class="btn btn-primary btn-sm btn-block">Xem Trước Báo Cáo</button>
+                                <button type="button" id="print_visits" class="btn btn-primary btn-sm btn-block">Xem
+                                    Trước Báo Cáo</button>
                             </div>
                         </div>
                     </div>
@@ -112,7 +124,7 @@ include './config/sidebar.php';?>
 
 
                 <div class="card card-outline card-primary shadow">
-                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                    <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                     <div class="card-header">
                         <h3 class="card-title">Báo Cáo Bệnh Lý Trong Khoảng Thời Gian</h3>
 
@@ -137,8 +149,8 @@ include './config/sidebar.php';?>
 
                             <div class="col-md-2">
                                 <label>&nbsp;</label>
-                                <button type="button" id="print_diseases"
-                                    class="btn btn-primary btn-sm btn-block">Xem Trước Báo Cáo</button>
+                                <button type="button" id="print_diseases" class="btn btn-primary btn-sm btn-block">Xem
+                                    Trước Báo Cáo</button>
                             </div>
                         </div>
                     </div>
@@ -162,7 +174,13 @@ include './config/sidebar.php';?>
     <script src="plugins/moment/moment.min.js"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">
+    </script>
     <script>
     showMenuSelected("#mnu_reports", "#mi_reports");
 
@@ -204,6 +222,15 @@ include './config/sidebar.php';?>
             }
         });
 
+    });
+    </script>
+    <script>
+    $(function() { // Tìm tất cả các group có id kết thúc bằng "_group" và khởi tạo datetimepicker
+        $("[id$='_group']").each(function() {
+            $(this).datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+        });
     });
     </script>
 </body>

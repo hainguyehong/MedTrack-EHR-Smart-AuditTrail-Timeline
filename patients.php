@@ -262,7 +262,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         class="form-control form-control-sm <?php echo isset($form_errors['patient_name']) ? 'is-invalid' : ''; ?>"
                                         value="<?php echo htmlspecialchars($old_data['patient_name'] ?? ''); ?>" />
                                     <?php if (isset($form_errors['patient_name'])): ?>
-                                        <span class="error-message"><i class="fas fa-exclamation-circle"></i> <?php echo $form_errors['patient_name']; ?></span>
+                                    <span class="error-message"><i class="fas fa-exclamation-circle"></i>
+                                        <?php echo $form_errors['patient_name']; ?></span>
                                     <?php endif; ?>
                                 </div>
 
@@ -273,7 +274,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         class="form-control form-control-sm <?php echo isset($form_errors['address']) ? 'is-invalid' : ''; ?>"
                                         value="<?php echo htmlspecialchars($old_data['address'] ?? ''); ?>" />
                                     <?php if (isset($form_errors['address'])): ?>
-                                        <span class="error-message"><i class="fas fa-exclamation-circle"></i> <?php echo $form_errors['address']; ?></span>
+                                    <span class="error-message"><i class="fas fa-exclamation-circle"></i>
+                                        <?php echo $form_errors['address']; ?></span>
                                     <?php endif; ?>
                                 </div>
 
@@ -284,7 +286,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         class="form-control form-control-sm <?php echo isset($form_errors['cnic']) ? 'is-invalid' : ''; ?>"
                                         value="<?php echo htmlspecialchars($old_data['cnic'] ?? ''); ?>" />
                                     <?php if (isset($form_errors['cnic'])): ?>
-                                        <span class="error-message"><i class="fas fa-exclamation-circle"></i> <?php echo $form_errors['cnic']; ?></span>
+                                    <span class="error-message"><i class="fas fa-exclamation-circle"></i>
+                                        <?php echo $form_errors['cnic']; ?></span>
                                     <?php endif; ?>
                                 </div>
 
@@ -294,21 +297,25 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         <label class="required">Ngày sinh</label>
                                         <div class="input-group date" id="date_of_birth" data-target-input="nearest">
                                             <input type="text" id="date_of_birth_input"
-                            class="form-control form-control-sm datetimepicker-input <?php echo isset($form_errors['date_of_birth']) ? 'is-invalid' : ''; ?>"
-                            data-target="#date_of_birth" name="date_of_birth" data-toggle="datetimepicker"
-                            autocomplete="off" value="<?php echo htmlspecialchars($old_data['date_of_birth'] ?? ''); ?>" />
+                                                class="form-control form-control-sm datetimepicker-input <?php echo isset($form_errors['date_of_birth']) ? 'is-invalid' : ''; ?>"
+                                                data-target="#date_of_birth" name="date_of_birth"
+                                                data-toggle="datetimepicker" autocomplete="off"
+                                                value="<?php echo htmlspecialchars($old_data['date_of_birth'] ?? ''); ?>" />
 
 
-                                            <div class="input-group-append" data-target="#date_of_birth" data-toggle="datetimepicker">
+                                            <div class="input-group-append" data-target="#date_of_birth"
+                                                data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
                                         </div>
                                         <?php if (isset($form_errors['date_of_birth'])): ?>
-                                            <span class="error-message" id="dob-error"><i class="fas fa-exclamation-circle"></i> <?php echo $form_errors['date_of_birth']; ?></span>
+                                        <span class="error-message" id="dob-error"><i
+                                                class="fas fa-exclamation-circle"></i>
+                                            <?php echo $form_errors['date_of_birth']; ?></span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                                
+
                                 <!-- SỐ ĐIỆN THOẠI -->
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label class="required">Số điện thoại</label>
@@ -316,19 +323,22 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         class="form-control form-control-sm <?php echo isset($form_errors['phone_number']) ? 'is-invalid' : ''; ?>"
                                         value="<?php echo htmlspecialchars($old_data['phone_number'] ?? ''); ?>" />
                                     <?php if (isset($form_errors['phone_number'])): ?>
-                                        <span class="error-message"><i class="fas fa-exclamation-circle"></i> <?php echo $form_errors['phone_number']; ?></span>
+                                    <span class="error-message"><i class="fas fa-exclamation-circle"></i>
+                                        <?php echo $form_errors['phone_number']; ?></span>
                                     <?php endif; ?>
                                 </div>
 
                                 <!-- GIỚI TÍNH -->
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label class="required">Giới tính</label>
-                                    <select class="form-control form-control-sm <?php echo isset($form_errors['gender']) ? 'is-invalid' : ''; ?>"
+                                    <select
+                                        class="form-control form-control-sm <?php echo isset($form_errors['gender']) ? 'is-invalid' : ''; ?>"
                                         id="gender" name="gender" required>
                                         <?php echo getGender(); ?>
                                     </select>
                                     <?php if (isset($form_errors['gender'])): ?>
-                                        <span class="error-message"><i class="fas fa-exclamation-circle"></i> <?php echo $form_errors['gender']; ?></span>
+                                    <span class="error-message"><i class="fas fa-exclamation-circle"></i>
+                                        <?php echo $form_errors['gender']; ?></span>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -338,7 +348,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                 <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
                                     <button type="submit" id="save_Patient" name="save_Patient"
-                                        class="btn btn-primary btn-sm btn-block"><i class="fa-solid fa-floppy-disk"></i>Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block"><i
+                                            class="fa-solid fa-floppy-disk"></i>Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -367,10 +378,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                     </div>
                     <div class="card-body">
                         <div class="row table-responsive">
-                            <table id="all_patients"
-                                class="table table-striped table-hover dataTable table-bordered dtr-inline" role="grid"
-                                aria-describedby="all_patients_info">
-
+                            <table id="all_patients" class="table table-striped dataTable table-bordered dtr-inline"
+                                role="grid" aria-describedby="all_patients_info">
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
@@ -469,26 +478,30 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
         if (message !== '') {
             showCustomMessage(message);
         }
-        
+
         // Khởi tạo datetimepicker
         $('#date_of_birth').datetimepicker({
             format: 'L'
         });
 
         //Client-side validation: Hiển thị lỗi đỏ và xóa lỗi khi user thao tác lại
-        (function(){
+        (function() {
             var form = document.getElementById('patientForm');
-            form.addEventListener('submit', function(e){
+            form.addEventListener('submit', function(e) {
                 // reset lỗi
-                document.querySelectorAll('.error-text').forEach(function(el){ el.textContent = ''; });
+                document.querySelectorAll('.error-text').forEach(function(el) {
+                    el.textContent = '';
+                });
                 var hasError = false;
                 // TÊN BỆNH NHÂN
                 var name = document.getElementById('patient_name');
                 if (!name.value.trim()) {
-                    document.getElementById('error_patient_name').textContent = 'Vui lòng nhập tên bệnh nhân!';
+                    document.getElementById('error_patient_name').textContent =
+                        'Vui lòng nhập tên bệnh nhân!';
                     hasError = true;
                 } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(name.value.trim())) {
-                    document.getElementById('error_patient_name').textContent = 'Tên bệnh nhân không hợp lệ!';
+                    document.getElementById('error_patient_name').textContent =
+                        'Tên bệnh nhân không hợp lệ!';
                     hasError = true;
                 }
                 // ĐỊA CHỈ
@@ -519,33 +532,37 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                     if (s.indexOf('/') !== -1) {
                         parts = s.split('/');
                         // dd/mm/yyyy
-                        dt = new Date(parts[2], parts[1]-1, parts[0]);
+                        dt = new Date(parts[2], parts[1] - 1, parts[0]);
                     } else if (s.indexOf('-') !== -1) {
                         parts = s.split('-');
                         // yyyy-mm-dd
-                        dt = new Date(parts[0], parts[1]-1, parts[2]);
+                        dt = new Date(parts[0], parts[1] - 1, parts[2]);
                     } else {
                         dt = new Date(s);
                     }
                     var now = new Date();
                     // set giờ về 0:0:0 so sánh ngày
-                    dt.setHours(0,0,0,0);
-                    now.setHours(0,0,0,0);
+                    dt.setHours(0, 0, 0, 0);
+                    now.setHours(0, 0, 0, 0);
                     if (isNaN(dt.getTime())) {
-                        document.getElementById('error_date_of_birth').textContent = 'Ngày không đúng định dạng!';
+                        document.getElementById('error_date_of_birth').textContent =
+                            'Ngày không đúng định dạng!';
                         hasError = true;
                     } else if (dt > now) {
-                        document.getElementById('error_date_of_birth').textContent = 'Ngày sinh không hợp lệ!';
+                        document.getElementById('error_date_of_birth').textContent =
+                            'Ngày sinh không hợp lệ!';
                         hasError = true;
                     }
                 }
                 // SĐT
                 var phone = document.getElementById('phone_number');
                 if (!phone.value.trim()) {
-                    document.getElementById('error_phone_number').textContent = 'Vui lòng nhập số điện thoại!';
+                    document.getElementById('error_phone_number').textContent =
+                        'Vui lòng nhập số điện thoại!';
                     hasError = true;
                 } else if (!/^\d{10,11}$/.test(phone.value.trim())) {
-                    document.getElementById('error_phone_number').textContent = 'Số điện thoại không hợp lệ (10 hoặc 11 số)!';
+                    document.getElementById('error_phone_number').textContent =
+                        'Số điện thoại không hợp lệ (10 hoặc 11 số)!';
                     hasError = true;
                 }
                 // GIỚI TÍNH
@@ -560,8 +577,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
             });
 
             // Clear error when user types/selects
-            document.querySelectorAll('#patientForm input, #patientForm select').forEach(function(el){
-                el.addEventListener('input', function(){
+            document.querySelectorAll('#patientForm input, #patientForm select').forEach(function(el) {
+                el.addEventListener('input', function() {
                     var eid = this.id ? 'error_' + this.id : null;
                     if (!eid && this.name === 'date_of_birth') eid = 'error_date_of_birth';
                     if (eid) {
@@ -570,7 +587,7 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                     }
                 });
                 // clear on focus as well
-                el.addEventListener('focus', function(){
+                el.addEventListener('focus', function() {
                     var eid = this.id ? 'error_' + this.id : null;
                     if (!eid && this.name === 'date_of_birth') eid = 'error_date_of_birth';
                     if (eid) {
@@ -604,25 +621,25 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
             const dobError = document.getElementById("dob-error"); // chỗ bạn đặt span error
 
 
-    if (dobInput) {
-        // khi gõ tay
-        dobInput.addEventListener("input", function() {
-            if (dobInput.value.trim() !== "") {
-                dobInput.classList.remove("is-invalid");
-                if (dobError) dobError.style.display = "none";
-            }
-        });
+            if (dobInput) {
+                // khi gõ tay
+                dobInput.addEventListener("input", function() {
+                    if (dobInput.value.trim() !== "") {
+                        dobInput.classList.remove("is-invalid");
+                        if (dobError) dobError.style.display = "none";
+                    }
+                });
 
 
-        // khi chọn từ datetimepicker
-        $('#date_of_birth').on("change.datetimepicker", function () {
-            if (dobInput.value.trim() !== "") {
-                dobInput.classList.remove("is-invalid");
-                if (dobError) dobError.style.display = "none";
+                // khi chọn từ datetimepicker
+                $('#date_of_birth').on("change.datetimepicker", function() {
+                    if (dobInput.value.trim() !== "") {
+                        dobInput.classList.remove("is-invalid");
+                        if (dobError) dobError.style.display = "none";
+                    }
+                });
             }
         });
-    }
-});
         // Danh sách bệnh nhân
         $(function() {
             $("#all_patients").DataTable({
@@ -631,8 +648,9 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                 "autoWidth": false,
                 // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                 "buttons": ["pdf", "print"],
+
                 "language": {
-                    "info": " Tổng cộng _TOTAL_ bệnh nhân",
+                    "info": " Tổng cộng _TOTAL_ người dùng",
                     "paginate": {
                         "previous": "<span style='font-size:18px;'>&#8592;</span>",
                         "next": "<span style='font-size:18px;'>&#8594;</span>"
