@@ -57,7 +57,7 @@ if (isset($_POST['save_Patient'])) {
         $errors['cnic'] = "CCCD không hợp lệ (toàn số 0)!";
     }
 
-    // Validate ngày sinh
+    // Validate ngày sinh ( hỗ trợ dd/mm/yyyy hoặc yyyy-mm-dd)
     if ($dateBirthRaw === '') {
         $errors['date_of_birth'] = "Vui lòng nhập ngày sinh!";
         $dateBirth = null;
