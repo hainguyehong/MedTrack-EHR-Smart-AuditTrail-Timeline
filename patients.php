@@ -229,6 +229,7 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1>BỆNH NHÂN</h1>
+                            <h7>Quản lý thông tin bệnh nhân và hồ sơ y tế</h7>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
