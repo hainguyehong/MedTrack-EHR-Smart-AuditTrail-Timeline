@@ -164,41 +164,36 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Thêm thông tin chi tiết về thuốc</h3>
-
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
-
                         </div>
                     </div>
                     <div class="card-body">
                         <form method="post">
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                    <label>Chọn Loại Thuốc</label>
-                                    <select id="medicine" name="medicine" class="orm-control form-control-sm"
-                                        required="required">
+                            <div class="row" style="align-items: flex-end;">
+                                <div class="col-lg-5 col-md-6 col-sm-12 mb-3">
+                                    <label style="font-weight:600;color:#000000;">Chọn Loại Thuốc</label>
+                                    <select id="medicine" name="medicine" class="form-control form-control-sm" required="required" style="border-radius:10px; border:1.5px solid #e3e7ed;">
                                         <?php echo $medicines;?>
                                     </select>
                                 </div>
-
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                    <label>Số Gói</label>
-                                    <input id="packing" name="packing" class="form-control form-control-sm rounded-0"
-                                        required="required" />
+                                <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
+                                    <label style="font-weight:600;color:#000000;">Số Gói</label>
+                                    <input id="packing" name="packing" class="form-control form-control-sm rounded-0" required="required"
+                                        style="border-radius:10px; border:1.5px solid #e3e7ed;" />
                                 </div>
-
-                                <div class="col-lg-1 col-md-2 col-sm-4 col-xs-12">
-                                    <label>&nbsp;</label>
+                                <div class="col-lg-2 col-md-2 col-sm-12 mb-3 d-flex align-items-end">
                                     <button type="submit" id="submit" name="submit"
-                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
+                                        class="btn btn-primary btn-block" style="border-radius:10px; font-weight:600; font-size:1rem; padding:0px 0; height: 34px">
+                                        <i class="fa fa-save"></i> Lưu
+                                    </button>
                                 </div>
                             </div>
                         </form>
                     </div>
                     <!-- /.card-body -->
-
                 </div>
                 <!-- /.card -->
 
