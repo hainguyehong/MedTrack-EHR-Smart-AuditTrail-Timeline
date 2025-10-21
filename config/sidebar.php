@@ -6,22 +6,27 @@ if(!(isset($_SESSION['user_id']))) {
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 ?>
 <aside class="main-sidebar elevation-4" style="background: #fff; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.3);">
-<style>
+    <style>
     .nav-sidebar .nav-link {
         color: #222 !important;
         font-weight: 500;
         border-radius: 8px;
         transition: background 0.2s, color 0.2s;
     }
+
     .nav-sidebar .nav-link .nav-icon,
     .nav-sidebar .nav-link i {
         color: #222 !important;
         transition: color 0.2s;
     }
-    .nav-sidebar .nav-link.active, .nav-sidebar .nav-link:focus, .nav-sidebar .nav-link:hover {
+
+    .nav-sidebar .nav-link.active,
+    .nav-sidebar .nav-link:focus,
+    .nav-sidebar .nav-link:hover {
         background: #e7f2ff !important;
         color: #007bff !important;
     }
+
     .nav-sidebar .nav-link.active .nav-icon,
     .nav-sidebar .nav-link.active i,
     .nav-sidebar .nav-link:focus .nav-icon,
@@ -30,22 +35,26 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     .nav-sidebar .nav-link:hover i {
         color: #007bff !important;
     }
+
     .nav-sidebar .nav-treeview .nav-link {
         color: #222 !important;
         font-weight: 400;
         margin-left: 10px;
     }
+
     .nav-sidebar .nav-treeview .nav-link .nav-icon,
     .nav-sidebar .nav-treeview .nav-link i {
         color: #222 !important;
         transition: color 0.2s;
     }
+
     .nav-sidebar .nav-treeview .nav-link.active,
     .nav-sidebar .nav-treeview .nav-link:focus,
     .nav-sidebar .nav-treeview .nav-link:hover {
         background: #e7f2ff !important;
         color: #007bff !important;
     }
+
     .nav-sidebar .nav-treeview .nav-link.active .nav-icon,
     .nav-sidebar .nav-treeview .nav-link.active i,
     .nav-sidebar .nav-treeview .nav-link:focus .nav-icon,
@@ -54,17 +63,21 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     .nav-sidebar .nav-treeview .nav-link:hover i {
         color: #007bff !important;
     }
+
     .brand-link {
         background: linear-gradient(90deg, #e7f2ff 60%, #ebfbff 100%) !important;
         color: #222 !important;
     }
+
     .user-panel .d-block {
         color: #007bff !important;
     }
-</style>
-    <a href="" class="brand-link logo-switch" style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+    </style>
+    <a href="" class="brand-link logo-switch"
+        style="display: flex; align-items: center; gap: 12px; justify-content: center;">
         <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
-        <span style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
+        <span
+            style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
     </a>
 
     <!-- Sidebar -->
@@ -76,14 +89,16 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                     alt="User Image" />
             </div> -->
             <div class="info d-flex justify-content-center">
-                <a href="#" class="d-block" style="font-weight: 600; font-size: 1.1rem;"><?php echo $_SESSION['display_name'];?></a>
+                <a href="#" class="d-block"
+                    style="font-weight: 600; font-size: 1.1rem;"><?php echo $_SESSION['display_name'];?></a>
             </div>
         </div>
 
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style="background: #fff;">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false"
+                style="background: #fff;">
                 <li class="nav-item" id="mnu_dashboard" <?php if($role == 3) echo 'style="display:none;"'; ?>>
                     <a href="dashboard.php" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -92,13 +107,19 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         </p>
                     </a>
                 </li>
-<!-- check role 3: BNhan -->
+                <!-- check role 3: BNhan -->
                 <?php if($role == 3): ?>
                 <li class="nav-item" id="mnu_medical_record">
                     <a href="user_medication.php" class="nav-link">
                         <i class="nav-icon fas fa-notes-medical"></i>
                         <p>
                             Bệnh án
+                        </p>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-notes-medical"></i>
+                        <p>
+                            Đặt lịch khám lại
                         </p>
                     </a>
                 </li>
@@ -199,36 +220,36 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     <!-- /.sidebar -->
 </aside>
 <script>
-    // Highlight menu/submenu when active
-    document.addEventListener('DOMContentLoaded', function() {
-        // Lấy pathname hiện tại
-        var path = window.location.pathname.split('/').pop();
+// Highlight menu/submenu when active
+document.addEventListener('DOMContentLoaded', function() {
+    // Lấy pathname hiện tại
+    var path = window.location.pathname.split('/').pop();
 
-        // Map file sang id menu con
-        var map = {
-            'patients.php': 'mi_patients',
-            'patients_visit.php': 'mi_new_prescription',
-            'doctor_patient.php': 'mi_doctor_patient'
-        };
+    // Map file sang id menu con
+    var map = {
+        'patients.php': 'mi_patients',
+        'patients_visit.php': 'mi_new_prescription',
+        'doctor_patient.php': 'mi_doctor_patient'
+    };
 
-        // Nếu là 1 trong các trang con thì active cả menu cha và con
-        if (map[path]) {
-            var sub = document.getElementById(map[path]);
-            if (sub) {
-                sub.classList.add('active');
-                // Active menu cha
-                var parent = document.getElementById('mnu_patients');
-                if (parent) {
-                    parent.querySelector('.nav-link').classList.add('active');
-                }
+    // Nếu là 1 trong các trang con thì active cả menu cha và con
+    if (map[path]) {
+        var sub = document.getElementById(map[path]);
+        if (sub) {
+            sub.classList.add('active');
+            // Active menu cha
+            var parent = document.getElementById('mnu_patients');
+            if (parent) {
+                parent.querySelector('.nav-link').classList.add('active');
             }
         }
-        // Nếu không phải trang con, loại bỏ active khỏi các menu con
-        else {
-            Object.values(map).forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.classList.remove('active');
-            });
-        }
-    });
+    }
+    // Nếu không phải trang con, loại bỏ active khỏi các menu con
+    else {
+        Object.values(map).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.remove('active');
+        });
+    }
+});
 </script>
