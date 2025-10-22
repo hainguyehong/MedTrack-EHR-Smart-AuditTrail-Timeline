@@ -221,7 +221,7 @@ include './config/sidebar.php';?>
                                     <input type="text" id="patient_name" name="patient_name"
                                         class="form-control form-control-sm"
                                         value="<?php echo htmlspecialchars($patient['patient_name'] ?? ''); ?>"
-                                        readonly />
+                                        disabled />
 
                                 </div>
                                 <br>
@@ -235,7 +235,7 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>CCCD</label>
-                                    <input type="text" id="cnic" name="cnic" readonly
+                                    <input type="text" id="cnic" name="cnic" disabled
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['cnic'] ?? ''); ?>" />
                                 </div>
@@ -256,13 +256,13 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Số điện thoại</label>
-                                    <input type="text" id="phone_number" name="phone_number" readonly
+                                    <input type="text" id="phone_number" name="phone_number" disabled
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['phone_number'] ?? ''); ?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Giới tính</label>
-                                    <input type="text" id="gender" name="gender" readonly
+                                    <input type="text" id="gender" name="gender" disabled
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['gender'] ?? ''); ?>" />
 
@@ -481,7 +481,7 @@ include './config/sidebar.php';?>
                             $count = 0;
                             foreach ($prescriptions as $row):
                                 $count++;
-                        ?>
+                            ?>
                                     <tr style="text-align:center;">
                                         <td><?php echo $count; ?></td>
                                         <td>

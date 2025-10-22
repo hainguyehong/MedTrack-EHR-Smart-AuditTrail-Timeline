@@ -22,7 +22,17 @@ if (isset($_POST['submit'])) {
     $nv = $_POST['nv']; 
     $disease = $_POST['disease']; 
 
-    
+    $next_visit_date = $_POST['next_visit_date'];
+        if (!empty($next_visit_date)) {
+        $date = DateTime::createFromFormat('d/m/Y', $next_visit_date);
+        if ($date) {
+            $next_visit_date = $date->format('Y-m-d');
+        } else {
+            $next_visit_date = null; // nếu sai định dạng
+        }
+    } else {
+        $next_visit_date = null;
+    }
     $ultrasoundDir = "uploads/anhsieuam/";
     $xrayDir = "uploads/xquang/";
 
@@ -40,20 +50,23 @@ if (isset($_POST['submit'])) {
     
     $createdAt = date("Y-m-d H:i:s");
     try {
+//         var_dump($_POST['next_visit_date']);
+// exit;
+
         $con->beginTransaction();
 
         $queryVisit = "INSERT INTO `patient_diseases`
             (`patient_id`, `huyet_ap`, `can_nang`, `chieu_cao`, `nhiet_do`, 
              `mach_dap`, `nhip_tim`, `anh_sieu_am`, `anh_chup_xq`, 
-             `trieu_chung`, `chuan_doan`, `bien_phap`, `nhap_vien`, `tien_su_benh`, `created_at`
+             `trieu_chung`, `chuan_doan`, `bien_phap`, `nhap_vien`, `tien_su_benh`, `created_at`, `next_visit_date`
              ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"; 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);"; 
         
         $stmtVisit = $con->prepare($queryVisit);
         $stmtVisit->execute([
             $patientId, $bp, $weight, $height, $temperature,
             $pulse, $heartRate, $ultrasoundPath, $xrayPath,
-            $tc, $cd, $bienphap, $nv, $disease,$createdAt
+            $tc, $cd, $bienphap, $nv, $disease,$createdAt, $next_visit_date
         ]);
     $lastInsertId = $con->lastInsertId();
     
@@ -102,11 +115,10 @@ $medicines = getMedicines($con);
 
 <head>
     <?php include './config/site_css_links.php' ?>
-      <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
+    <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-
     body {
         background: #f8fafc;
     }
@@ -212,7 +224,6 @@ $medicines = getMedicines($con);
         border-radius: 8px;
         margin-bottom: 20px;
     }
-
     </style>
     <!-- style của upload ảnh -->
     <style>
@@ -258,9 +269,12 @@ $medicines = getMedicines($con);
         top: 0;
         left: 0;
     }
-    .fas, .fa, .bi {
-    /* color: #007bff !important; */
-    font-size: 0.9em;
+
+    .fas,
+    .fa,
+    .bi {
+        /* color: #007bff !important; */
+        font-size: 0.9em;
     }
     </style>
 </head>
@@ -328,7 +342,8 @@ $medicines = getMedicines($con);
                                         <div class="input-group date" id="visit_date" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#visit_date" name="visit_date" required
-                                                data-toggle="datetimepicker" autocomplete="off" />
+                                                data-toggle="datetimepicker" autocomplete="off"
+                                                value="<?php echo date('d/m/Y H:i'); ?>" />
                                             <div class="input-group-append" data-target="#visit_date"
                                                 data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -338,9 +353,12 @@ $medicines = getMedicines($con);
                                     <div class="col-lg-4 col-md-6 mb-3">
                                         <label>Ngày tái khám</label>
                                         <div class="input-group date" id="next_visit_date" data-target-input="nearest">
-                                            <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#next_visit_date" name="next_visit_date"
-                                                data-toggle="datetimepicker" autocomplete="off" />
+                                            <input type="text" id="next_visit_date_input"
+                                                class="form-control datetimepicker-input" data-target="#next_visit_date"
+                                                name="next_visit_date" data-toggle="datetimepicker"
+                                                autocomplete="off" />
+
+
                                             <div class="input-group-append" data-target="#next_visit_date"
                                                 data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -550,6 +568,8 @@ $medicines = getMedicines($con);
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- cho tải ảnh -->
+    <script src="date.js"></script>
+
     <script>
     function previewImage(inputId, previewId) {
         const input = document.getElementById(inputId);
@@ -699,6 +719,11 @@ $medicines = getMedicines($con);
             );
         }
     }
+    $('#next_visit_date').datetimepicker({
+        format: 'DD/MM/YYYY',
+        useCurrent: false,
+        locale: 'vi'
+    });
     </script>
 
 

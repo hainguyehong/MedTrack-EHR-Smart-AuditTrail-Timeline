@@ -1,38 +1,61 @@
 <?php
 include './config/connection.php';
+include './common_service/date.php';
 
  $message = '';
-if(isset($_POST['save_medicine'])) {
+if (isset($_POST['save_medicine'])) {
     $medicineName = trim($_POST['medicine_name']);
     $medicineName = ucwords(strtolower($medicineName));
-   
-   $id = $_POST['hidden_id'];
-    if($medicineName !== '') {
-      
-        $query = "UPDATE `medicines` 
-        set `medicine_name` ='$medicineName' 
-        where `id`= $id";   
-    try{
-    	$con->beginTransaction();
+    $id = $_POST['hidden_id'];
 
-    	$stmtMedicine = $con->prepare($query);
-	    $stmtMedicine->execute();
-	   
-	   $con->commit();
-       
-        $_SESSION['success_message'] = 'Cập nhật loại thuốc thành công.';
+    if ($medicineName !== '') {
+        try {
+            $con->beginTransaction();
 
-    }catch(PDOException $ex){
-    	$con->rollback();
-	    echo $ex->getMessage();
-	    echo $ex->getTraceAsString();
-        exit;
+            // --- Kiểm tra trùng tên thuốc ngoại trừ chính nó ---
+            $checkQuery = "SELECT COUNT(*) FROM medicines 
+                           WHERE medicine_name = :medicine_name AND id != :id";
+            $stmtCheck = $con->prepare($checkQuery);
+            $stmtCheck->bindParam(':medicine_name', $medicineName);
+            $stmtCheck->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtCheck->execute();
+            $exists = $stmtCheck->fetchColumn();
+
+            if ($exists > 0) {
+                $con->rollBack();
+                $_SESSION['success_message'] = 'Tên thuốc này đã tồn tại, vui lòng nhập tên khác.';
+                header("Location: medicines.php");
+                exit();
+            }
+
+            // --- Không trùng thì cập nhật ---
+            $updateQuery = "UPDATE medicines 
+                            SET medicine_name = :medicine_name, 
+                                updated_at = :updated_at 
+                            WHERE id = :id";
+            $stmtUpdate = $con->prepare($updateQuery);
+            $updatedAt = date('Y-m-d H:i:s');
+            $stmtUpdate->bindParam(':medicine_name', $medicineName);
+            $stmtUpdate->bindParam(':updated_at', $updatedAt);
+            $stmtUpdate->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtUpdate->execute();
+
+            $con->commit();
+            $_SESSION['success_message'] = 'Cập nhật thuốc thành công.';
+
+        } catch (PDOException $ex) {
+            $con->rollBack();
+            $_SESSION['error_message'] = 'Lỗi khi cập nhật thuốc: ' . $ex->getMessage();
+        }
+    } else {
+        $_SESSION['error_message'] = 'Tên thuốc không được để trống.';
     }
 
-}
     header("Location: medicines.php");
     exit();
 }
+
+
 
 try {
 
@@ -56,43 +79,55 @@ try {
     <?php include './config/site_css_links.php';?>
     <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-        body {
-            background: #f8fafc;
-        }
-        .card-primary.card-outline {
-            border-top: 0px solid #007bff;
-        }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .card-header {
-            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-            color: #fff;
-            border-radius: 12px 12px 0 0;
-        }
-        .btn-primary, .btn-danger {
-            border-radius: 20px;
-            transition: 0.2s;
-        }
-        .btn-primary:hover, .btn-danger:hover {
-            filter: brightness(1.1);
-            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
-        }
-        .table {
-            background: #fff;
-        }
-        .form-control, .form-select {
-            border-radius: 8px;
-        }
-        .card-title {
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        label {
-            font-weight: 500;
-        }
+    body {
+        background: #f8fafc;
+    }
+
+    .card-primary.card-outline {
+        border-top: 0px solid #007bff;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .table {
+        background: #fff;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+    }
+
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    label {
+        font-weight: 500;
+    }
     </style>
 </head>
 
@@ -123,8 +158,10 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
+                                <path
+                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
                             </svg>
                             Chỉnh sửa loại thuốc
                         </h3>
@@ -160,10 +197,15 @@ include './config/sidebar.php';?>
  include './config/footer.php';
 
 	$message = '';
-        if (isset($_SESSION['success_message'])) {
-            $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
-        }
+    if (isset($_SESSION['success_message'])) {
+        $message = $_SESSION['success_message'];
+        unset($_SESSION['success_message']);
+    } 
+    // elseif (isset($_SESSION['error_message'])) {
+    //     $message = $_SESSION['error_message'];
+    //     unset($_SESSION['error_message']);
+    // }
+
 ?>
         <!-- /.control-sidebar -->
     </div>
@@ -171,11 +213,15 @@ include './config/sidebar.php';?>
 
     <?php include './config/site_js_links.php'; ?>
     <script>
-        showMenuSelected("#mnu_medicines", "#mi_medicine_details");
-        var message = '<?php echo $message;?>';
-        if (message !== '') {
-            showCustomMessage(message);
-        }
+    showMenuSelected("#mnu_medicines", "#mi_medicine_details");
+    var message = '<?php echo $message;?>';
+    if (message !== '') {
+        <?php if (isset($_SESSION['error_message'])): ?>
+        showCustomMessage(message, 'error');
+        <?php else: ?>
+        showCustomMessage(message, 'success');
+        <?php endif; ?>
+    }
     </script>
 
 </body>
