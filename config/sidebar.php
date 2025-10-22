@@ -5,6 +5,7 @@ if(!(isset($_SESSION['user_id']))) {
 }
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 ?>
+
 <aside class="main-sidebar elevation-4" style="background: #fff; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.3);">
     <style>
     .nav-sidebar .nav-link {
@@ -52,7 +53,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     .nav-sidebar .nav-treeview .nav-link:focus,
     .nav-sidebar .nav-treeview .nav-link:hover {
         background: #e7f2ff !important;
-        color: #007bff !important;
+        color: #ff006fff !important;
     }
 
     .nav-sidebar .nav-treeview .nav-link.active .nav-icon,
@@ -130,14 +131,14 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-injured"></i>
                         <p>
-                            <i class="fas "></i>
+                            <i class="fas"></i>
                             Bệnh Nhân
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="patients.php" class="nav-link" id="mi_patients">
+                            <a href="patients.php" class="nav-link" id="mi_patientss">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Thêm bệnh nhân</p>
                             </a>
@@ -168,15 +169,15 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         <li class="nav-item">
                             <a href="medicines.php" class="nav-link" id="mi_medicines">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Thêm loại thuốc </p>
+                                <p>Chi tiết thuốc </p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a href="medicine_details.php" class="nav-link" id="mi_medicine_details">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Chi tiết thuốc</p>
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                 </li>
                 <li class="nav-item" id="mnu_reports">
@@ -196,6 +197,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         </li>
                     </ul>
                 </li>
+                <?php if($role == 1): ?>
                 <li class="nav-item" id="mnu_users">
                     <a href="users.php" class="nav-link">
                         <i class="nav-icon fa fa-users"></i>
@@ -204,6 +206,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         </p>
                     </a>
                 </li>
+                <?php endif; ?>
                 <?php endif; ?>
                 <li class="nav-item">
                     <a href="logout.php" class="nav-link">
@@ -227,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Map file sang id menu con
     var map = {
-        'patients.php': 'mi_patients',
+        'patients.php': 'mi_patientss',
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient'
     };

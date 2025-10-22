@@ -1,18 +1,22 @@
 <?php 
 include './config/connection.php';
 include './common_service/common_functions.php';
+include './common_service/date.php';
 
 $message = '';
 
 if(isset($_POST['submit'])) {
 
-  $medicineId = $_POST['medicine'];
+//   $medicineId = $_POST['medicine'];
   $medicineDetailId = $_POST['hidden_id'];
   $packing = $_POST['packing'];  
-
+  $medicineName = $_POST['medicine_name'];
+  $updateat = date('Y-m-d H:i:s');
   $query = "update `medicine_details` 
-  set `medicine_id` = $medicineId, 
-  `packing` = '$packing' 
+  set  
+  `packing` = '$packing',
+  `medicine_name` = '$medicineName',
+  `updated_at` = '$updateat'
   where `id` = $medicineDetailId;";
 
   try {
@@ -37,11 +41,28 @@ if(isset($_POST['submit'])) {
     exit();
 }
 
-$medicineId = $_GET['medicine_id'];
-$medicineDetailId = $_GET['medicine_detail_id'];
-$packing = $_GET['packing'];
+$medicineId = $_GET['id'];
+// $medicineDetailId = $_GET['medicine_detail_id'];
+// $packing = $_GET['packing'];
+$medicines = getMedicines($con);
+if (isset($_GET['id'])) {
+    $medicineDetailId = $_GET['id'];
 
-$medicines = getMedicines($con, $medicineId);
+    $query = "SELECT * FROM medicine_details WHERE id = :id";
+    $stmt = $con->prepare($query);
+    $stmt->bindParam(':id', $medicineDetailId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        $medicine_name = $row['medicine_name'];
+        $packing = $row['packing'];
+    } else {
+        $medicine_name = '';
+        $packing = '';
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -51,43 +72,55 @@ $medicines = getMedicines($con, $medicineId);
     <?php include './config/site_css_links.php';?>
     <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-        body {
-            background: #f8fafc;
-        }
-        .card-primary.card-outline {
-            border-top: 0px solid #007bff;
-        }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .card-header {
-            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-            color: #fff;
-            border-radius: 12px 12px 0 0;
-        }
-        .btn-primary, .btn-danger {
-            border-radius: 20px;
-            transition: 0.2s;
-        }
-        .btn-primary:hover, .btn-danger:hover {
-            filter: brightness(1.1);
-            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
-        }
-        .table {
-            background: #fff;
-        }
-        .form-control, .form-select {
-            border-radius: 8px;
-        }
-        .card-title {
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        label {
-            font-weight: 500;
-        }
+    body {
+        background: #f8fafc;
+    }
+
+    .card-primary.card-outline {
+        border-top: 0px solid #007bff;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .table {
+        background: #fff;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+    }
+
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    label {
+        font-weight: 500;
+    }
     </style>
 </head>
 
@@ -119,8 +152,10 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
+                                <path
+                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
                             </svg>
                             Chỉnh sửa thông tin chi tiết thuốc
                         </h3>
@@ -132,21 +167,29 @@ include './config/sidebar.php';?>
                     </div>
                     <div class="card-body">
                         <form method="post">
+                            <!-- $ <?php echo  $medicineId; ?> -->
                             <input type="hidden" name="hidden_id" value="<?php echo $medicineDetailId;?>" />
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                    <label>Chọn loại thuốc</label>
-                                    <select id="medicine" name="medicine" class="form-control form-control-sm" required="required">
+                                    <label>Tên thuốc</label>
+                                    <!-- <select id="medicine" name="medicine" class="form-control form-control-sm"
+                                        required="required">
                                         <?php echo $medicines;?>
-                                    </select>
+                                    </select> -->
+                                    <input type="text" id="medicine_name" name="medicine_name" required="required"
+                                        class="form-control form-control-sm"
+                                        value="<?php echo htmlspecialchars($row['medicine_name']); ?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                     <label>Số gói</label>
-                                    <input id="packing" name="packing" class="form-control form-control-sm" required="required" value="<?php echo $packing;?>" />
+                                    <input id="packing" name="packing" class="form-control form-control-sm"
+                                        required="required" value="<?php echo htmlspecialchars($row['packing']); ?>" />
                                 </div>
                                 <div class="col-lg-1 col-md-2 col-sm-4 col-xs-12">
                                     <label>&nbsp;</label>
-                                    <button type="submit" id="submit" name="submit" class="btn btn-primary btn-sm btn-block">Cập nhật</button>
+                                    <button type="submit" id="submit" name="submit"
+                                        class="btn btn-primary btn-sm btn-block">Cập
+                                        nhật</button>
                                 </div>
                             </div>
                         </form>
@@ -174,11 +217,11 @@ include './config/sidebar.php';?>
 
     <?php include './config/site_js_links.php'; ?>
     <script>
-        showMenuSelected("#mnu_medicines", "#mi_medicine_details");
-        var message = '<?php echo $message;?>';
-        if (message !== '') {
-            showCustomMessage(message);
-        }
+    showMenuSelected("#mnu_medicines", "#mi_medicine_details");
+    var message = '<?php echo $message;?>';
+    if (message !== '') {
+        showCustomMessage(message);
+    }
     </script>
 </body>
 

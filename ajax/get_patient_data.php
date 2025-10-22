@@ -3,7 +3,7 @@
 
 if (isset($_POST['patient_id'])) {
     $patientId = intval($_POST['patient_id']);
-
+    echo $patientId;
     // Lấy thông tin bệnh nhân
     $query = "SELECT p.*, DATE_FORMAT(p.date_of_birth, '%d/%m/%Y') AS date_of_birth
               FROM patients p

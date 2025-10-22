@@ -33,7 +33,7 @@ function getRoles($role = '') {
     $roles = [
         1 => "Admin",
         2 => "Bác sĩ",
-        3 => "Bệnh nhân"
+        // 3 => "Bệnh nhân"
     ];
 
     $data = '<option value="">Chọn vai trò</option>';
@@ -60,7 +60,7 @@ function Nhapvien($nv = '') {
 }
 
 
-
+// hàm cũ
 function getMedicines($con, $medicineId = 0) {
 
 	$query = "select `id`, `medicine_name` from `medicines` 

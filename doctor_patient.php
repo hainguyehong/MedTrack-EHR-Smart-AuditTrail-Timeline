@@ -22,7 +22,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
               FROM patient_medication_history pmh
               JOIN medicines m ON pmh.medicine_id = m.id
               WHERE pmh.patient_id = :patient_id
-              ORDER BY pmh.visit_date DESC";
+              ORDER BY pmh.created_at ASC";
     $stmt = $con->prepare($query);
     $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
     $stmt->execute();
@@ -46,7 +46,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-
     body {
 
         background: #f8fafc;
@@ -61,7 +60,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
         /* border: 1.5px solid #007bff; */
 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
     }
 
@@ -75,7 +74,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
     }
 
-    .btn-primary, .btn-danger {
+    .btn-primary,
+    .btn-danger {
 
         border-radius: 20px;
 
@@ -83,17 +83,19 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
     }
 
-    
 
-    .btn-primary:hover, .btn-danger:hover {
+
+    .btn-primary:hover,
+    .btn-danger:hover {
 
         filter: brightness(1.1);
 
-        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
 
         /* border-radius: 8px; */
 
@@ -115,15 +117,15 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
     .card-primary.card-outline {
 
-    border-top: 0px solid #007bff;
+        border-top: 0px solid #007bff;
 
     }
-
-</style>
+    </style>
 </head>
 
 <!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
-    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -249,6 +251,7 @@ include './config/sidebar.php';
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
+                                        <th>Lần khám</th>
                                         <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
@@ -259,7 +262,7 @@ include './config/sidebar.php';
 
                                 <tbody id="prescriptionTable">
                                     <tr>
-                                        <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
+                                        <td colspan="7" style="text-align:center;">Chưa có đơn thuốc nào.</td>
                                     </tr>
                                 </tbody>
 
@@ -353,7 +356,8 @@ if (isset($_SESSION['success_message'])) {
                                 $('#patient_name').val(response.patient.patient_name);
                                 $('#address').val(response.patient.address);
                                 $('#cnic').val(response.patient.cnic);
-                                $('#date_of_birth').val(formatDate(response.patient.date_of_birth));
+                                $('#date_of_birth').val(formatDate(response.patient
+                                    .date_of_birth));
                                 $('#phone_number').val(response.patient.phone_number);
                                 $('#gender').val(response.patient.gender);
                             }
@@ -361,27 +365,53 @@ if (isset($_SESSION['success_message'])) {
                             // Đổ bảng đơn thuốc
                             var tbody = '';
                             if (response.prescriptions.length > 0) {
-                                $.each(response.prescriptions, function(index, row) {
-                                    tbody += '<tr style="text-align:center;">' +
-                                        '<td>' + (index + 1) + '</td>' +
-                                        '<td>' + (row.created_at ? moment(row.created_at).format("DD/MM/YYYY HH:mm") : '') + '</td>' +
-                                        '<td>' + row.medicine_name + '</td>' +
-                                        '<td>' + row.quantity + '</td>' +
-                                        '<td>' + row.dosage + '</td>' +
-                                        '<td>' + (row.note || '') + '</td>' +
-                                        '</tr>';
+                                // Nhóm các đơn thuốc theo ngày khám
+                                const grouped = {};
+                                response.prescriptions.forEach(row => {
+                                    // Nếu trong DB có trường visit_date -> dùng nó, nếu không thì lấy created_at
+                                    const dateRaw = row.visit_date || row
+                                        .created_at;
+                                    const date = moment(dateRaw).isValid() ? moment(
+                                            dateRaw).format("DD/MM/YYYY") :
+                                        "Không rõ";
+                                    if (!grouped[date]) grouped[date] = [];
+                                    grouped[date].push(row);
+                                });
+
+                                let index = 1;
+                                $.each(grouped, function(date, items) {
+                                    $.each(items, function(i, row) {
+                                        tbody +=
+                                            '<tr style="text-align:center;">' +
+                                            '<td>' + index + '</td>' +
+                                            '<td>Lần ' + index + '</td>' +
+                                            '<td>' + date + '</td>' +
+                                            '<td>' + row.medicine_name +
+                                            '</td>' +
+                                            '<td>' + row.quantity +
+                                            '</td>' +
+                                            '<td>' + row.dosage + '</td>' +
+                                            '<td>' + (row.note || '') +
+                                            '</td>' +
+                                            '</tr>';
+                                    });
+                                    index++;
                                 });
                             } else {
-                                tbody =
-                                    '<tr><td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>';
+                                tbody +=
+                                    '<tr><td colspan="7" class="text-center text-muted">Không có đơn thuốc nào.</td></tr>';
                             }
+
+
                             $('#prescriptionTable').html(tbody);
 
                             // Lấy thông tin các lần khám bệnh
                             $.ajax({
                                 url: 'ajax/get_patient_visits.php',
                                 type: 'POST',
-                                data: { patient_id: patientId },
+                                data: {
+                                    patient_id: patientId
+                                },
                                 dataType: 'json',
                                 success: function(visits) {
                                     var html = '';
@@ -446,7 +476,8 @@ if (isset($_SESSION['success_message'])) {
                                             `;
                                         });
                                     } else {
-                                        html = '<div class="alert alert-info text-center">Chưa có bệnh án nào.</div>';
+                                        html =
+                                            '<div class="alert alert-info text-center">Chưa có bệnh án nào.</div>';
                                     }
                                     $('#visit-history-list').html(html);
                                     $('#visit-history-section').show();
@@ -457,7 +488,9 @@ if (isset($_SESSION['success_message'])) {
                 } else {
                     // Clear info if no patient selected
                     $('#patient_name, #address, #cnic, #date_of_birth, #phone_number, #gender').val('');
-                    $('#prescriptionTable').html('<tr><td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>');
+                    $('#prescriptionTable').html(
+                        '<tr><td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>'
+                    );
                     $('#visit-history-list').html('');
                     $('#visit-history-section').hide();
                 }

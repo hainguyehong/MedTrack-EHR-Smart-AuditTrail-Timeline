@@ -1,14 +1,16 @@
 <?php 
 include './config/connection.php';
+include './common_service/date.php';
 
 $message = '';
 if(isset($_POST['save_medicine'])) {
   $message = '';
   $medicineName = trim($_POST['medicine_name']);
   $medicineName = ucwords(strtolower($medicineName));
+  $created_at = date('Y-m-d H:i:s');    
   if($medicineName != '') {
-   $query = "INSERT INTO `medicines`(`medicine_name`)
-   VALUES('$medicineName');";
+   $query = "INSERT INTO `medicines`(`medicine_name`, `created_at`)
+   VALUES('$medicineName', '$created_at');";
    
    try {
 
@@ -39,7 +41,7 @@ if(isset($_POST['save_medicine'])) {
 
 try {
   $query = "select `id`, `medicine_name` from `medicines` 
-   WHERE `is_deleted` = 0 order by `medicine_name` asc;";
+   WHERE `is_deleted` = 0 order by `created_at` desc;";
   $stmt = $con->prepare($query);
   $stmt->execute();
 
@@ -63,43 +65,55 @@ try {
     body {
         background: #f8fafc;
     }
+
     .card {
         background: #fff;
         border-radius: 12px;
         /* border: 1.5px solid #007bff; */
         /* box-shadow: 0 2px 8px rgba(0,0,0,0.04); */
     }
+
     .card-header {
         background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
         color: #fff;
         /* border-radius: 12px 12px 0 0; */
     }
-    .btn-primary, .btn-danger {
+
+    .btn-primary,
+    .btn-danger {
         border-radius: 20px;
         transition: 0.2s;
     }
-    .btn-primary:hover, .btn-danger:hover {
+
+    .btn-primary:hover,
+    .btn-danger:hover {
         filter: brightness(1.1);
-        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
     }
-    .form-control, .form-select {
+
+    .form-control,
+    .form-select {
         border-radius: 8px;
     }
+
     .card-title {
         font-weight: 600;
         letter-spacing: 0.5px;
     }
+
     label {
         font-weight: 500;
     }
+
     .card-primary.card-outline {
-    border-top: 0px solid #007bff;
+        border-top: 0px solid #007bff;
     }
-</style>
+    </style>
 </head>
 
 <!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
-    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -121,7 +135,7 @@ include './config/sidebar.php';?>
             <section class="content">
                 <!-- Default box -->
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
-                    <div class="card card-outline card-primary shadow">
+                <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Thêm mới Loại thuốc</h3>
                         <div class="card-tools">
@@ -138,6 +152,7 @@ include './config/sidebar.php';?>
                                     <input type="text" id="medicine_name" name="medicine_name" required="required"
                                         class="form-control form-control-sm" />
                                 </div>
+
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
@@ -248,14 +263,14 @@ include './config/footer.php';
             "lengthChange": false,
             "autoWidth": false,
             // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-             "buttons": ["pdf", "print"],
+            "buttons": ["pdf", "print"],
             "language": {
-              "info": " Tổng cộng _TOTAL_ loại thuốc",
-              "paginate": {
-                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
-                        "next": "<span style='font-size:18px;'>&#8594;</span>"
-                    }
-         },
+                "info": " Tổng cộng _TOTAL_ loại thuốc",
+                "paginate": {
+                    "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                    "next": "<span style='font-size:18px;'>&#8594;</span>"
+                }
+            },
         }).buttons().container().appendTo('#all_medicines_wrapper .col-md-6:eq(0)');
 
     });
