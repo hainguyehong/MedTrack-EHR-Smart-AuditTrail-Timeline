@@ -1,0 +1,35 @@
+{
+  "name": "setbased/exception",
+  "description": "Exceptions with format string",
+  "keywords": [
+    "Exception",
+    "Format"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=8.2"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require-dev": {
+    "phing/phing": "^3.0.0-RC6",
+    "phpunit/phpunit": "^10.5.10"
+  },
+  "autoload": {
+    "psr-4": {
+      "SetBased\\Exception\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SetBased\\Exception\\Test\\": "test/"
+    }
+  },
+  "config": {
+    "bin-dir": "bin/",
+    "sort-packages": true,
+    "allow-plugins": {
+      "phing/phing-composer-configurator": true
+    }
+  }
+}

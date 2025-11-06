@@ -1,0 +1,33 @@
+{
+  "name": "setbased/php-stratum-middle",
+  "description": "PhpStratum Middle: The glue between a PhpStratum backend and your application",
+  "keywords": [
+    "PhpStratum"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1",
+    "setbased/exception": "^2.3.0"
+  },
+  "require-dev": {
+    "phing/phing": "^3.0.0",
+    "phpunit/phpunit": "^10.5.35"
+  },
+  "autoload": {
+    "psr-4": {
+      "SetBased\\Stratum\\Middle\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SetBased\\Stratum\\Middle\\Test\\": "test/"
+    }
+  },
+  "config": {
+    "bin-dir": "bin/",
+    "sort-packages": true,
+    "allow-plugins": {
+      "phing/phing-composer-configurator": true
+    }
+  }
+}

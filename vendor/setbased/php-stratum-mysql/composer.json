@@ -1,0 +1,50 @@
+{
+  "name": "setbased/php-stratum-mysql",
+  "description": "PhpStratum MySQL: A stored procedure loader and wrapper generator for MySQL and MariaDB",
+  "keywords": [
+    "PhpStratum",
+    "MariaDB",
+    "MySQL",
+    "Stored Routines",
+    "Stored Procedures",
+    "Stored Functions",
+    "Wrapper",
+    "Loader"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1",
+    "ext-json": "*",
+    "ext-mysqli": "*",
+    "setbased/exception": "^2.3.0",
+    "setbased/helper-code-store-mysql": "^2.2.0",
+    "setbased/php-stratum-backend": "^6.1.0",
+    "setbased/php-stratum-common": "^7.0.0",
+    "setbased/php-stratum-middle": "^5.12.0"
+  },
+  "require-dev": {
+    "phing/phing": "^3.0.0",
+    "phpunit/phpunit": "^10.5.35",
+    "setbased/php-stratum": "^6.3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "SetBased\\Stratum\\MySql\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SetBased\\Stratum\\MySql\\Test\\": "test/"
+    },
+    "classmap": [
+      "test/C.php"
+    ]
+  },
+  "config": {
+    "bin-dir": "bin/",
+    "sort-packages": true,
+    "allow-plugins": {
+      "phing/phing-composer-configurator": true
+    }
+  }
+}
