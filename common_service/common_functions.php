@@ -123,5 +123,27 @@ function getDateTextBox($label, $dateId) {
 	<div class="input-group-append rounded-0" data-target="#'.$dateId.'_group" data-toggle="datetimepicker">
 	 <div class="input-group-text"><i class="fa fa-calendar"></i></div> </div> </div> </div> </div>'; 
 	 return $d; 
-	}
+}
+// bảng log_audit
+function log_audit($pdo, $user, $table, $record_id, $action, $old, $new) {
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO audit_logs (user_id, table_name, record_id, action, old_value, new_value)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $user,
+            $table,
+            $record_id,
+            $action,
+            json_encode($old, JSON_UNESCAPED_UNICODE),
+            json_encode($new, JSON_UNESCAPED_UNICODE)
+        ]);
+    } catch (PDOException $e) {
+        error_log("Audit log failed: " . $e->getMessage());
+    }
+}
+
+
+
 ?>

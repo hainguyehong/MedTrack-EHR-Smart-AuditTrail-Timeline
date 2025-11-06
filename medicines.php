@@ -1,44 +1,63 @@
 <?php 
 include './config/connection.php';
 include './common_service/date.php';
+include './common_service/common_functions.php';
 
 $message = '';
-if(isset($_POST['save_medicine'])) {
-  $message = '';
-  $medicineName = trim($_POST['medicine_name']);
-  $medicineName = ucwords(strtolower($medicineName));
-  $created_at = date('Y-m-d H:i:s');    
-  if($medicineName != '') {
-   $query = "INSERT INTO `medicines`(`medicine_name`, `created_at`)
-   VALUES('$medicineName', '$created_at');";
-   
-   try {
+if (isset($_POST['save_medicine'])) {
+    $medicineName = trim($_POST['medicine_name']);
+    $medicineName = ucwords(strtolower($medicineName));
+    $created_at = date('Y-m-d H:i:s');    
 
-    $con->beginTransaction();
+    if ($medicineName != '') {
+        try {
+            $con->beginTransaction();
 
-    $stmtMedicine = $con->prepare($query);
-    $stmtMedicine->execute();
+            // Thêm thuốc
+            $query = "INSERT INTO `medicines` (`medicine_name`, `created_at`)
+                      VALUES (:medicine_name, :created_at)";
+            $stmtMedicine = $con->prepare($query);
+            $stmtMedicine->execute([
+                ':medicine_name' => $medicineName,
+                ':created_at' => $created_at
+            ]);
 
-    $con->commit();
+            // Lấy ID vừa thêm
+            $newId = $con->lastInsertId();
 
-    // $message = 'Medicine added successfully.';
-    $_SESSION['success_message'] = 'Thêm thuốc thành công.';
-    
-  }catch(PDOException $ex) {
-   $con->rollback();
+            // ✅ Ghi log audit (nếu hàm log_audit tồn tại)
+            if (function_exists('log_audit')) {
+                log_audit(
+                    $con,
+                    $_SESSION['user_id'] ?? 'unknown',  // Ai thêm
+                    'medicines',                        // Bảng nào
+                    $newId,                             // ID bản ghi
+                    'insert',                           // Hành động
+                    null,                               // Không có dữ liệu cũ
+                    [                                   // Dữ liệu mới
+                        'medicine_name' => $medicineName,
+                        'created_at' => $created_at
+                    ]
+                );
+            }
 
-   echo $ex->getMessage();
-   echo $ex->getTraceAsString();
-   exit;
- }
+            $con->commit();
 
-} else {
- $message = 'Vui lòng điền đấy đủ thông tin.';
-}
+            $_SESSION['success_message'] = 'Thêm thuốc thành công.';
+        } catch (PDOException $ex) {
+            $con->rollBack();
+            $_SESSION['error_message'] = "Lỗi khi thêm thuốc: " . $ex->getMessage();
+        }
+
+    } else {
+        $_SESSION['error_message'] = 'Vui lòng điền đầy đủ thông tin.';
+    }
+
     header("Location: medicines.php");
     exit();
-}else
+}
 
+// else
 try {
   $query = "select `id`, `medicine_name` from `medicines` 
    WHERE `is_deleted` = 0 order by `created_at` desc;";

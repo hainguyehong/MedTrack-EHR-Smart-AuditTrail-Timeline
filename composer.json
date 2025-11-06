@@ -8,5 +8,9 @@
   "audit": {
     "schema": "audit",
     "tables": [ "users", "user_patients","patients", "patient_diseases", "patient_medication_history", "medicines" ]
+  },
+  "require": {
+    "tecnickcom/tcpdf": "^6.10",
+    "mpdf/mpdf": "^6.1"
   }
 }
