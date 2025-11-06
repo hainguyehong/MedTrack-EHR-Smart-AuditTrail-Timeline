@@ -1,0 +1,12 @@
+{
+  "database": {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "pms_db"
+  },
+  "audit": {
+    "schema": "audit",
+    "tables": [ "users", "user_patients","patients", "patient_diseases", "patient_medication_history", "medicines" ]
+  }
+}
