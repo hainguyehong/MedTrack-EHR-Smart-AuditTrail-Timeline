@@ -6,23 +6,4 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
-    'Symfony\\Polyfill\\Intl\\Normalizer\\' => array($vendorDir . '/symfony/polyfill-intl-normalizer'),
-    'Symfony\\Polyfill\\Intl\\Grapheme\\' => array($vendorDir . '/symfony/polyfill-intl-grapheme'),
-    'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
-    'Symfony\\Contracts\\Service\\' => array($vendorDir . '/symfony/service-contracts'),
-    'Symfony\\Component\\String\\' => array($vendorDir . '/symfony/string'),
-    'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
-    'SetBased\\Stratum\\MySql\\' => array($vendorDir . '/setbased/php-stratum-mysql/src'),
-    'SetBased\\Stratum\\Middle\\' => array($vendorDir . '/setbased/php-stratum-middle/src'),
-    'SetBased\\Stratum\\Common\\' => array($vendorDir . '/setbased/php-stratum-common/src'),
-    'SetBased\\Stratum\\Backend\\' => array($vendorDir . '/setbased/php-stratum-backend/src'),
-    'SetBased\\Helper\\CodeStore\\' => array($vendorDir . '/setbased/helper-code-store-php/src', $vendorDir . '/setbased/helper-code-store-mysql/src', $vendorDir . '/setbased/helper-code-store/src'),
-    'SetBased\\Helper\\' => array($vendorDir . '/setbased/helper-cast/src'),
-    'SetBased\\Exception\\' => array($vendorDir . '/setbased/exception/src'),
-    'SetBased\\ErrorHandler\\' => array($vendorDir . '/setbased/error-handler/src'),
-    'SetBased\\Config\\' => array($vendorDir . '/setbased/typed-config/src'),
-    'SetBased\\Audit\\' => array($vendorDir . '/setbased/php-audit/src'),
-    'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
-    'Noodlehaus\\' => array($vendorDir . '/hassankhan/config/src'),
 );

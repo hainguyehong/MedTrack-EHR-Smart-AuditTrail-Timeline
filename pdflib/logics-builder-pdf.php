@@ -2,6 +2,7 @@
 
 require('fpdf182/fpdf.php');
 
+
 class LB_PDF extends FPDF {
 
     const COL_HDR_COLOR = 100;
@@ -172,15 +173,15 @@ class LB_PDF extends FPDF {
             // Times bold 13
             $this->SetFont('', 'B', self::HEADING_SIZE);
             // Title
-            $this->Cell(0, 7, 'Patient Management System', 0, 0, 'C');
+            $this->Cell(0, 7, 'Lịch sử khám bệnh trong khoảng thời gian', 0, 0, 'C');
             $this->Ln();
             $this->Cell(0, 7, $this->reportTitle, 0, 0, 'C');
             $this->Ln();
             if ($this->fromDate != '' || $this->toDate != '') {
                 if ($this->fromDate != '' && $this->toDate != '') {
-                $this->Cell(0, 7, 'From ' . $this->fromDate . '  to  ' . $this->toDate, 0, 0, 'C');
+                $this->Cell(0, 7, 'Từ ngày ' . $this->fromDate . '  đến ngày  ' . $this->toDate, 0, 0, 'C');
                 } else if($this->fromDate != '') {
-                    $this->Cell(0, 7,  $this->fromDate , 0, 0, 'C');
+                    $this->Cell(0, 7,  'Từ ngày ' . $this->fromDate , 0, 0, 'C');
                 }
             }
             // Line break.
@@ -199,7 +200,7 @@ class LB_PDF extends FPDF {
             // Times italic 8
             $this->SetFont('', 'B', self::BODY_SIZE);
             // Page number
-            $this->Cell(0, 6, 'Page ' . $this->PageNo() . ' / {nb}', 0, 0, 'C');
+            $this->Cell(0, 6, 'Trang ' . $this->PageNo() . ' / {nb}', 0, 0, 'C');
         }
     }
 

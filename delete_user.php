@@ -12,32 +12,53 @@ if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {
 }
 $message = '';
 if (isset($_POST['delete_user'])) {
-  $id = $_POST['hidden_id'];
-try {
+    $id = $_POST['hidden_id'];
 
-  $con->beginTransaction();
-  
-     // Soft delete bệnh nhân
+    try {
+        // Lấy dữ liệu cũ để lưu log
+        $stmtOld = $con->prepare("SELECT * FROM `users` WHERE `id` = :id");
+        $stmtOld->execute([':id' => $id]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+        if (!$oldData) {
+            $_SESSION['error_message'] = 'Không tìm thấy người dùng cần xóa.';
+            header("Location: users.php");
+            exit();
+        }
+
+        $con->beginTransaction();
+
+        // Soft delete user
         $query = "UPDATE `users` SET `is_deleted` = 1 WHERE `id` = :id";
-        $stmtuser = $con->prepare($query);
-        $stmtuser->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtuser->execute();
+        $stmtUser = $con->prepare($query);
+        $stmtUser->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmtUser->execute();
 
-    $con->commit();
-    // $message = 'Bệnh nhân đã được xoá (soft delete).';
-    $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
+        // ✅ Ghi log audit
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown',
+                'users',
+                $id,
+                'delete',
+                $oldData, // giá trị trước khi xóa
+                ['is_deleted' => 1]
+            );
+        }
 
-} catch(PDOException $ex) {
-  $con->rollback();
+        $con->commit();
+        $_SESSION['success_message'] = 'Người dùng đã được xoá (soft delete).';
 
-  echo $ex->getMessage();
-  echo $ex->getTraceAsString();
-  exit;
-}
+    } catch (PDOException $ex) {
+        $con->rollBack();
+        $_SESSION['error_message'] = "Lỗi khi xóa: " . $ex->getMessage();
+    }
 
-    header("Location: users.php"); // quay về trang danh sách
+    header("Location: users.php");
     exit();
 }
+
 
 $user_id = $_GET['user_id'];
 
@@ -61,43 +82,55 @@ try {
     <?php include './config/site_css_links.php';?>
     <title>Người Dùng - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-        body {
-            background: #f8fafc;
-        }
-        .card-primary.card-outline {
-            border-top: 0px solid #007bff;
-        }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .card-header {
-            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-            color: #fff;
-            border-radius: 12px 12px 0 0;
-        }
-        .btn-primary, .btn-danger {
-            border-radius: 20px;
-            transition: 0.2s;
-        }
-        .btn-primary:hover, .btn-danger:hover {
-            filter: brightness(1.1);
-            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
-        }
-        .table {
-            background: #fff;
-        }
-        .form-control, .form-select {
-            border-radius: 8px;
-        }
-        .card-title {
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        label {
-            font-weight: 500;
-        }
+    body {
+        background: #f8fafc;
+    }
+
+    .card-primary.card-outline {
+        border-top: 0px solid #007bff;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .table {
+        background: #fff;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+    }
+
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    label {
+        font-weight: 500;
+    }
     </style>
 </head>
 
@@ -128,8 +161,10 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
+                                <path
+                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
                             </svg>
                             Xoá người dùng
                         </h3>
@@ -146,8 +181,8 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên hiển thị</label>
                                     <input type="text" id="display_name" name="display_name" required="required"
-                                        class="form-control form-control-sm"
-                                        value="<?php echo $row['display_name'];?>" readonly />
+                                        class="form-control form-control-sm" value="<?php echo $row['display_name'];?>"
+                                        readonly />
                                 </div>
                                 <br>
                                 <br>
@@ -155,8 +190,8 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên đăng nhập</label>
                                     <input type="text" id="username" name="username" required="required"
-                                        class="form-control form-control-sm"
-                                        value="<?php echo $row['user_name'];?>" readonly />
+                                        class="form-control form-control-sm" value="<?php echo $row['user_name'];?>"
+                                        readonly />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Mật khẩu</label>
@@ -206,11 +241,11 @@ $message = '';
 
     <?php include './config/site_js_links.php'; ?>
     <script>
-        showMenuSelected("#mnu_users", "#mi_users");
-        var message = '<?php echo $message;?>';
-        if (message !== '') {
-            showCustomMessage(message);
-        }
+    showMenuSelected("#mnu_users", "#mi_users");
+    var message = '<?php echo $message;?>';
+    if (message !== '') {
+        showCustomMessage(message);
+    }
     </script>
 
     <!-- Modal xác nhận xoá -->
