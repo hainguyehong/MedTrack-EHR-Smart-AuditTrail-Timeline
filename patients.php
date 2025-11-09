@@ -406,7 +406,7 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         <th>Ngày sinh</th>
                                         <th>Số điện thoại</th>
                                         <th>Giới tính</th>
-                                        <th>Thời gian tạo</th>
+                                        <th>Ngày khám</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>

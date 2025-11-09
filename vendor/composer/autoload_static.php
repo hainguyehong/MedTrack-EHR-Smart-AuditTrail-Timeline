@@ -6,6 +6,20 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit942b9d397662a46238b2f6620941acb9
 {
+    public static $prefixLengthsPsr4 = array (
+        'T' => 
+        array (
+            'Twilio\\' => 7,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'Twilio\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/twilio/sdk/src/Twilio',
+        ),
+    );
+
     public static $classMap = array (
         'CGIF' => __DIR__ . '/..' . '/mpdf/mpdf/classes/gif.php',
         'CGIFCOLORTABLE' => __DIR__ . '/..' . '/mpdf/mpdf/classes/gif.php',
@@ -57,6 +71,8 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit942b9d397662a46238b2f6620941acb9::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit942b9d397662a46238b2f6620941acb9::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit942b9d397662a46238b2f6620941acb9::$classMap;
 
         }, null, ClassLoader::class);
