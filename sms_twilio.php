@@ -21,8 +21,6 @@ function convertToInternational($phone, $country = 'OTHER') {
     return $phone;
 }
 
-
-
 /**
  * Gửi SMS qua Twilio
  * @param string $phone Số điện thoại nội địa hoặc quốc tế
