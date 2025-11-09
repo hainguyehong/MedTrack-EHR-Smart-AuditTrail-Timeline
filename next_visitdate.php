@@ -19,19 +19,13 @@ if (isset($_POST['send_sms'])) {
     $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($patient) {
-        // DEBUG: in ra số điện thoại
-        // echo "Số điện thoại bệnh nhân: " . $patient['phone_number'];
-        // Có thể dừng script nếu chỉ muốn kiểm tra
-        // exit;
-
+        
         $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày " . 
             date('d/m/Y', strtotime($patient['next_visit_date'])) . 
             ". Vui lòng liên hệ phòng khám để xác nhận.";
 
         // Gửi SMS Twilio (tự convert số)
-    
         $send_result = sendSMS($patient['phone_number'], $message_text, 'OTHER');
-
 
         if ($send_result === true) {
             $_SESSION['success_message'] = "Đã gửi SMS tới {$patient['patient_name']}";
