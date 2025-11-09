@@ -5,7 +5,7 @@ if(!(isset($_SESSION['user_id']))) {
 }
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 ?>
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <aside class="main-sidebar elevation-4" style="background: #fff; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.3);">
     <style>
     .nav-sidebar .nav-link {
@@ -84,7 +84,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     <!-- Sidebar -->
     <div class="sidebar" style="background: #fff;">
         <!-- Sidebar user (optional) -->
-        <div class="user-panel mt-3 pb-3 mb-3">
+        <div class="user-panel mt-3">
             <!-- <div class="image">
                 <img src="user_images/<?php echo $_SESSION['profile_picture'];?>" class="img-circle elevation-2"
                     alt="User Image" />
@@ -117,10 +117,16 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             Bệnh án
                         </p>
                     </a>
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-notes-medical"></i>
+                    <a href="user_noti.php" class="nav-link">
+                        <i class="nav-icon fa-solid fa-bell "></i>
                         <p>
-                            Đặt lịch khám lại
+                            Thông báo
+                        </p>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fa-solid fa-calendar-plus"></i>
+                        <p>
+                            Đặt lịch khám
                         </p>
                     </a>
                 </li>
@@ -153,6 +159,12 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             <a href="doctor_patient.php" class="nav-link" id="mi_doctor_patient">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Quản lý bệnh nhân</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="next_visitdate.php" class="nav-link" id="next_visitdate">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Danh sách lịch tái khám</p>
                             </a>
                         </li>
                     </ul>
@@ -233,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'patients.php': 'mi_patientss',
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient'
+        'next_visitdate.php': 'next_visitdate',
     };
 
     // Nếu là 1 trong các trang con thì active cả menu cha và con

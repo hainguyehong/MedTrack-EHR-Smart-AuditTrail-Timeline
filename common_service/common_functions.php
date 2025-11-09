@@ -144,6 +144,11 @@ function log_audit($pdo, $user, $table, $record_id, $action, $old, $new) {
     }
 }
 
-
-
-?>
+function islogin() {
+	if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+		return true;
+	} else {
+		header('Location: index.php');
+		exit();
+	}
+}
