@@ -1,4 +1,5 @@
 <?php
+   
 require_once 'vendor/autoload.php';
 include_once __DIR__ . '/common_service/env_loader.php';
 
@@ -41,8 +42,8 @@ function sendSMS($phone, $message, $country = 'VN') {
 
     // $base_url = "jj1ken.api.infobip.com";   
     // $api_key  = "42faeaee8ebcfc33505c431d43427e73-4c192c90-8cfd-4078-995d-0e9c9f8fbe66";   
-    $base_url = getenv('INFOBIP_BASE_URL');
-    $api_key  = getenv('INFOBIP_API_KEY');
+    $base_url = $_ENV['INFOBIP_BASE_URL'];
+    $api_key  = $_ENV['INFOBIP_API_KEY'];
     
     if (empty($base_url) || empty($api_key)) {
         return "Thiếu cấu hình Infobip (base_url hoặc api_key)";

@@ -6,7 +6,7 @@
 
 // // Tạm tạo file log nếu muốn
 // ini_set('log_errors', 1);
-// ini_set('error_log', __DIR__ . '/php_error.log');
+// ini_set('error_log', __DIR__ . '/php_error.log');    
 
 // echo "PHP đã chạy tới đây.<br>";
 ?>
@@ -54,8 +54,8 @@ function sendSMS($phone, $message, $country = 'VN') {
     if (!$phoneIntl) return "Số điện thoại không hợp lệ hoặc rỗng";
 
     // Cấu hình Twilio
-    $account_sid = getenv('TWILIO_ACCOUNT_SID');
-    $auth_token  = getenv('TWILIO_AUTH_TOKEN');
+    $account_sid = $_ENV['TWILIO_ACCOUNT_SID'];
+$auth_token  = $_ENV['TWILIO_AUTH_TOKEN'];
     // $from_number = getenv('TWILIO_PHONE_NUMBER');
     // $account_sid = "ACeade15de74800c85e7718ad24cd0146d";
     // $auth_token  = "46c370a84d737bf691307dd07003655e";
