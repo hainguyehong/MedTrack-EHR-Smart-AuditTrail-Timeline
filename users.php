@@ -4,35 +4,51 @@ include './common_service/common_functions.php';
 $message = '';
 
 if (isset($_POST['save_user'])) {
-    $displayName = $_POST['display_name'];
-    $userName = $_POST['user_name'];
+    $displayName = trim($_POST['display_name']);
+    $userName = trim($_POST['user_name']);
     $password = $_POST['password'];
     $role = $_POST['role'];
     $encryptedPassword = md5($password);
 
     try {
         $con->beginTransaction();
-        
-            $query = "INSERT INTO `users`(`display_name`, `user_name`, `role`, `password`) 
-            VALUES(:display_name, :user_name, :role, :password)";
 
+        // 🧩 Thêm user mới
+        $query = "INSERT INTO `users` (`display_name`, `user_name`, `role`, `password`) 
+                  VALUES (:display_name, :user_name, :role, :password)";
         $stmtUser = $con->prepare($query);
-        $stmtUser->bindParam(":display_name", $displayName);
-        $stmtUser->bindParam(":user_name", $userName);
-        $stmtUser->bindParam(":role", $role);    
-        $stmtUser->bindParam(":password", $encryptedPassword);
-        // var_dump($_POST['role']); exit;
+        $stmtUser->execute([
+            ':display_name' => $displayName,
+            ':user_name' => $userName,
+            ':role' => $role,
+            ':password' => $encryptedPassword
+        ]);
 
-        $stmtUser->execute();
+        // ✅ Lấy ID user mới thêm
+        $newUserId = $con->lastInsertId();
+
+        // ✅ Ghi log audit
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown',  // Người đang đăng nhập
+                'users',                            // Bảng bị ảnh hưởng
+                $newUserId,                         // ID user vừa thêm
+                'insert',                           // Hành động
+                null,                               // Không có dữ liệu cũ
+                [                                   // Dữ liệu mới
+                    'display_name' => $displayName,
+                    'user_name' => $userName,
+                    'role' => $role
+                ]
+            );
+        }
 
         $con->commit();
-
         $_SESSION['success_message'] = 'Tài khoản đã được tạo thành công.';
     } catch (PDOException $ex) {
-        $con->rollback();
-        echo $ex->getTraceAsString();
-        echo $ex->getMessage();
-        exit;
+        $con->rollBack();
+        $_SESSION['error_message'] = "Lỗi khi tạo tài khoản: " . $ex->getMessage();
     }
 
     header("Location: users.php");
@@ -80,42 +96,54 @@ try {
     body {
         background: #f8fafc;
     }
+
     .card {
         background: #fff;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
+
     .card-header {
         background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
         color: #fff;
         border-radius: 12px 12px 0 0;
     }
-    .btn-primary, .btn-danger {
+
+    .btn-primary,
+    .btn-danger {
         border-radius: 20px;
         transition: 0.2s;
     }
+
     .card-primary.card-outline {
-    border-top: 0px solid #007bff;
+        border-top: 0px solid #007bff;
     }
-    .btn-primary:hover, .btn-danger:hover {
+
+    .btn-primary:hover,
+    .btn-danger:hover {
         filter: brightness(1.1);
-        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
     }
-    .form-control, .form-select {
+
+    .form-control,
+    .form-select {
         border-radius: 8px;
     }
+
     .card-title {
         font-weight: 600;
         letter-spacing: 0.5px;
     }
+
     label {
         font-weight: 500;
     }
-</style>
+    </style>
 </head>
 
 <!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
-    <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
@@ -137,7 +165,7 @@ include './config/sidebar.php';?>
             <section class="content">
                 <!-- Default box -->
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
-                    <div class="card card-outline card-primary shadow">
+                <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Thêm mới tài khoản</h3>
                         <div class="card-tools">
@@ -159,13 +187,13 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Tên Đăng Nhập</label>
                                     <input type="text" id="user_name" name="user_name" required="required"
-                                        class="form-control form-control-sm"/>
+                                        class="form-control form-control-sm" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Mật Khẩu</label>
                                     <input type="password" id="password" name="password" required="required"
-                                       class="form-control form-control-sm" />
+                                        class="form-control form-control-sm" />
                                 </div>
 
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
@@ -191,7 +219,7 @@ include './config/sidebar.php';?>
                 <!-- Default box -->
 
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
-                    <div class="card card-outline card-primary shadow">
+                <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">Danh Sách Tài Khoản</h3>
 
@@ -356,12 +384,12 @@ $message = '';
             "buttons": ["pdf", "print"],
 
             "language": {
-              "info": " Tổng cộng _TOTAL_ người dùng",
-              "paginate": {
-                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
-                        "next": "<span style='font-size:18px;'>&#8594;</span>"
-                    }
-         }
+                "info": " Tổng cộng _TOTAL_ người dùng",
+                "paginate": {
+                    "previous": "<span style='font-size:18px;'>&#8592;</span>",
+                    "next": "<span style='font-size:18px;'>&#8594;</span>"
+                }
+            }
         }).buttons().container().appendTo('#all_users_wrapper .col-md-6:eq(0)');
 
     });

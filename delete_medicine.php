@@ -32,6 +32,17 @@ try {
         $stmtdetail = $con->prepare($querydetail);
         $stmtdetail->bindParam(':id', $id, PDO::PARAM_INT);
         $stmtdetail->execute();
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown',
+                'medicines',
+                $id,
+                'delete',
+                $oldData, // giá trị trước khi xóa
+                ['is_deleted' => 1]
+            );
+        }
     $con->commit();
     // $message = 'Bệnh nhân đã được xoá (soft delete).';
     $_SESSION['success_message'] = 'Xóa thuốc thành công (soft delete).';
@@ -47,9 +58,7 @@ try {
     header("Location: medicines.php"); // quay về trang danh sách
     exit();
 }
-
-
-
+// slect dữ liệu để hiển thị
 try {
  $id = $_GET['id'];
 	$query = "SELECT `id`, `medicine_name` from `medicines`

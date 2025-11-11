@@ -22,90 +22,129 @@ if (isset($_POST['submit'])) {
     $nv = $_POST['nv']; 
     $disease = $_POST['disease']; 
 
-    $next_visit_date = $_POST['next_visit_date'];
-        if (!empty($next_visit_date)) {
+    // --- Xử lý ngày hẹn tái khám ---
+    $next_visit_date = $_POST['next_visit_date'] ?? null;
+    if (!empty($next_visit_date)) {
         $date = DateTime::createFromFormat('d/m/Y', $next_visit_date);
-        if ($date) {
-            $next_visit_date = $date->format('Y-m-d');
-        } else {
-            $next_visit_date = null; // nếu sai định dạng
-        }
+        $next_visit_date = $date ? $date->format('Y-m-d') : null;
     } else {
         $next_visit_date = null;
     }
+
+    // --- Tạo thư mục upload nếu chưa có ---
     $ultrasoundDir = "uploads/anhsieuam/";
     $xrayDir = "uploads/xquang/";
-
     if (!is_dir($ultrasoundDir)) mkdir($ultrasoundDir, 0777, true);
     if (!is_dir($xrayDir)) mkdir($xrayDir, 0777, true);
 
-    
-    $ultrasoundName = basename($ultrasound["name"]);
-    $ultrasoundPath = $ultrasoundDir . $ultrasoundName;
-    move_uploaded_file($ultrasound["tmp_name"], $ultrasoundPath);
+    // --- Upload file ---
+    $ultrasoundPath = null;
+    if (!empty($ultrasound['name'])) {
+        $ultrasoundName = time() . "_" . basename($ultrasound["name"]);
+        $ultrasoundPath = $ultrasoundDir . $ultrasoundName;
+        move_uploaded_file($ultrasound["tmp_name"], $ultrasoundPath);
+    }
 
-    $xrayName = basename($xray["name"]);
-    $xrayPath = $xrayDir . $xrayName;
-    move_uploaded_file($xray["tmp_name"], $xrayPath);
-    
+    $xrayPath = null;
+    if (!empty($xray['name'])) {
+        $xrayName = time() . "_" . basename($xray["name"]);
+        $xrayPath = $xrayDir . $xrayName;
+        move_uploaded_file($xray["tmp_name"], $xrayPath);
+    }
+
     $createdAt = date("Y-m-d H:i:s");
-    try {
-//         var_dump($_POST['next_visit_date']);
-// exit;
 
+    try {
         $con->beginTransaction();
 
-        $queryVisit = "INSERT INTO `patient_diseases`
-            (`patient_id`, `huyet_ap`, `can_nang`, `chieu_cao`, `nhiet_do`, 
-             `mach_dap`, `nhip_tim`, `anh_sieu_am`, `anh_chup_xq`, 
-             `trieu_chung`, `chuan_doan`, `bien_phap`, `nhap_vien`, `tien_su_benh`, `created_at`, `next_visit_date`
-             ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);"; 
-        
+        // --- Thêm hồ sơ khám bệnh ---
+        $queryVisit = "INSERT INTO patient_diseases
+            (patient_id, huyet_ap, can_nang, chieu_cao, nhiet_do, 
+             mach_dap, nhip_tim, anh_sieu_am, anh_chup_xq, 
+             trieu_chung, chuan_doan, bien_phap, nhap_vien, tien_su_benh, created_at, next_visit_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         $stmtVisit = $con->prepare($queryVisit);
         $stmtVisit->execute([
             $patientId, $bp, $weight, $height, $temperature,
             $pulse, $heartRate, $ultrasoundPath, $xrayPath,
-            $tc, $cd, $bienphap, $nv, $disease,$createdAt, $next_visit_date
+            $tc, $cd, $bienphap, $nv, $disease, $createdAt, $next_visit_date
         ]);
-    $lastInsertId = $con->lastInsertId();
-    
-    $patientId   = $_POST['patient'];
-    $medicineIds = $_POST['medicineIds'] ?? [];
-    $quantities  = $_POST['quantities'] ?? [];
-    $dosages     = $_POST['dosages'] ?? [];
-    $notes       = $_POST['notes'] ?? [];
 
-    foreach ($medicineIds as $index => $medicineId) {
-        $quantity = $quantities[$index] ?? null;
-        $dosage   = $dosages[$index] ?? null;
-        $note     = $notes[$index] ?? null;
+        $lastInsertId = $con->lastInsertId();
 
-        $query = "INSERT INTO patient_medication_history 
-                  (patient_id, medicine_id, quantity, dosage, note, created_at) 
-                  VALUES (:patient_id, :medicine_id, :quantity, :dosage, :note, NOW())";
-        $stmt = $con->prepare($query);
-        $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
-        $stmt->bindParam(':medicine_id', $medicineId, PDO::PARAM_INT);
-        $stmt->bindParam(':quantity', $quantity);
-        $stmt->bindParam(':dosage', $dosage);
-        $stmt->bindParam(':note', $note);
-        $stmt->execute();
+        // --- Thêm danh sách thuốc ---
+        $medicineIds = $_POST['medicineIds'] ?? [];
+        $quantities  = $_POST['quantities'] ?? [];
+        $dosages     = $_POST['dosages'] ?? [];
+        $notes       = $_POST['notes'] ?? [];
+
+        $medLog = [];
+        foreach ($medicineIds as $index => $medicineId) {
+            $quantity = $quantities[$index] ?? null;
+            $dosage   = $dosages[$index] ?? null;
+            $note     = $notes[$index] ?? null;
+
+            $query = "INSERT INTO patient_medication_history 
+                      (patient_id, medicine_id, quantity, dosage, note, created_at) 
+                      VALUES (:patient_id, :medicine_id, :quantity, :dosage, :note, NOW())";
+            $stmt = $con->prepare($query);
+            $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
+            $stmt->bindParam(':medicine_id', $medicineId, PDO::PARAM_INT);
+            $stmt->bindParam(':quantity', $quantity);
+            $stmt->bindParam(':dosage', $dosage);
+            $stmt->bindParam(':note', $note);
+            $stmt->execute();
+
+            $medLog[] = [
+                'medicine_id' => $medicineId,
+                'quantity' => $quantity,
+                'dosage' => $dosage,
+                'note' => $note
+            ];
+        }
+
+        // --- Ghi log audit ---
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown', // Người thao tác
+                'patient_diseases',                // Bảng bị tác động
+                $lastInsertId,                     // ID hồ sơ vừa thêm
+                'insert',                          // Hành động
+                null,                              // Không có dữ liệu cũ
+                [
+                    'patient_id' => $patientId,
+                    'huyet_ap' => $bp,
+                    'can_nang' => $weight,
+                    'chieu_cao' => $height,
+                    'nhiet_do' => $temperature,
+                    'mach_dap' => $pulse,
+                    'nhip_tim' => $heartRate,
+                    'trieu_chung' => $tc,
+                    'chuan_doan' => $cd,
+                    'bien_phap' => $bienphap,
+                    'nhap_vien' => $nv,
+                    'tien_su_benh' => $disease,
+                    'thuoc' => $medLog,
+                    'created_at' => $createdAt
+                ]
+            );
+        }
+
+        $con->commit();
+        $_SESSION['success_message'] = 'Thông tin khám bệnh đã được lưu thành công.';
+
+    } catch (PDOException $ex) {
+        $con->rollback();
+        $_SESSION['error_message'] = 'Lỗi khi lưu dữ liệu: ' . $ex->getMessage();
+        exit;
     }
-    $con->commit();
 
-    $_SESSION['success_message'] = 'Thông tin khám bệnh của bệnh nhân đã được lưu trữ thành công.';
-
-  }catch(PDOException $ex) {
-    $con->rollback();
-    echo $ex->getTraceAsString();
-    echo $ex->getMessage();
-    exit;
-  }
-
-header("Location: patients_visit.php");
-exit();
+    header("Location: patients_visit.php");
+    exit();
 }
+
 $patients = getPatients($con);
 $medicines = getMedicines($con);
 
@@ -116,6 +155,7 @@ $medicines = getMedicines($con);
 <head>
     <?php include './config/site_css_links.php' ?>
     <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
+
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
      <!-- Thêm favicon -->

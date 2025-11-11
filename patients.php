@@ -177,6 +177,22 @@ if (isset($_POST['save_Patient'])) {
         ]);
         $con->commit();
         $_SESSION['success_message'] = 'Thêm mới bệnh nhân thành công.';
+        log_audit(
+            $con,
+            $_SESSION['user_id'] ?? 'unknown',   // người thực hiện (vd: admin đang đăng nhập)
+            'patients',                          // tên bảng
+            $idPatient,                          // ID bệnh nhân vừa thêm
+            'insert',                            // hành động
+            null,                                // dữ liệu cũ (vì là thêm mới)
+            [
+                'patient_name' => $patientName,
+                'address' => $address,
+                'cnic' => $cnic,
+                'date_of_birth' => $dateBirth,
+                'phone_number' => $phoneNumber,
+                'gender' => $gender
+            ]
+        );
     } catch(PDOException $ex) {
         $con->rollback();
         // bạn có thể log $ex->getMessage() vào log file, ở đây tạm echo / set session error
@@ -395,7 +411,7 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                         <th>Ngày sinh</th>
                                         <th>Số điện thoại</th>
                                         <th>Giới tính</th>
-                                        <th>Thời gian tạo</th>
+                                        <th>Ngày khám</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>

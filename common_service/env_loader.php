@@ -1,0 +1,15 @@
+<?php
+// env_loader.php
+if (file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '#') === 0) continue; // Bỏ comment
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            putenv(trim($key) . '=' . trim($value));
+            $_ENV[trim($key)] = trim($value); // Lưu vào $_ENV nếu cần
+            $_SERVER[trim($key)] = trim($value); // Lưu vào $_SERVER nếu cần
+        }
+    }
+}

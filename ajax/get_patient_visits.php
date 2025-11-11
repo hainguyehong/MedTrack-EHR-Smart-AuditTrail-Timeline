@@ -14,5 +14,7 @@ $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
 $stmt->execute();
 $visits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 echo json_encode($visits);
+
 

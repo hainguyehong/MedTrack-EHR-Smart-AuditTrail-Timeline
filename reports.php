@@ -1,6 +1,7 @@
 <?php 
 include './config/connection.php';
 include './common_service/common_functions.php';
+include './common_service/date.php';
 
 ?>
 <!DOCTYPE html>
@@ -104,12 +105,11 @@ include './config/sidebar.php';?>
                     </div>
                     <div class="card-body">
                         <div class="row">
-
                             <?php 
-            echo getDateTextBox('Từ Ngày', 'patients_from');
+                            echo getDateTextBox('Từ Ngày', 'patients_from');
 
-            echo getDateTextBox('Đến Ngày', 'patients_to');
-            ?>
+                            echo getDateTextBox('Đến Ngày', 'patients_to');
+                        ?>
 
                             <div class="col-md-2">
                                 <label>&nbsp;</label>
@@ -172,26 +172,27 @@ include './config/sidebar.php';?>
     </div>
     <!-- ./wrapper -->
 
-    <?php include './config/site_js_links.php' ?>
-
+    <?php include './config/site_js_links.php'; ?>
     <script src="plugins/moment/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- cho tải ảnh -->
+    <script src="date.js"></script>
     <script>
     showMenuSelected("#mnu_reports", "#mi_reports");
 
     $(document).ready(function() {
-        $('#patients_from, #patients_to, #disease_from, #disease_to').datetimepicker({
-            format: 'L'
+        // $('#patients_from, #patients_to, #disease_from, #disease_to').datetimepicker({
+        //     format: 'L'
+        // });
+        $(document).ready(function() {
+            // Initialize datetime pickers
+            $('#visit_date, #next_visit_date').datetimepicker({
+                format: 'L'
+            });
         });
-
         $("#print_visits").click(function() {
             var from = $("#patients_from").val();
             var to = $("#patients_to").val();

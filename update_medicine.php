@@ -1,6 +1,7 @@
 <?php
 include './config/connection.php';
 include './common_service/date.php';
+include './common_service/common_functions.php';
 
  $message = '';
 if (isset($_POST['save_medicine'])) {
@@ -12,7 +13,21 @@ if (isset($_POST['save_medicine'])) {
         try {
             $con->beginTransaction();
 
-            // --- Kiểm tra trùng tên thuốc ngoại trừ chính nó ---
+            // --- Lấy dữ liệu cũ để ghi log ---
+            $oldQuery = "SELECT * FROM medicines WHERE id = :id";
+            $stmtOld = $con->prepare($oldQuery);
+            $stmtOld->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtOld->execute();
+            $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+            if (!$oldData) {
+                $con->rollBack();
+                $_SESSION['error_message'] = 'Không tìm thấy thuốc để cập nhật.';
+                header("Location: medicines.php");
+                exit();
+            }
+
+            // --- Kiểm tra trùng tên thuốc (ngoại trừ chính nó) ---
             $checkQuery = "SELECT COUNT(*) FROM medicines 
                            WHERE medicine_name = :medicine_name AND id != :id";
             $stmtCheck = $con->prepare($checkQuery);
@@ -23,12 +38,12 @@ if (isset($_POST['save_medicine'])) {
 
             if ($exists > 0) {
                 $con->rollBack();
-                $_SESSION['success_message'] = 'Tên thuốc này đã tồn tại, vui lòng nhập tên khác.';
+                $_SESSION['error_message'] = 'Tên thuốc này đã tồn tại, vui lòng nhập tên khác.';
                 header("Location: medicines.php");
                 exit();
             }
 
-            // --- Không trùng thì cập nhật ---
+            // --- Cập nhật thuốc ---
             $updateQuery = "UPDATE medicines 
                             SET medicine_name = :medicine_name, 
                                 updated_at = :updated_at 
@@ -39,6 +54,22 @@ if (isset($_POST['save_medicine'])) {
             $stmtUpdate->bindParam(':updated_at', $updatedAt);
             $stmtUpdate->bindParam(':id', $id, PDO::PARAM_INT);
             $stmtUpdate->execute();
+
+            // --- Ghi log audit ---
+            if (function_exists('log_audit')) {
+                log_audit(
+                    $con,
+                    $_SESSION['user_id'] ?? 'unknown', // Ai thực hiện
+                    'medicines',                        // Bảng nào
+                    $id,                                // ID bản ghi
+                    'update',                           // Hành động
+                    $oldData,                           // Dữ liệu cũ
+                    [                                   // Dữ liệu mới
+                        'medicine_name' => $medicineName,
+                        'updated_at' => $updatedAt
+                    ]
+                );
+            }
 
             $con->commit();
             $_SESSION['success_message'] = 'Cập nhật thuốc thành công.';
@@ -54,6 +85,7 @@ if (isset($_POST['save_medicine'])) {
     header("Location: medicines.php");
     exit();
 }
+
 
 
 

@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-
+islogin();
 $message = '';
 $userId = $_SESSION['user_id']; // lấy id user sau khi login 
 // echo "🔍 userId hiện tại: " . htmlspecialchars($userId) . "<br>";
@@ -239,7 +239,6 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>CCCD</label>
                                     <input type="text" id="cnic" name="cnic" disabled
-
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['cnic'] ?? ''); ?>" />
                                 </div>
@@ -447,6 +446,7 @@ include './config/sidebar.php';?>
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
+                                        <th>Lần khám</th>
                                         <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
@@ -457,12 +457,22 @@ include './config/sidebar.php';?>
 
                                 <tbody>
                                     <?php
-                        $query = "SELECT 
-                                    up.id AS user_id,
-                                    up.user_name,
-                                    up.display_name,
-                                    p.id AS patient_id,
-                                    p.patient_name,
+                       $query = "SELECT 
+                            DATE_FORMAT(pmh.created_at, '%Y-%m-%d %H:%i') AS visit_date,
+                            GROUP_CONCAT(DISTINCT m.medicine_name SEPARATOR ',  ') AS medicine_names,
+                            GROUP_CONCAT(pmh.quantity SEPARATOR ',') AS quantities,
+                            GROUP_CONCAT(pmh.dosage SEPARATOR ',') AS dosages,
+                            GROUP_CONCAT(pmh.note SEPARATOR ',') AS notes
+                        FROM user_patients AS up
+                        JOIN patients AS p ON up.id_patient = p.id
+                        JOIN patient_medication_history AS pmh ON pmh.patient_id = p.id
+                        JOIN medicines AS m ON pmh.medicine_id = m.id
+                        WHERE up.is_deleted = 0
+                        AND p.is_deleted = 0
+                        AND up.id = :user_id
+                        GROUP BY DATE_FORMAT(pmh.created_at, '%Y-%m-%d %H:%i')
+                        ORDER BY visit_date ASC";
+
 
                                     pmh.id AS prescription_id,
                                     pmh.quantity,
@@ -497,24 +507,21 @@ include './config/sidebar.php';?>
 
                             ?>
 
+
                                     <tr style="text-align:center;">
                                         <td><?php echo $count; ?></td>
-                                        <td>
-                                            <?php
-                                    echo !empty($row['created_at']) && $row['created_at'] !== '0000-00-00 00:00:00'
-                                        ? date('d/m/Y H:i', strtotime($row['created_at']))
-                                        : '';
-                                    ?>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($row['medicine_name']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['quantity']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['dosage']); ?></td>
-                                        <td><?php echo htmlspecialchars($row['note']); ?></td>
+                                        <td><?php echo "Lần " . $count; ?></td>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($row['visit_date'])); ?></td>
+                                        <td><?php echo htmlspecialchars($row['medicine_names']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['quantities']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['dosages']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['notes']); ?></td>
                                     </tr>
                                     <?php
-                            endforeach;
-                        else:
-                        ?>
+                    endforeach;
+                else:
+                ?>
+                                    ?>
                                     <tr>
                                         <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
                                     </tr>
