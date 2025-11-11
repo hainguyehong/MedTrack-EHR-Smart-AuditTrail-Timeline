@@ -1,0 +1,27 @@
+[11-Nov-2025 10:39:26 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key 1 in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php on line 10
+[11-Nov-2025 10:39:26 Asia/Ho_Chi_Minh] PHP Deprecated:  trim(): Passing null to parameter #1 ($string) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php on line 13
+[11-Nov-2025 10:39:26 Asia/Ho_Chi_Minh] PHP Fatal error:  Uncaught ValueError: putenv(): Argument #1 ($assignment) must have a valid syntax in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php:13
+Stack trace:
+#0 D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php(13): putenv('=')
+#1 D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php(16): include_once('D:\\C\xC4\x90 D\xE1\xBB\xB1 \xC3\x81n...')
+#2 D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php(5): include('D:\\C\xC4\x90 D\xE1\xBB\xB1 \xC3\x81n...')
+#3 {main}
+  thrown in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php on line 13
+[11-Nov-2025 10:39:46 Asia/Ho_Chi_Minh] PHP Parse error:  syntax error, unexpected token "\" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php on line 3
+[11-Nov-2025 10:39:49 Asia/Ho_Chi_Minh] PHP Parse error:  syntax error, unexpected token "\" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\common_service\env_loader.php on line 3
+[11-Nov-2025 10:45:18 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_ACCOUNT_SID" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 18
+[11-Nov-2025 10:45:18 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_AUTH_TOKEN" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 19
+[11-Nov-2025 10:45:18 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_PHONE_NUMBER" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 20
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_ACCOUNT_SID" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 18
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_AUTH_TOKEN" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 19
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_PHONE_NUMBER" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 20
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_ACCOUNT_SID" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 18
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_AUTH_TOKEN" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 19
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_PHONE_NUMBER" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 20
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_ACCOUNT_SID" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 18
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_AUTH_TOKEN" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 19
+[11-Nov-2025 10:45:20 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "TWILIO_PHONE_NUMBER" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\sms_twilio.php on line 20
+[11-Nov-2025 10:57:56 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
+[11-Nov-2025 10:58:27 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
+[11-Nov-2025 10:58:33 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
+[11-Nov-2025 10:58:54 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
