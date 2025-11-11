@@ -6,6 +6,7 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit942b9d397662a46238b2f6620941acb9
 {
+<<<<<<< HEAD
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -27,10 +28,14 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         array (
             'Webmozart\\Assert\\' => 17,
         ),
+=======
+    public static $prefixLengthsPsr4 = array (
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
         'T' => 
         array (
             'Twilio\\' => 7,
         ),
+<<<<<<< HEAD
         'S' => 
         array (
             'Symfony\\Polyfill\\Php83\\' => 23,
@@ -88,10 +93,16 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
         ),
+=======
+    );
+
+    public static $prefixDirsPsr4 = array (
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
         'Twilio\\' => 
         array (
             0 => __DIR__ . '/..' . '/twilio/sdk/src/Twilio',
         ),
+<<<<<<< HEAD
         'Symfony\\Polyfill\\Php83\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php83',
@@ -209,6 +220,8 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         array (
             0 => __DIR__ . '/..' . '/doctrine/annotations/lib/Doctrine/Common/Annotations',
         ),
+=======
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
     );
 
     public static $classMap = array (
@@ -220,6 +233,7 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         'CGIFLZW' => __DIR__ . '/..' . '/mpdf/mpdf/classes/gif.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Datamatrix' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/datamatrix.php',
+<<<<<<< HEAD
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
@@ -229,6 +243,8 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         'DateMalformedStringException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateMalformedStringException.php',
         'DateObjectError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateObjectError.php',
         'DateRangeError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateRangeError.php',
+=======
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
         'FPDF_TPL' => __DIR__ . '/..' . '/setasign/fpdi/fpdf_tpl.php',
         'FPDI' => __DIR__ . '/..' . '/setasign/fpdi/fpdi.php',
         'FilterASCII85' => __DIR__ . '/..' . '/setasign/fpdi/filters/FilterASCII85.php',
@@ -236,14 +252,21 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         'FilterLZW' => __DIR__ . '/..' . '/setasign/fpdi/filters/FilterLZW.php',
         'INDIC' => __DIR__ . '/..' . '/mpdf/mpdf/classes/indic.php',
         'MYANMAR' => __DIR__ . '/..' . '/mpdf/mpdf/classes/myanmar.php',
+<<<<<<< HEAD
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
         'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
         'Override' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/Override.php',
+=======
+        'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
         'PDF417' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/pdf417.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'QRcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/include/barcodes/qrcode.php',
         'SEA' => __DIR__ . '/..' . '/mpdf/mpdf/classes/sea.php',
+<<<<<<< HEAD
         'SQLite3Exception' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/SQLite3Exception.php',
+=======
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
         'SVG' => __DIR__ . '/..' . '/mpdf/mpdf/classes/svg.php',
         'TCPDF' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf.php',
         'TCPDF2DBarcode' => __DIR__ . '/..' . '/tecnickcom/tcpdf/tcpdf_barcodes_2d.php',
@@ -269,7 +292,10 @@ class ComposerStaticInit942b9d397662a46238b2f6620941acb9
         'pdf_context' => __DIR__ . '/..' . '/setasign/fpdi/pdf_context.php',
         'tocontents' => __DIR__ . '/..' . '/mpdf/mpdf/classes/tocontents.php',
         'wmf' => __DIR__ . '/..' . '/mpdf/mpdf/classes/wmf.php',
+<<<<<<< HEAD
         '©' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
+=======
+>>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
     );
 
     public static function getInitializer(ClassLoader $loader)
