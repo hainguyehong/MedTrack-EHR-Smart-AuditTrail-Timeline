@@ -209,6 +209,9 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
     <?php include './config/site_css_links.php';?>
     <?php include './config/data_tables_css.php';?>
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+     <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <!-- Link Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/patients.css">

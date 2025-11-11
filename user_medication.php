@@ -42,7 +42,9 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
     <?php include './config/site_css_links.php';?>
 
     <?php include './config/data_tables_css.php';?>
-
+ <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
@@ -321,10 +323,15 @@ include './config/sidebar.php';?>
                         foreach ($diseases as $index => $row):
                             $visitNumber = $index + 1; // lần 1 2 3 ...
                     ?>
-                <div class="card mb-4">
+                <div class="card mb-4 collapsed-card">
                     <div class="card-header bg-info text-white">
                         <strong>Lần khám <?php echo $visitNumber; ?> -
                             <?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></strong>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <form>
@@ -456,8 +463,6 @@ include './config/sidebar.php';?>
                                     pmh.quantity,
                                     pmh.dosage,
                                     pmh.note,
-                                    pmh.visit_date,
-                                    pmh.next_visit_date,
                                     pmh.created_at, 
 
                                     m.id AS medicine_id,
@@ -469,8 +474,8 @@ include './config/sidebar.php';?>
                                 WHERE up.is_deleted = 0
                                 AND p.is_deleted = 0
                                 AND up.id = :user_id
-                                ORDER BY pmh.visit_date DESC";
-
+                                ORDER BY pmh.created_at DESC";
+                        
                         $stmt = $con->prepare($query);
                         $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
                         $stmt->execute();
@@ -575,6 +580,21 @@ if (isset($_SESSION['success_message'])) {
                     }
                 }
             }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
+        });
+        </script>
+        <script>
+        // đảm bảo icon + / - thay đổi đúng khi user bấm (hỗ trợ phần tử động)
+        $(document).on('click', '[data-card-widget="collapse"]', function(e) {
+            var $btn = $(this).find('i');
+            var $card = $(this).closest('.card');
+            // chờ AdminLTE đổi class collapsed-card rồi cập nhật icon
+            setTimeout(function() {
+                if ($card.hasClass('collapsed-card')) {
+                    $btn.removeClass('fa-minus').addClass('fa-plus');
+                } else {
+                    $btn.removeClass('fa-plus').addClass('fa-minus');
+                }
+            }, 50);
         });
         </script>
 </body>

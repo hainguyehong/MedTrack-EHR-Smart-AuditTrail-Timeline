@@ -76,6 +76,9 @@ try {
 
 <head>
     <?php include './config/site_css_links.php';?>
+     <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Người Dùng - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
         body {

@@ -60,7 +60,9 @@ try {
 
 <head>
     <?php include './config/site_css_links.php';?>
-
+ <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 
     <?php include './config/data_tables_css.php';?>
     <title>Users - MedTrack-EHR-Smart-AuditTrail-Timeline

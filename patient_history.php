@@ -10,6 +10,9 @@ $patients = getPatients($con);
 
 <head>
     <?php include './config/site_css_links.php';?>
+     <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Tiền sử bệnh nhân - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
 

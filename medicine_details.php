@@ -94,6 +94,9 @@ $query = "SELECT
 <head>
     <?php include './config/site_css_links.php';?>
     <?php include './config/data_tables_css.php';?>
+      <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Medicine Details - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>

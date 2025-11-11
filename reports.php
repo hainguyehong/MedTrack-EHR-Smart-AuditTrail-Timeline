@@ -10,6 +10,9 @@ include './common_service/common_functions.php';
     <?php include './config/site_css_links.php' ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+     <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Reports - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>

@@ -76,7 +76,8 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     </style>
     <a href="" class="brand-link logo-switch"
         style="display: flex; align-items: center; gap: 12px; justify-content: center;">
-        <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
+        <!-- <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;"> -->
+         <img src="assets/images/img-tn.png" alt="Logo" style="height: 50px; width: auto; border-radius: 50%;">
         <span
             style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
     </a>
@@ -89,9 +90,21 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <img src="user_images/<?php echo $_SESSION['profile_picture'];?>" class="img-circle elevation-2"
                     alt="User Image" />
             </div> -->
-            <div class="info d-flex justify-content-center">
-                <a href="#" class="d-block"
-                    style="font-weight: 600; font-size: 1.1rem;"><?php echo $_SESSION['display_name'];?></a>
+            <div class="info d-flex flex-column align-items-center justify-content-center">
+                <span style="color:#007bff; font-weight:700; font-size:1.08rem; letter-spacing:0.5px; margin-bottom:2px;">
+                    <?php
+                        $roleLabel = '';
+                        if (isset($_SESSION['role'])) {
+                            if ($_SESSION['role'] == 1) $roleLabel = 'Quản trị viên';
+                            else if ($_SESSION['role'] == 2) $roleLabel = 'Bác sĩ';
+                            else if ($_SESSION['role'] == 3) $roleLabel = 'Bệnh nhân';
+                        }
+                        echo $roleLabel;
+                    ?>
+                </span>
+                <a href="#" class="d-block" style="font-weight: 600; font-size: 1.08rem; color:#222;">
+                    <?php echo htmlspecialchars($_SESSION['display_name']); ?>
+                </a>
             </div>
         </div>
 
