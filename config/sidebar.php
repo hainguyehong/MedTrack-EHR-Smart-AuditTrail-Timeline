@@ -150,7 +150,9 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <?php endif; ?>
 
                 <?php if($role != 3): ?>
-                <li class="nav-item" id="mnu_patients">
+                <!-- <li class="nav-item" id="mnu_patients"> -->
+                    <li class="nav-item" id="mnu_patients" <?php if($role == 1) echo 'style="display:none;"'; ?>>
+
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-injured"></i>
                         <p>
@@ -186,7 +188,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item" id="mnu_medicines">
+                <li class="nav-item" id="mnu_medicines" <?php if($role == 1) echo 'style="display:none;"'; ?>>
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-pills"></i>
                         <p>
@@ -244,6 +246,15 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <?php endif; ?>
                 <?php endif; ?>
 
+                <!-- audit logs -->
+                <?php if($role == 1) { ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="audit_logs.php">
+                        <i class="fas fa-clipboard-list" style="padding-right:14px; padding-left:5px;"></i> Audit Trail
+                    </a>
+                </li>
+
+                <?php } ?>
                 <li class="nav-item">
                     <a href="logout.php" class="nav-link">
                         <i class="nav-icon fa fa-sign-out-alt"></i>
