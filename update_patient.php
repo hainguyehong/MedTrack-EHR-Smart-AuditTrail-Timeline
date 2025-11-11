@@ -193,61 +193,54 @@ $dob = $row['date_of_birth'];
 <html lang="en">
 
 </head>
-<?php include './config/site_css_links.php';?>
-<?php include './config/data_tables_css.php';?>
-<link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-<title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
-<style>
-body {
-    background: #f8fafc;
-}
 
-.card-primary.card-outline {
-    border-top: 0px solid #007bff;
-}
-
-.card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.card-header {
-    background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-    color: #fff;
-    border-radius: 12px 12px 0 0;
-}
-
-.btn-primary,
-.btn-danger {
-    border-radius: 20px;
-    transition: 0.2s;
-}
-
-.btn-primary:hover,
-.btn-danger:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
-}
-
-.table {
-    background: #fff;
-}
-
-.form-control,
-.form-select {
-    border-radius: 8px;
-}
-
-.card-title {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-label {
-    font-weight: 500;
-}
-</style>
+    <?php include './config/site_css_links.php';?>
+    <?php include './config/data_tables_css.php';?>
+     <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+    <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <style>
+        body {
+            background: #f8fafc;
+        }
+        .card-primary.card-outline {
+            border-top: 0px solid #007bff;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .card-header {
+            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+            color: #fff;
+            border-radius: 12px 12px 0 0;
+        }
+        .btn-primary, .btn-danger {
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .btn-primary:hover, .btn-danger:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        }
+        .table {
+            background: #fff;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+        }
+        .card-title {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        label {
+            font-weight: 500;
+        }
+        
+    </style>
 
 <head>
 

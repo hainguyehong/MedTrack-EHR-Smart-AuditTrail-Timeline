@@ -3,11 +3,9 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-<<<<<<< HEAD
+
         'reference' => 'b5bfa9edaaf428c78989cde1571dfa7f097136e6',
-=======
-        'reference' => '14441ba9ceed3b9f4652ab0bfc51ed71a8dd0627',
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -17,17 +15,15 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-<<<<<<< HEAD
+
             'reference' => 'b5bfa9edaaf428c78989cde1571dfa7f097136e6',
-=======
-            'reference' => '14441ba9ceed3b9f4652ab0bfc51ed71a8dd0627',
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-<<<<<<< HEAD
+
         'doctrine/annotations' => array(
             'pretty_version' => '1.14.4',
             'version' => '1.14.4.0',
@@ -91,8 +87,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
         'mpdf/mpdf' => array(
             'pretty_version' => 'v6.1.3',
             'version' => '6.1.3.0',
@@ -102,7 +97,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-<<<<<<< HEAD
         'phpdocumentor/reflection-common' => array(
             'pretty_version' => '2.2.0',
             'version' => '2.2.0.0',
@@ -232,8 +226,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
         'setasign/fpdi' => array(
             'pretty_version' => '1.6.2',
             'version' => '1.6.2.0',
@@ -243,7 +236,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-<<<<<<< HEAD
+
         'symfony/cache' => array(
             'pretty_version' => 'v6.4.28',
             'version' => '6.4.28.0',
@@ -403,8 +396,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
         'tecnickcom/tcpdf' => array(
             'pretty_version' => '6.10.0',
             'version' => '6.10.0.0',
@@ -423,7 +415,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-<<<<<<< HEAD
+
         'webmozart/assert' => array(
             'pretty_version' => '1.12.1',
             'version' => '1.12.1.0',
@@ -433,7 +425,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
     ),
 );

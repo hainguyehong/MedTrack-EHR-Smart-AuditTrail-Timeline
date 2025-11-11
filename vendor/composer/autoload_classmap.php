@@ -14,7 +14,7 @@ return array(
     'CGIFLZW' => $vendorDir . '/mpdf/mpdf/classes/gif.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'Datamatrix' => $vendorDir . '/tecnickcom/tcpdf/include/barcodes/datamatrix.php',
-<<<<<<< HEAD
+
     'DateError' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
     'DateException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
     'DateInvalidOperationException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
@@ -24,8 +24,8 @@ return array(
     'DateMalformedStringException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateMalformedStringException.php',
     'DateObjectError' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateObjectError.php',
     'DateRangeError' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateRangeError.php',
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
+
     'FPDF_TPL' => $vendorDir . '/setasign/fpdi/fpdf_tpl.php',
     'FPDI' => $vendorDir . '/setasign/fpdi/fpdi.php',
     'FilterASCII85' => $vendorDir . '/setasign/fpdi/filters/FilterASCII85.php',
@@ -33,21 +33,18 @@ return array(
     'FilterLZW' => $vendorDir . '/setasign/fpdi/filters/FilterLZW.php',
     'INDIC' => $vendorDir . '/mpdf/mpdf/classes/indic.php',
     'MYANMAR' => $vendorDir . '/mpdf/mpdf/classes/myanmar.php',
-<<<<<<< HEAD
+
     'Normalizer' => $vendorDir . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
     'OTLdump' => $vendorDir . '/mpdf/mpdf/classes/otl_dump.php',
     'Override' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/Override.php',
-=======
-    'OTLdump' => $vendorDir . '/mpdf/mpdf/classes/otl_dump.php',
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
     'PDF417' => $vendorDir . '/tecnickcom/tcpdf/include/barcodes/pdf417.php',
     'PDFBarcode' => $vendorDir . '/mpdf/mpdf/classes/barcode.php',
     'QRcode' => $vendorDir . '/tecnickcom/tcpdf/include/barcodes/qrcode.php',
     'SEA' => $vendorDir . '/mpdf/mpdf/classes/sea.php',
-<<<<<<< HEAD
+
     'SQLite3Exception' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/SQLite3Exception.php',
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+
     'SVG' => $vendorDir . '/mpdf/mpdf/classes/svg.php',
     'TCPDF' => $vendorDir . '/tecnickcom/tcpdf/tcpdf.php',
     'TCPDF2DBarcode' => $vendorDir . '/tecnickcom/tcpdf/tcpdf_barcodes_2d.php',
@@ -73,8 +70,6 @@ return array(
     'pdf_context' => $vendorDir . '/setasign/fpdi/pdf_context.php',
     'tocontents' => $vendorDir . '/mpdf/mpdf/classes/tocontents.php',
     'wmf' => $vendorDir . '/mpdf/mpdf/classes/wmf.php',
-<<<<<<< HEAD
-    '©' => $vendorDir . '/symfony/cache/Traits/ValueWrapper.php',
-=======
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
+    'ï¿½' => $vendorDir . '/symfony/cache/Traits/ValueWrapper.php',
+
 );

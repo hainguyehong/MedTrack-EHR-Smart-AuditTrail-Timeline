@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
  <?php include './config/site_css_links.php' ?>
+  <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 
 </head>
 <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed">

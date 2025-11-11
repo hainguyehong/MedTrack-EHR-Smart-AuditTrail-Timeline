@@ -132,6 +132,10 @@ if (isset($_POST['login'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng nhập</title>
 
+  <!-- Thêm favicon -->
+  <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+  <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+
   <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="css/index.css">
 </head>
@@ -151,7 +155,9 @@ if (isset($_POST['login'])) {
 
     <!-- Right -->
     <div class="login-right">
-      <img src="dist/img/logo.jpg" class="img-thumbnail p-0 border rounded-circle" id="system-logo">
+      <!-- <img src="dist/img/logo.jpg" class="img-thumbnail p-0 border rounded-circle" id="system-logo"> -->
+      <img src="assets/images/img-tn.png" class="img-thumbnail p-0 border rounded-circle" id="system-logo">
+
       <h3>ĐĂNG NHẬP</h3>
 
       <form method="post" id="loginForm">
