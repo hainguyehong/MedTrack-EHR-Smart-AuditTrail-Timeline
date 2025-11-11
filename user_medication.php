@@ -223,11 +223,8 @@ include './config/sidebar.php';?>
                                     <input type="text" id="patient_name" name="patient_name"
                                         class="form-control form-control-sm"
                                         value="<?php echo htmlspecialchars($patient['patient_name'] ?? ''); ?>"
-<<<<<<< HEAD
                                         disabled />
-=======
-                                        readonly />
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
 
                                 </div>
                                 <br>
@@ -241,11 +238,8 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>CCCD</label>
-<<<<<<< HEAD
                                     <input type="text" id="cnic" name="cnic" disabled
-=======
-                                    <input type="text" id="cnic" name="cnic" readonly
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['cnic'] ?? ''); ?>" />
                                 </div>
@@ -266,21 +260,15 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Số điện thoại</label>
-<<<<<<< HEAD
                                     <input type="text" id="phone_number" name="phone_number" disabled
-=======
-                                    <input type="text" id="phone_number" name="phone_number" readonly
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['phone_number'] ?? ''); ?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Giới tính</label>
-<<<<<<< HEAD
                                     <input type="text" id="gender" name="gender" disabled
-=======
-                                    <input type="text" id="gender" name="gender" readonly
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['gender'] ?? ''); ?>" />
 
@@ -339,7 +327,6 @@ include './config/sidebar.php';?>
                         foreach ($diseases as $index => $row):
                             $visitNumber = $index + 1; // lần 1 2 3 ...
                     ?>
-<<<<<<< HEAD
                 <div class="card mb-4 collapsed-card">
                     <div class="card-header bg-info text-white">
                         <strong>Lần khám <?php echo $visitNumber; ?> -
@@ -349,12 +336,7 @@ include './config/sidebar.php';?>
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-=======
-                <div class="card mb-4">
-                    <div class="card-header bg-info text-white">
-                        <strong>Lần khám <?php echo $visitNumber; ?> -
-                            <?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></strong>
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                     </div>
                     <div class="card-body">
                         <form>
@@ -486,11 +468,7 @@ include './config/sidebar.php';?>
                                     pmh.quantity,
                                     pmh.dosage,
                                     pmh.note,
-<<<<<<< HEAD
-=======
-                                    pmh.visit_date,
-                                    pmh.next_visit_date,
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                     pmh.created_at, 
 
                                     m.id AS medicine_id,
@@ -502,7 +480,7 @@ include './config/sidebar.php';?>
                                 WHERE up.is_deleted = 0
                                 AND p.is_deleted = 0
                                 AND up.id = :user_id
-<<<<<<< HEAD
+
                                 ORDER BY pmh.created_at DESC";
                         
                         $stmt = $con->prepare($query);
@@ -511,25 +489,14 @@ include './config/sidebar.php';?>
 
                         $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-=======
-                                ORDER BY pmh.visit_date DESC";
 
-                        $stmt = $con->prepare($query);
-                        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-                        $stmt->execute();
-
-                        $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
                         if (!empty($prescriptions)):
                             $count = 0;
                             foreach ($prescriptions as $row):
                                 $count++;
-<<<<<<< HEAD
+
                             ?>
-=======
-                        ?>
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                     <tr style="text-align:center;">
                                         <td><?php echo $count; ?></td>
                                         <td>
@@ -624,7 +591,6 @@ if (isset($_SESSION['success_message'])) {
                 }
             }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
         });
-<<<<<<< HEAD
         </script>
         <script>
         // đảm bảo icon + / - thay đổi đúng khi user bấm (hỗ trợ phần tử động)
@@ -640,8 +606,7 @@ if (isset($_SESSION['success_message'])) {
                 }
             }, 50);
         });
-=======
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
         </script>
 </body>
 

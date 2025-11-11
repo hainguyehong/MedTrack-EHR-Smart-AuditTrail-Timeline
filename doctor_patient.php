@@ -254,10 +254,9 @@ include './config/sidebar.php';
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
-<<<<<<< HEAD
+
                                         <th>Lần khám</th>
-=======
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                         <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
@@ -268,11 +267,9 @@ include './config/sidebar.php';
 
                                 <tbody id="prescriptionTable">
                                     <tr>
-<<<<<<< HEAD
+
                                         <td colspan="7" style="text-align:center;">Chưa có đơn thuốc nào.</td>
-=======
-                                        <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
                                     </tr>
                                 </tbody>
 

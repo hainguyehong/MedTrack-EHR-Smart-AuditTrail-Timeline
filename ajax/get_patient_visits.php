@@ -13,8 +13,6 @@ $stmt = $con->prepare($query);
 $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
 $stmt->execute();
 $visits = $stmt->fetchAll(PDO::FETCH_ASSOC);
-<<<<<<< HEAD
+
 echo json_encode($visits);
-=======
-echo json_encode($visits);
->>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
+
