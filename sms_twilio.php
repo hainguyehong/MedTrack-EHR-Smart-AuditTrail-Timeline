@@ -40,8 +40,8 @@ function sendSMS($phone, $message, $country = 'VN') {
     // Cấu hình Twilio
     // $account_sid = getenv('TWILIO_ACCOUNT_SID');
     // $auth_token  = getenv('TWILIO_AUTH_TOKEN');
-    $account_sid = "ACeade15de74800c85e7718ad24cd0146d";
-    $auth_token  = "46c370a84d737bf691307dd07003655e";
+    // $account_sid = "ACeade15de74800c85e7718ad24cd0146d";
+    // $auth_token  = "46c370a84d737bf691307dd07003655e";
     $from_number = '+15073796690'; // số Twilio đã mua
 
     $client = new Client($account_sid, $auth_token);
