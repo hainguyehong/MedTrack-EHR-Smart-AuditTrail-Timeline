@@ -189,7 +189,9 @@ include './config/sidebar.php';?>
                         <form method="post">
                             <div class="row" style="align-items: flex-end;">
                                 <div class="col-lg-5 col-md-6 col-sm-12 mb-3">
+
                                     <!-- <label style="font-weight:600;color:#000000;">Chọn Loại Thuốc</label>
+
                                     <select id="medicine" name="medicine" class="form-control form-control-sm" required="required" style="border-radius:10px; border:1.5px solid #e3e7ed;">
                                         <?php echo $medicines;?>
                                     </select> -->
@@ -199,12 +201,14 @@ include './config/sidebar.php';?>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-12 mb-3">
                                     <label style="font-weight:600;color:#000000;">Số Gói</label>
+
                                     <input id="packing" name="packing" class="form-control form-control-sm rounded-0"
                                         required="required" style="border-radius:10px; border:1.5px solid #e3e7ed;" />
                                 </div>
                                 <div class="col-lg-2 col-md-2 col-sm-12 mb-3 d-flex align-items-end">
                                     <button type="submit" id="submit" name="submit" class="btn btn-primary btn-block"
                                         style="border-radius:10px; font-weight:600; font-size:1rem; padding:0px 0; height: 34px">
+
                                         <i class="fa fa-save"></i> Lưu
                                     </button>
                                 </div>

@@ -254,7 +254,10 @@ include './config/sidebar.php';
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
+<<<<<<< HEAD
                                         <th>Lần khám</th>
+=======
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
                                         <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
@@ -265,7 +268,11 @@ include './config/sidebar.php';
 
                                 <tbody id="prescriptionTable">
                                     <tr>
+<<<<<<< HEAD
                                         <td colspan="7" style="text-align:center;">Chưa có đơn thuốc nào.</td>
+=======
+                                        <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
                                     </tr>
                                 </tbody>
 
@@ -359,8 +366,7 @@ if (isset($_SESSION['success_message'])) {
                                 $('#patient_name').val(response.patient.patient_name);
                                 $('#address').val(response.patient.address);
                                 $('#cnic').val(response.patient.cnic);
-                                $('#date_of_birth').val(formatDate(response.patient
-                                    .date_of_birth));
+                                $('#date_of_birth').val(formatDate(response.patient.date_of_birth));
                                 $('#phone_number').val(response.patient.phone_number);
                                 $('#gender').val(response.patient.gender);
                             }
@@ -368,6 +374,7 @@ if (isset($_SESSION['success_message'])) {
                             // Đổ bảng đơn thuốc
                             var tbody = '';
                             if (response.prescriptions.length > 0) {
+
                                 // Nhóm các đơn thuốc theo ngày khám
                                 const grouped = {};
                                 response.prescriptions.forEach(row => {
@@ -403,6 +410,7 @@ if (isset($_SESSION['success_message'])) {
                             } else {
                                 tbody +=
                                     '<tr><td colspan="7" class="text-center text-muted">Không có đơn thuốc nào.</td></tr>';
+
                             }
 
 
@@ -412,15 +420,18 @@ if (isset($_SESSION['success_message'])) {
                             $.ajax({
                                 url: 'ajax/get_patient_visits.php',
                                 type: 'POST',
+
                                 data: {
                                     patient_id: patientId
                                 },
+
                                 dataType: 'json',
                                 success: function(visits) {
                                     var html = '';
                                     if (visits.length > 0) {
                                         visits.forEach(function(visit, idx) {
                                             html += `
+
                                             <div class="card mb-4 collapsed-card">
                                                 <div class="card-header bg-info text-white">
                                                     <strong>Lần khám ${idx + 1} - ${visit.created_at ? moment(visit.created_at).format('DD/MM/YYYY HH:mm') : ''}</strong>
@@ -486,6 +497,7 @@ if (isset($_SESSION['success_message'])) {
                                     } else {
                                         html =
                                             '<div class="alert alert-info text-center">Chưa có bệnh án nào.</div>';
+
                                     }
                                     $('#visit-history-list').html(html);
                                     $('#visit-history-section').show();
@@ -499,6 +511,7 @@ if (isset($_SESSION['success_message'])) {
                     $('#prescriptionTable').html(
                         '<tr><td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td></tr>'
                     );
+
                     $('#visit-history-list').html('');
                     $('#visit-history-section').hide();
                 }

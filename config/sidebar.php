@@ -76,8 +76,12 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     </style>
     <a href="" class="brand-link logo-switch"
         style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+<<<<<<< HEAD
         <!-- <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;"> -->
          <img src="assets/images/img-tn.png" alt="Logo" style="height: 50px; width: auto; border-radius: 50%;">
+=======
+        <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
         <span
             style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
     </a>
@@ -90,6 +94,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <img src="user_images/<?php echo $_SESSION['profile_picture'];?>" class="img-circle elevation-2"
                     alt="User Image" />
             </div> -->
+<<<<<<< HEAD
             <div class="info d-flex flex-column align-items-center justify-content-center">
                 <span style="color:#007bff; font-weight:700; font-size:1.08rem; letter-spacing:0.5px; margin-bottom:2px;">
                     <?php
@@ -105,6 +110,11 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <a href="#" class="d-block" style="font-weight: 600; font-size: 1.08rem; color:#222;">
                     <?php echo htmlspecialchars($_SESSION['display_name']); ?>
                 </a>
+=======
+            <div class="info d-flex justify-content-center">
+                <a href="#" class="d-block"
+                    style="font-weight: 600; font-size: 1.1rem;"><?php echo $_SESSION['display_name'];?></a>
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
             </div>
         </div>
 
@@ -190,7 +200,11 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Chi tiết thuốc</p>
                             </a>
+<<<<<<< HEAD
                         </li> -->
+=======
+                        </li>
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
                     </ul>
                 </li>
                 <li class="nav-item" id="mnu_reports">
@@ -210,7 +224,10 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         </li>
                     </ul>
                 </li>
+<<<<<<< HEAD
                 <?php if($role == 1): ?>
+=======
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
                 <li class="nav-item" id="mnu_users">
                     <a href="users.php" class="nav-link">
                         <i class="nav-icon fa fa-users"></i>
@@ -220,7 +237,10 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                     </a>
                 </li>
                 <?php endif; ?>
+<<<<<<< HEAD
                 <?php endif; ?>
+=======
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
                 <li class="nav-item">
                     <a href="logout.php" class="nav-link">
                         <i class="nav-icon fa fa-sign-out-alt"></i>
@@ -243,7 +263,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Map file sang id menu con
     var map = {
+<<<<<<< HEAD
         'patients.php': 'mi_patientss',
+=======
+        'patients.php': 'mi_patients',
+>>>>>>> 38b8f34fe0bce66c2dcd7982764fda8580782175
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient'
     };
