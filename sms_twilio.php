@@ -55,7 +55,7 @@ function sendSMS($phone, $message, $country = 'VN') {
 
     // Cấu hình Twilio
     $account_sid = $_ENV['TWILIO_ACCOUNT_SID'];
-$auth_token  = $_ENV['TWILIO_AUTH_TOKEN'];
+    $auth_token  = $_ENV['TWILIO_AUTH_TOKEN'];
     // $from_number = getenv('TWILIO_PHONE_NUMBER');
     // $account_sid = "ACeade15de74800c85e7718ad24cd0146d";
     // $auth_token  = "46c370a84d737bf691307dd07003655e";
