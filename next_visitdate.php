@@ -2,10 +2,12 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-include './sms_twilio.php';
+// include './sms_twilio.php';
+include './inforbip.php';
+islogin();
 $message = '';
 $userId = $_SESSION['user_id']; 
-
+// sms_twilio.php
 if (isset($_POST['send_sms'])) {
     $patient_id = $_POST['send_sms'];
 

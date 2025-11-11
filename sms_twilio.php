@@ -1,6 +1,6 @@
 <?php
 require_once 'vendor/autoload.php';
-include_once __DIR__ . '/common_service/env_loader.php';
+// include_once __DIR__ . '/common_service/env_loader.php';
 use Twilio\Rest\Client;
 
 /**
@@ -32,14 +32,16 @@ function sendSMS($phone, $message, $country = 'VN') {
     $phoneIntl = convertToInternational($phone, $country);
 
     // DEBUG: xem số trước khi gửi
-    echo "Số điện thoại quốc tế: " . $phoneIntl . "<br>";
+    // echo "Số điện thoại quốc tế: " . $phoneIntl . "<br>";
     // exit; // bật để test, tắt khi gửi thật
 
     if (!$phoneIntl) return "Số điện thoại không hợp lệ hoặc rỗng";
 
     // Cấu hình Twilio
-    $account_sid = getenv('TWILIO_ACCOUNT_SID');
-    $auth_token  = getenv('TWILIO_AUTH_TOKEN');
+    // $account_sid = getenv('TWILIO_ACCOUNT_SID');
+    // $auth_token  = getenv('TWILIO_AUTH_TOKEN');
+    $account_sid = "ACeade15de74800c85e7718ad24cd0146d";
+    $auth_token  = "46c370a84d737bf691307dd07003655e";
     $from_number = '+15073796690'; // số Twilio đã mua
 
     $client = new Client($account_sid, $auth_token);
