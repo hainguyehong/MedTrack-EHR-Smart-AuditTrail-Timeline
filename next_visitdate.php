@@ -1,6 +1,4 @@
 <?php
-<<<<<<< HEAD
-
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
@@ -24,29 +22,6 @@ if (isset($_POST['send_sms'])) {
     $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($patient) {
-=======
-include './config/connection.php';
-include './common_service/common_functions.php';
-include './common_service/date.php';
-include './sms_twilio.php';
-$message = '';
-$userId = $_SESSION['user_id']; 
-
-if (isset($_POST['send_sms'])) {
-    $patient_id = $_POST['send_sms'];
-
-    $stmt = $con->prepare("
-        SELECT p.patient_name, p.phone_number, pd.next_visit_date
-        FROM patients p
-        JOIN patient_diseases pd ON p.id = pd.patient_id
-        WHERE p.id = ?
-    ");
-    $stmt->execute([$patient_id]);
-    $patient = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($patient) {
-        
->>>>>>> 22863b42aa95604e19aace6d7f2bef34087f52f7
         $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày " . 
             date('d/m/Y', strtotime($patient['next_visit_date'])) . 
             ". Vui lòng liên hệ phòng khám để xác nhận.";
