@@ -25,3 +25,7 @@ Stack trace:
 [11-Nov-2025 10:58:27 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
 [11-Nov-2025 10:58:33 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
 [11-Nov-2025 10:58:54 Asia/Ho_Chi_Minh] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\next_visitdate.php on line 26
+[11-Nov-2025 14:17:42 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "INFOBIP_BASE_URL" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\inforbip.php on line 56
+[11-Nov-2025 14:17:42 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "INFOBIP_API_KEY" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\inforbip.php on line 57
+[11-Nov-2025 14:17:43 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "INFOBIP_BASE_URL" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\inforbip.php on line 56
+[11-Nov-2025 14:17:43 Asia/Ho_Chi_Minh] PHP Warning:  Undefined array key "INFOBIP_API_KEY" in D:\CĐ Dự Án\Nhóm\MedTrack-EHR-Smart-AuditTrail-Timeline\inforbip.php on line 57

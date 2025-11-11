@@ -1,5 +1,16 @@
 <?php
-   
+// Hiển thị tất cả lỗi PHP
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
+// // Tạm tạo file log nếu muốn
+// ini_set('log_errors', 1);
+// ini_set('error_log', __DIR__ . '/php_error.log');    
+
+// echo "PHP đã chạy tới đây.<br>";
+?>
+<?php
 require_once 'vendor/autoload.php';
 include_once __DIR__ . '/common_service/env_loader.php';
 
