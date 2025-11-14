@@ -72,9 +72,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     <?php include './config/data_tables_css.php';?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-      <!-- Thêm favicon -->
-  <link rel="icon" type="image/png" href="assets/images/img-tn.png">
-  <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+    <!-- Thêm favicon -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
     body {
@@ -576,7 +576,8 @@ include './config/sidebar.php';
                                                     <strong>Lần khám ${idx + 1} - ${visit.created_at ? moment(visit.created_at).format('DD/MM/YYYY HH:mm') : ''}</strong>
                                                     <div class="card-tools">
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                                                            <i class="fas fa-plus"></i>
+                                                           <i class="fas fa-plus" style="color: green;"></i>
+
                                                         </button>
                                                     </div>
                                                 </div>

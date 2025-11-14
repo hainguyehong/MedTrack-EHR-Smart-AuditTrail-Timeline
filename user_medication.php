@@ -42,9 +42,7 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
     <?php include './config/site_css_links.php';?>
 
     <?php include './config/data_tables_css.php';?>
- <!-- Thêm favicon -->
-    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
-    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
@@ -225,7 +223,6 @@ include './config/sidebar.php';?>
                                         value="<?php echo htmlspecialchars($patient['patient_name'] ?? ''); ?>"
                                         disabled />
 
-
                                 </div>
                                 <br>
                                 <br>
@@ -260,14 +257,12 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Số điện thoại</label>
                                     <input type="text" id="phone_number" name="phone_number" disabled
-
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['phone_number'] ?? ''); ?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <label>Giới tính</label>
                                     <input type="text" id="gender" name="gender" disabled
-
                                         class="form-control form-control-sm rounded-0"
                                         value="<?php echo htmlspecialchars($patient['gender'] ?? ''); ?>" />
 
@@ -326,16 +321,10 @@ include './config/sidebar.php';?>
                         foreach ($diseases as $index => $row):
                             $visitNumber = $index + 1; // lần 1 2 3 ...
                     ?>
-                <div class="card mb-4 collapsed-card">
+                <div class="card mb-4">
                     <div class="card-header bg-info text-white">
                         <strong>Lần khám <?php echo $visitNumber; ?> -
                             <?php echo date('d/m/Y H:i', strtotime($row['created_at'])); ?></strong>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-
                     </div>
                     <div class="card-body">
                         <form>
@@ -473,41 +462,17 @@ include './config/sidebar.php';?>
                         GROUP BY DATE_FORMAT(pmh.created_at, '%Y-%m-%d %H:%i')
                         ORDER BY visit_date ASC";
 
+                $stmt = $con->prepare($query);
+                $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->execute();
 
-                                    pmh.id AS prescription_id,
-                                    pmh.quantity,
-                                    pmh.dosage,
-                                    pmh.note,
+                $visits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                    pmh.created_at, 
-
-                                    m.id AS medicine_id,
-                                    m.medicine_name
-                                FROM user_patients AS up
-                                JOIN patients AS p ON up.id_patient = p.id
-                                JOIN patient_medication_history AS pmh ON pmh.patient_id = p.id
-                                JOIN medicines AS m ON pmh.medicine_id = m.id
-                                WHERE up.is_deleted = 0
-                                AND p.is_deleted = 0
-                                AND up.id = :user_id
-
-                                ORDER BY pmh.created_at DESC";
-                        
-                        $stmt = $con->prepare($query);
-                        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-                        $stmt->execute();
-
-                        $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
-                        if (!empty($prescriptions)):
-                            $count = 0;
-                            foreach ($prescriptions as $row):
-                                $count++;
-
-                            ?>
-
-
+                if (!empty($visits)):
+                    $count = 0;
+                    foreach ($visits as $row):
+                        $count++;
+                ?>
                                     <tr style="text-align:center;">
                                         <td><?php echo $count; ?></td>
                                         <td><?php echo "Lần " . $count; ?></td>
@@ -521,9 +486,9 @@ include './config/sidebar.php';?>
                     endforeach;
                 else:
                 ?>
-                                    ?>
+
                                     <tr>
-                                        <td colspan="6" style="text-align:center;">Chưa có đơn thuốc nào.</td>
+                                        <td colspan="7" style="text-align:center;">Chưa có đơn thuốc nào.</td>
                                     </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -598,22 +563,6 @@ if (isset($_SESSION['success_message'])) {
                 }
             }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
         });
-        </script>
-        <script>
-        // đảm bảo icon + / - thay đổi đúng khi user bấm (hỗ trợ phần tử động)
-        $(document).on('click', '[data-card-widget="collapse"]', function(e) {
-            var $btn = $(this).find('i');
-            var $card = $(this).closest('.card');
-            // chờ AdminLTE đổi class collapsed-card rồi cập nhật icon
-            setTimeout(function() {
-                if ($card.hasClass('collapsed-card')) {
-                    $btn.removeClass('fa-minus').addClass('fa-plus');
-                } else {
-                    $btn.removeClass('fa-plus').addClass('fa-minus');
-                }
-            }, 50);
-        });
-
         </script>
 </body>
 

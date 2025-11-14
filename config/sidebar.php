@@ -78,7 +78,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
         style="display: flex; align-items: center; gap: 12px; justify-content: center;">
 
         <!-- <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;"> -->
-         <img src="assets/images/img-tn.png" alt="Logo" style="height: 50px; width: auto; border-radius: 50%;">
+        <!-- <img src="assets/images/img-tn.png" alt="Logo" style="height: 50px; width: auto; border-radius: 50%;"> -->
 
         <span
             style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
@@ -94,7 +94,8 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
             </div> -->
 
             <div class="info d-flex flex-column align-items-center justify-content-center">
-                <span style="color:#007bff; font-weight:700; font-size:1.08rem; letter-spacing:0.5px; margin-bottom:2px;">
+                <span
+                    style="color:#007bff; font-weight:700; font-size:1.08rem; letter-spacing:0.5px; margin-bottom:2px;">
                     <?php
                         $roleLabel = '';
                         if (isset($_SESSION['role'])) {
@@ -281,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         'patients_visit.php': 'mi_new_prescription',
-        'doctor_patient.php': 'mi_doctor_patient'
+        'doctor_patient.php': 'mi_doctor_patient',
         'next_visitdate.php': 'next_visitdate',
     };
 
