@@ -40,6 +40,42 @@ if (isset($_POST['send_sms'])) {
 header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
+// Gửi tất cả SMS
+if (isset($_POST['send_all_sms']) && !empty($_POST['patient_ids'])) {
+    $success = 0;
+    $fail = 0;
+
+    foreach ($_POST['patient_ids'] as $patient_id) {
+
+        $stmt = $con->prepare("
+            SELECT p.id, p.patient_name, p.phone_number, pd.next_visit_date
+            FROM patients p
+            JOIN patient_diseases pd ON p.id = pd.patient_id
+            WHERE p.id = :id AND pd.next_visit_date IS NOT NULL
+            ORDER BY pd.next_visit_date ASC LIMIT 1
+        ");
+        $stmt->execute(['id' => $patient_id]);
+        $patient = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($patient) {
+            $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày " .
+                date('d/m/Y', strtotime($patient['next_visit_date'])) .
+                ". Vui lòng liên hệ phòng khám để xác nhận.";
+
+            $result = sendSMS($patient['phone_number'], $message_text, 'OTHER');
+
+            if ($result === true) {
+                $success++;
+            } else {
+                $fail++;
+            }
+        }
+    }
+
+    $_SESSION['success_message'] = "Đã gửi thành công $success SMS. Thất bại $fail trường hợp.";
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
 
 $query = "SELECT p.id, p.patient_name, p.cnic, p.phone_number,p.created_at, pd.next_visit_date
           FROM patients p
@@ -142,6 +178,7 @@ $infor = $stmt->execute();
         background-color: #d9f0ff !important;
     }
     </style>
+
 </head>
 
 <!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
@@ -178,6 +215,7 @@ include './config/sidebar.php';
                                 <i class="fas fa-minus"></i>
                             </button>
                         </div>
+
                     </div>
                     <div class="card-body">
                         <?php if(!empty($message)) : ?>
@@ -228,14 +266,16 @@ include './config/sidebar.php';
                                         <?php } ?>
                                     </tbody>
                                 </table>
-                                <br>
-                                <!-- <button type="submit" name="send_all_zalo" class="btn btn-primary btn-sm">Gửi tất
-                                    cả</button> -->
+                                <button type="submit" name="send_all_sms" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-paper-plane"></i> Gửi tất cả
+                                </button>
+
                             </form>
                         </div>
                     </div>
+                    <?php include './config/site_js_links.php'; ?>
+                    <?php include './config/data_tables_js.php'; ?>
 
-                    <script src="jquery.js"></script>
                     <script>
                     $(document).ready(function() {
                         // Check All checkbox
@@ -267,25 +307,14 @@ include './config/sidebar.php';
                     </script>
 
                     <?php 
-        include './config/footer.php';
-        $message = '';
-        if (isset($_SESSION['success_message'])) {
-            $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
-        }
-        ?>
+                        include './config/footer.php';
+                        $message = '';
+                        if (isset($_SESSION['success_message'])) {
+                            $message = $_SESSION['success_message'];
+                            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+                        }
+                    ?>
                     <!-- /.control-sidebar -->
-
-                    <?php include './config/site_js_links.php'; ?>
-                    <?php include './config/data_tables_js.php'; ?>
-
-                    <script src="plugins/moment/moment.min.js"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
-                    <script src="plugins/daterangepicker/daterangepicker.js"></script>
-                    <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-                    <?php include './common_service/loaduser.php';?>
-                    <script src="date.js"></script>
-
                     <script>
                     document.querySelectorAll('.send-sms-btn').forEach(btn => {
                         btn.addEventListener('click', function() {
@@ -309,6 +338,17 @@ include './config/sidebar.php';
                         });
                     });
                     </script>
+                    <script>
+                    document.querySelector("button[name='send_all_sms']").addEventListener("click", function(e) {
+                        let checkedCount = document.querySelectorAll(".checkBoxItem:checked").length;
+
+                        if (checkedCount === 0) {
+                            e.preventDefault();
+                            alert("Vui lòng chọn ít nhất 1 bệnh nhân.");
+                        }
+                    });
+                    </script>
+
 </body>
 
 </html>
