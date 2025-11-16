@@ -7,7 +7,7 @@
         </li>
     </ul>
     <a href="index3.html" class="navbar-brand" style="color: #222;">
-        <span class="brand-text font-weight-light" style="color: #222;">MedTrack-EHR-Smart-AuditTrail-Timeline
+        <span class="brand-text font-weight-light" style="color: #000000ff;"> HỆ THỐNG ERH ĐA NHIỆM 
         </span>
     </a>
     <!-- Right navbar links -->

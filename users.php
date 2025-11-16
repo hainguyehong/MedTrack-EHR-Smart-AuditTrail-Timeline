@@ -148,7 +148,7 @@ try {
     <div class="wrapper">
         <!-- Navbar -->
         <?php include './config/header.php';
-include './config/sidebar.php';?>
+        include './config/sidebar.php';?>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->

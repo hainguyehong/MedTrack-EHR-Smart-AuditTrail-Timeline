@@ -78,7 +78,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
         style="display: flex; align-items: center; gap: 12px; justify-content: center;">
 
         <!-- <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;"> -->
-        <!-- <img src="assets/images/img-tn.png" alt="Logo" style="height: 50px; width: auto; border-radius: 50%;"> -->
+        <img src="assets/images/img-tn.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
 
         <span
             style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
@@ -250,7 +250,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <!-- audit logs -->
                 <?php if($role == 1) { ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="audit_logs.php">
+                    <a class="nav-link" href="audit_logs.php" id="mi_audit_logs">
                         <i class="fas fa-clipboard-list" style="padding-right:14px; padding-left:5px;"></i> Audit Trail
                     </a>
                 </li>
@@ -284,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient',
         'next_visitdate.php': 'next_visitdate',
+         'audit_logs.php': 'mi_audit_logs',
     };
 
     // Nếu là 1 trong các trang con thì active cả menu cha và con
