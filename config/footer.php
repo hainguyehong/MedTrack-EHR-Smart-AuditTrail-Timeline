@@ -1,6 +1,6 @@
 <footer class="main-footer fixed-bottom">
-    <strong>Copyright &copy; <?php echo date('Y');?>
-        <a href="./">MedTrack-EHR-Smart-AuditTrail-Timeline</a>.</strong> All rights reserved.
+    <strong> &copy; <?php echo date('Y');?>
+        <a href="./">MedTrack EHR Smart AuditTrail&Timeline</a>.</strong> All rights reserved.
     <div class="float-right d-sm-block">
         <!-- PHP - CPMS Version 2.0 -->
     </div>

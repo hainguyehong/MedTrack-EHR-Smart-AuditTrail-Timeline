@@ -1,13 +1,24 @@
 <?php 
-function getGender222() {
-	//do not use this function
-	exit;
-	$data = '<option value="">Select Gender</option>';
-
-	$data = $data .'<option value="Male">Male</option>';
-	$data = $data .'<option value="Female">Female</option>';
-	$data = $data .'<option value="Other">Other</option>';
-
+function getTime($time = '') {
+	$data = '<option value="">Chọn khung giờ</option>';
+	$timeArr = array(
+		"07:00 - 08:00 ",
+		"08:00 - 09:00 ",
+		"09:00 - 10:00 ",
+		"10:00 - 11:00 ",
+		"11:00 - 12:00 ",
+		"13:00 - 14:00 ",
+		"14:00 - 15:00 ",
+		"15:00 - 16:00 ",
+		"16:00 - 17:30 "
+	);
+	foreach($timeArr as $t) {
+		if($time == $t) {
+			$data = $data .'<option selected="selected" value="'.$t.'">'.$t.'</option>';
+		} else {
+		$data = $data .'<option value="'.$t.'">'.$t.'</option>';
+		}
+	}
 	return $data;
 }
 
@@ -152,3 +163,14 @@ function islogin() {
 		exit();
 	}
 }
+// function checkrole() {
+// 	if ($_SESSION['role'] == 1) {
+//         header("location:dashboard.php"); // admin
+// 		} elseif ($_SESSION['role'] == 3) {
+// 			header("location:user_medication.php"); // bệnh nhân
+// 		} elseif ($_SESSION['role'] == 2) {
+// 			header("location:doctor_patient.php"); // bác sĩ
+// 		} else {
+// 			header("location:index.php");
+// 	}
+// }

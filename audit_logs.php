@@ -55,37 +55,53 @@ if ($actionFilter !== 'all') {
 // only include logs from users with role 1 or 2
 $where[] = "(u.role IN (1,2))";
 
-// final query: join users to show display_name and include role
-$sql = "SELECT a.id, a.user_id, COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name, 
-        u.role AS user_role,
-        a.table_name, a.record_id, a.action, a.old_value, a.new_value, a.changed_at
-        FROM audit_logs a
-        LEFT JOIN users u ON a.user_id = u.id
-        WHERE " . implode(' AND ', $where) . "
-        ORDER BY a.changed_at DESC
-        LIMIT 1000"; // reasonable cap to avoid huge pages
+// --- REPLACE: compute total, handle export, then fetch paginated rows ---
+$perPage = 10;
+$page = max(1, intval($_GET['page'] ?? 1));
+$offset = ($page - 1) * $perPage;
 
+// add serial start for pagination-aware numbering
+$serialStart = $offset + 1;
+
+// count total matching rows
+$countSql = "SELECT COUNT(*) FROM audit_logs a LEFT JOIN users u ON a.user_id = u.id WHERE " . implode(' AND ', $where);
 try {
-    $stmtLogs = $con->prepare($sql);
-    $stmtLogs->execute($params);
-    $logs = $stmtLogs->fetchAll(PDO::FETCH_ASSOC);
+    $stmtCount = $con->prepare($countSql);
+    $stmtCount->execute($params);
+    $totalLogs = (int)$stmtCount->fetchColumn();
 } catch (PDOException $ex) {
-    // On error show message and halt
-    echo "<div class='alert alert-danger'>Lỗi khi truy vấn audit logs: " . htmlspecialchars($ex->getMessage()) . "</div>";
-    $logs = [];
+    echo "<div class='alert alert-danger'>Lỗi khi đếm audit logs: " . htmlspecialchars($ex->getMessage()) . "</div>";
+    $totalLogs = 0;
 }
 
-// CSV export
+$totalPages = ($totalLogs > 0) ? (int)ceil($totalLogs / $perPage) : 1;
+
+// If export requested -> export ALL matching rows (no limit)
 if (isset($_GET['export']) && $_GET['export'] == '1') {
+    $exportSql = "SELECT a.id, a.user_id, COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name, 
+            u.role AS user_role,
+            a.table_name, a.record_id, a.action, a.old_value, a.new_value, a.changed_at
+            FROM audit_logs a
+            LEFT JOIN users u ON a.user_id = u.id
+            WHERE " . implode(' AND ', $where) . "
+            ORDER BY a.changed_at DESC";
+    try {
+        $stmtExport = $con->prepare($exportSql);
+        $stmtExport->execute($params);
+        $exportRows = $stmtExport->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $ex) {
+        echo "<div class='alert alert-danger'>Lỗi khi xuất CSV: " . htmlspecialchars($ex->getMessage()) . "</div>";
+        exit;
+    }
+
     $filename = 'audit_logs_' . date('Ymd_His') . '.csv';
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=' . $filename);
 
     $out = fopen('php://output', 'w');
-    // UTF-8 BOM for Excel
     echo "\xEF\xBB\xBF";
     fputcsv($out, ['ID','Changed At','User ID','User','Table','Record ID','Action','Old Value','New Value']);
-    foreach ($logs as $r) {
+    foreach ($exportRows as $r) {
         $pref = '';
         if (isset($r['user_role'])) {
             if ($r['user_role'] == 1) $pref = 'AD ';
@@ -107,6 +123,36 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
     fclose($out);
     exit;
 }
+
+// fetch paginated rows (latest first)
+$sql = "SELECT a.id, a.user_id, COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name, 
+        u.role AS user_role,
+        a.table_name, a.record_id, a.action, a.old_value, a.new_value, a.changed_at
+        FROM audit_logs a
+        LEFT JOIN users u ON a.user_id = u.id
+        WHERE " . implode(' AND ', $where) . "
+        ORDER BY a.changed_at DESC
+        LIMIT :limit OFFSET :offset";
+
+try {
+    $stmtLogs = $con->prepare($sql);
+    // bind existing filter params
+    foreach ($params as $k => $v) {
+        $stmtLogs->bindValue($k, $v);
+    }
+    $stmtLogs->bindValue(':limit', (int)$perPage, PDO::PARAM_INT);
+    $stmtLogs->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmtLogs->execute();
+    $logs = $stmtLogs->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $ex) {
+    echo "<div class='alert alert-danger'>Lỗi khi truy vấn audit logs: " . htmlspecialchars($ex->getMessage()) . "</div>";
+    $logs = [];
+}
+
+// set row serial counter
+$sn = $serialStart;
+// --- END REPLACE ---
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -121,6 +167,13 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
     <title>Audit Trail - MedTrack</title>
 
     <style>
+    /* added .user-img to match users.php visuals */
+    .user-img {
+        width: 3em;
+        object-fit: cover;
+        object-position: center center;
+    }
+
     body {
         background: #f8fafc;
     }
@@ -196,17 +249,27 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
             </section>
 
             <section class="content">
+                <!-- Filter card — converted to have same header style as users.php -->
                 <div class="card card-outline card-primary shadow">
+                    <div class="card-header">
+                        <h3 class="card-title">Lọc dữ liệu</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
                     <div class="card-body">
-                        <form id="filterForm" method="get" class="mb-3">
-                            <div class="filter-row">
-                                <div style="flex:1">
-                                    <input type="search" name="search" id="searchInput" placeholder="Tìm kiếm theo từ khóa (bệnh nhân, mã hồ sơ...)" value="<?php echo htmlspecialchars($search);?>" class="form-control">
+                        <form id="filterForm" method="get" class="mb-0">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-2">
+                                    <label>Tìm kiếm</label>
+                                    <input type="search" name="search" id="searchInput" placeholder="Tìm kiếm theo từ khóa (bệnh nhân, mã hồ sơ...)" value="<?php echo htmlspecialchars($search);?>" class="form-control form-control-sm">
                                 </div>
 
-                                <div style="min-width:160px">
+                                <div class="col-lg-2 col-md-6 col-sm-6 mb-2">
                                     <label class="small text-muted">Khoảng thời gian</label>
-                                    <select name="timeRange" id="timeRange" class="form-control">
+                                    <select name="timeRange" id="timeRange" class="form-control form-control-sm">
                                         <option value="all" <?php if($timeRange=='all') echo 'selected';?>>Tất cả</option>
                                         <option value="today" <?php if($timeRange=='today') echo 'selected';?>>Hôm nay</option>
                                         <option value="this_week" <?php if($timeRange=='this_week') echo 'selected';?>>Tuần này</option>
@@ -214,9 +277,9 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
                                     </select>
                                 </div>
 
-                                <div style="min-width:180px">
+                                <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
                                     <label class="small text-muted">Người dùng</label>
-                                    <select name="userFilter" id="userFilter" class="form-control">
+                                    <select name="userFilter" id="userFilter" class="form-control form-control-sm">
                                         <option value="all">Tất cả</option>
                                         <?php 
                                         // refill users dropdown — only role 1 and 2, include role for prefix
@@ -239,9 +302,9 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
                                     </select>
                                 </div>
 
-                                <div style="min-width:160px">
+                                <div class="col-lg-2 col-md-6 col-sm-6 mb-2">
                                     <label class="small text-muted">Loại hành động</label>
-                                    <select name="actionFilter" id="actionFilter" class="form-control">
+                                    <select name="actionFilter" id="actionFilter" class="form-control form-control-sm">
                                         <option value="all" <?php if($actionFilter=='all') echo 'selected';?>>Tất cả</option>
                                         <option value="insert" <?php if($actionFilter=='insert') echo 'selected';?>>Tạo</option>
                                         <option value="update" <?php if($actionFilter=='update') echo 'selected';?>>Cập nhật</option>
@@ -249,18 +312,37 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
                                     </select>
                                 </div>
 
-                                <div style="display:flex;gap:8px;align-items:center">
-                                    <button type="submit" class="btn btn-primary">Áp dụng</button>
-                                    <button type="button" id="resetFilters" class="btn btn-light">Đặt lại bộ lọc</button>
-                                    <button type="button" id="exportCsv" class="btn btn-dark">Xuất Excel</button>
+                                <div class="col-lg-1 col-md-12 col-sm-12 mb-2 d-flex align-items-end">
+                                    <div style="width:100%;">
+                                        <button type="submit" class="btn btn-primary btn-sm btn-block">Áp dụng</button>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 d-flex gap-2 mt-2">
+                                    <button type="button" id="resetFilters" class="btn btn-light btn-sm">Đặt lại bộ lọc</button>
+                                    <button type="button" id="exportCsv" class="btn btn-dark btn-sm">Xuất Excel</button>
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
 
+                <!-- Results card — add header to match users.php visual -->
+                <div class="card card-outline card-primary shadow">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh Sách</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table id="auditTable" class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
+                                        <th class="p-1 text-center">STT</th>
                                         <th>Thời gian</th>
                                         <th>Người dùng</th>
                                         <th>Hành động</th>
@@ -271,7 +353,7 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
                                 </thead>
                                 <tbody>
                                     <?php if (empty($logs)) { ?>
-                                        <tr><td colspan="6" class="text-center text-muted">Không tìm thấy bản ghi nào</td></tr>
+                                        <tr><td colspan="7" class="text-center text-muted">Không tìm thấy bản ghi nào</td></tr>
                                     <?php } else {
                                         foreach($logs as $row) {
                                             // prepare brief preview of new_value (prefer readable json)
@@ -293,6 +375,8 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
                                             $displayNamePref = htmlspecialchars($prefix . ($row['display_name'] ?? ''));
 
                                             echo '<tr>';
+                                            // serial number column
+                                            echo '<td class="px-2 py-1 align-middle text-center">'.($sn++).'</td>';
                                             echo '<td>'.htmlspecialchars($row['changed_at']).'</td>';
                                             echo '<td>'.$displayNamePref.'</td>';
                                             echo '<td>'.htmlspecialchars($row['action']).'</td>';
@@ -307,8 +391,49 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
                         </div>
                     </div>
                 </div>
+
+                <!-- after the table (within the same card-body) -->
+                <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 50px;margin-bottom: 50px;">
+                    <!-- <div class="text-muted">Hiển thị <?php echo min($totalLogs, $perPage + $offset);?> trên tổng <?php echo $totalLogs;?> bản ghi</div> -->
+                    
+                    <?php if ($totalPages > 1) { ?>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <?php
+                            $baseParams = $_GET;
+                            // Previous
+                            $prev = max(1, $page - 1);
+                            $baseParams['page'] = $prev;
+                            $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                            ?>
+                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                            </li>
+                            <?php
+                            // render pages (simple full list; for many pages could be shortened)
+                            for ($p = 1; $p <= $totalPages; $p++) {
+                                $baseParams['page'] = $p;
+                                $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                $active = ($p == $page) ? 'active' : '';
+                                echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
+                            }
+                            // Next
+                            $next = min($totalPages, $page + 1);
+                            $baseParams['page'] = $next;
+                            $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                            ?>
+                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <?php } ?>
+                </div>
+
             </section>
         </div>
+        <!-- /.content-wrapper -->
+        <?php include './config/footer.php'; ?>
 
         <!-- Modal for JSON view -->
         <div id="jsonModal" class="modal" tabindex="-1" role="dialog">
@@ -372,13 +497,13 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
         m.classList.remove('show');
     }
 
-    // DataTables init for nicer table interactions
+    // DataTables init: disable client-side paging because we use server-side paging
     $(function() {
         $("#auditTable").DataTable({
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "pageLength": 25,
+            "paging": false,
             "ordering": true,
             "order": [[0, "desc"]],
             "language": {

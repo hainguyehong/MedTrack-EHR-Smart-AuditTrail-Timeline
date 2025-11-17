@@ -141,7 +141,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             Thông báo
                         </p>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="book.php" class="nav-link">
                         <i class="nav-icon fa-solid fa-calendar-plus"></i>
                         <p>
                             Đặt lịch khám
@@ -152,7 +152,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
                 <?php if($role != 3): ?>
                 <!-- <li class="nav-item" id="mnu_patients"> -->
-                    <li class="nav-item" id="mnu_patients" <?php if($role == 1) echo 'style="display:none;"'; ?>>
+                <li class="nav-item" id="mnu_patients" <?php if($role == 1) echo 'style="display:none;"'; ?>>
 
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-injured"></i>
@@ -182,7 +182,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="next_visitdate.php" class="nav-link" id="next_visitdate">
+                            <a href="next_visitdate.php" class="nav-link" id="mi_next_visitdate">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Danh sách lịch tái khám</p>
                             </a>
@@ -279,12 +279,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Map file sang id menu con
     var map = {
         'patients.php': 'mi_patientss',
-
-
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient',
-        'next_visitdate.php': 'next_visitdate',
-         'audit_logs.php': 'mi_audit_logs',
+        'next_visitdate.php': 'mi_next_visitdate',
+        'audit_logs.php': 'mi_audit_logs',
     };
 
     // Nếu là 1 trong các trang con thì active cả menu cha và con

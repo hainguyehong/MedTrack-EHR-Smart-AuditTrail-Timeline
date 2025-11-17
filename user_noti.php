@@ -1,13 +1,13 @@
 <?php
-include './config/connection.php';
-include './common_service/common_functions.php';
-include './common_service/date.php';    
-islogin();
-$message = '';
-$userId = $_SESSION['user_id']; // lấy id user sau khi login 
-// echo "🔍 userId hiện tại: " . htmlspecialchars($userId) . "<br>";
-// exit();
-$query = "
+    include './config/connection.php';
+    include './common_service/common_functions.php';
+    include './common_service/date.php';
+    islogin();
+    $message = '';
+    $userId  = $_SESSION['user_id']; // lấy id user sau khi login
+    // echo "🔍 userId hiện tại: " . htmlspecialchars($userId) . "<br>";
+    // exit();
+    $query = "
 SELECT pd.id, pd.next_visit_date
 FROM user_patients AS up
 JOIN patient_diseases AS pd ON up.id_patient = pd.patient_id
@@ -17,19 +17,25 @@ WHERE up.id = :userId
 ORDER BY pd.next_visit_date DESC LIMIT 1;
 ";
 
-$stmt = $con->prepare($query);
-$stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-$stmt->execute();
-$notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// var_dump($userId);
+    $stmt = $con->prepare($query);
+    $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // var_dump($userId);
+
+    $querylich = "SELECT id, date_visit, time_visit, trieu_chung, noi_dung_kham
+                  FROM book WHERE id_patient = ? AND is_deleted = 0 ORDER BY date_visit DESC, time_visit DESC";
+    $stmtlich = $con->prepare($querylich);
+    $stmtlich->execute([$_SESSION['user_id']]);
+    $rows = $stmtlich->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <?php include './config/site_css_links.php';?>
+    <?php include './config/site_css_links.php'; ?>
 
-    <?php include './config/data_tables_css.php';?>
+    <?php include './config/data_tables_css.php'; ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
@@ -170,7 +176,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="wrapper">
         <!-- Navbar -->
         <?php include './config/header.php';
-include './config/sidebar.php';?>
+        include './config/sidebar.php'; ?>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -194,19 +200,19 @@ include './config/sidebar.php';?>
                         <h3 class="card-title">Thông báo lịch khám lại </h3>
                     </div>
                     <div class="card-body">
-                        <?php 
-                        if(!empty($notifications)){
-                            foreach($notifications as $row) {
-                                $date = new DateTime($row['next_visit_date']);
-                                $formattedDate = $date->format('d/m/Y'); // định dạng: ngày/tháng/năm
+                        <?php
+                            if (! empty($notifications)) {
+                                foreach ($notifications as $row) {
+                                    $date          = new DateTime($row['next_visit_date']);
+                                    $formattedDate = $date->format('d/m/Y'); // định dạng: ngày/tháng/năm
 
-                                echo '<p>Bạn có lịch khám lại vào ngày ' . htmlspecialchars($formattedDate) . ' </p>';
-                            }
-                        } else {
-                            echo '<div class="alert alert-info" role="alert">
+                                    echo '<p>Bạn có lịch khám lại vào ngày ' . htmlspecialchars($formattedDate) . ' </p>';
+                                }
+                            } else {
+                                echo '<div class="alert alert-info" role="alert">
                             Không có thông báo lịch khám lại.
                           </div>';
-                        }
+                            }
                         ?>
 
                     </div>
@@ -217,7 +223,20 @@ include './config/sidebar.php';?>
                         <h3 class="card-title">Thông báo Khác </h3>
                     </div>
                     <div class="card-body">
-                        <p>Không có thông báo </p>
+                        <?php
+                            if (! empty($rows)) {
+                                foreach ($rows as $row) {
+                                    $date          = new DateTime($row['date_visit']);
+                                    $formattedDate = $date->format('d/m/Y'); // định dạng: ngày/tháng/năm
+
+                                    echo '<p>Bạn có lịch khám vào ngày ' . htmlspecialchars($formattedDate) . ' </p>';
+                                }
+                            } else {
+                                echo '<div class="alert alert-info" role="alert">
+                            Không có thông báo khác.
+                          </div>';
+                            }
+                        ?>
                     </div>
                 </div>
 
@@ -231,19 +250,19 @@ include './config/sidebar.php';?>
         <!-- /.content -->
 
         <!-- /.content-wrapper -->
-        <?php 
- include './config/footer.php';
+        <?php
+            include './config/footer.php';
 
-//   $message = '';
-//   if(isset($_GET['message'])) {
-//     $message = $_GET['message'];
-//   }
-$message = '';
-if (isset($_SESSION['success_message'])) {
-    $message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
-}
-?>
+            //   $message = '';
+            //   if(isset($_GET['message'])) {
+            //     $message = $_GET['message'];
+            //   }
+            $message = '';
+            if (isset($_SESSION['success_message'])) {
+                $message = $_SESSION['success_message'];
+                unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+            }
+        ?>
         <!-- /.control-sidebar -->
 
 
@@ -260,7 +279,7 @@ if (isset($_SESSION['success_message'])) {
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");
 
-        var message = '<?php echo $message;?>';
+        var message = '<?php echo $message; ?>';
         if (message !== '') {
             showCustomMessage(message);
         }

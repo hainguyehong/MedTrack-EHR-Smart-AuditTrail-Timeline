@@ -70,10 +70,9 @@ if (isset($_POST['save_Patient'])) {
             $errors['date_of_birth'] = "Ngày sinh không hợp lệ (trong tương lai)!";
             $dateBirth = null;
         } else {
+            // Đã loại bỏ kiểm tra "trẻ hơn 1 tuổi"
             $age = (int)((time() - $ts) / (365*24*60*60));
-            if ($age < 1) {
-                $errors['date_of_birth'] = "Ngày sinh không hợp lệ (trẻ hơn 1 tuổi)!";
-            } elseif ($age > 120) {
+            if ($age > 120) {
                 $errors['date_of_birth'] = "Ngày sinh không hợp lệ (lớn hơn 120 tuổi)!";
             }
             $dateBirth = date("Y-m-d", $ts);

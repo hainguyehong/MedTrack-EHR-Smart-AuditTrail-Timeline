@@ -55,21 +55,45 @@ if (isset($_POST['save_user'])) {
     exit();
 }
 
-
-$queryUsers = "select `id`, `display_name`, `user_name`, 
-`role` from `users` where `is_deleted` = 0 
-order by `role` asc;";
-$stmtUsers = '';
+// REPLACE original queryUsers block with paginated query
+$perPage = 10;
+$page = max(1, intval($_GET['page'] ?? 1));
+$offset = ($page - 1) * $perPage;
+$serialStart = $offset + 1;
 
 try {
-    $stmtUsers = $con->prepare($queryUsers);
-    $stmtUsers->execute();
+    // count total users
+    $countSql = "SELECT COUNT(*) FROM `users` WHERE `is_deleted` = 0";
+    $stmtCount = $con->prepare($countSql);
+    $stmtCount->execute();
+    $totalUsers = (int)$stmtCount->fetchColumn();
+} catch (PDOException $ex) {
+    echo $ex->getTraceAsString();
+    echo $ex->getMessage();
+    $totalUsers = 0;
+}
 
+$totalPages = ($totalUsers > 0) ? (int)ceil($totalUsers / $perPage) : 1;
+
+try {
+    $queryUsers = "SELECT `id`, `display_name`, `user_name`, `role` 
+                   FROM `users` 
+                   WHERE `is_deleted` = 0 
+                   ORDER BY `role` ASC
+                   LIMIT :limit OFFSET :offset";
+    $stmtUsers = $con->prepare($queryUsers);
+    $stmtUsers->bindValue(':limit', (int)$perPage, PDO::PARAM_INT);
+    $stmtUsers->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmtUsers->execute();
+    $users = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
 } catch(PDOException $ex) {
-      echo $ex->getTraceAsString();
-      echo $ex->getMessage();
-      exit;
-    }
+    echo $ex->getTraceAsString();
+    echo $ex->getMessage();
+    exit;
+}
+
+// set row serial counter
+$sn = $serialStart;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -253,13 +277,14 @@ try {
                                 </thead>
 
                                 <tbody>
-                                    <?php 
-          $serial = 0;
-          while($row = $stmtUsers->fetch(PDO::FETCH_ASSOC)) {
-           $serial++;
-           ?>
+                                                                <?php 
+                                    if (empty($users)) { ?>
+                                                                    <tr><td colspan="5" class="text-center text-muted">Không tìm thấy tài khoản nào</td></tr>
+                                                                <?php } else {
+                                                                    foreach($users as $row) {
+                                    ?>
                                     <tr>
-                                        <td class="px-2 py-1 align-middle text-center"><?php echo $serial;?></td>
+                                        <td class="px-2 py-1 align-middle text-center"><?php echo $sn++;?></td>
                                         <td class="px-2 py-1 align-middle text-center">
                                             <?php 
                                             if (!empty($row['role'])) {
@@ -275,13 +300,9 @@ try {
                                             }else{
                                                 echo '<span class="badge badge-secondary" style="font-size: 14px;">Chưa phân vai trò</span>';
                                             }
-                                                
+                                                 
                                             ?>
-
-
                                         </td>
-
-
                                         <td class="px-2 py-1 align-middle"><?php echo $row['display_name'];?></td>
                                         <td class="px-2 py-1 align-middle"><?php echo $row['user_name'];?></td>
 
@@ -296,15 +317,49 @@ try {
                                             </a>
                                         </td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } } ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
+                    
+
                     <!-- /.card-footer-->
                 </div>
-
+<!-- add pagination UI -->
+                    <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 50px;margin-bottom: 50px;">
+                        <!-- <div class="text-muted">Hiển thị <?php echo min($totalUsers, $perPage + $offset);?> trên tổng <?php echo $totalUsers;?> người dùng</div> -->
+                        <?php if ($totalPages > 1) { ?>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                <?php
+                                $baseParams = $_GET;
+                                $prev = max(1, $page - 1);
+                                $baseParams['page'] = $prev;
+                                $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                ?>
+                                <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                    <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                                </li>
+                                <?php
+                                for ($p = 1; $p <= $totalPages; $p++) {
+                                    $baseParams['page'] = $p;
+                                    $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                    $active = ($p == $page) ? 'active' : '';
+                                    echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
+                                }
+                                $next = min($totalPages, $page + 1);
+                                $baseParams['page'] = $next;
+                                $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                ?>
+                                <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                    <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <?php } ?>
+                    </div>
                 <!-- /.card -->
 
             </section>
@@ -380,7 +435,7 @@ $message = '';
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+            "paging": false,
             "buttons": ["pdf", "print"],
 
             "language": {
