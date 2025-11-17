@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2025-11-14 15:53:03 | +8491235649879 | Xin chào Mark Cooper, bạn có lịch tái khám vào ngày 16/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-11-14 15:53:03 | +84971676211 | Xin chào Mark Cooperdddddd, bạn có lịch tái khám vào ngày 17/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-11-14 15:53:04 | +84362111351 | Xin chào Hải Nguyễn Audit New New, bạn có lịch tái khám vào ngày 20/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
@@ -12,3 +13,11 @@
 2025-11-15 16:34:40 | +84362111351 | Xin chào Hải Nguyễn Audit New New, bạn có lịch tái khám vào ngày 20/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-11-15 16:34:40 | +18777804236 | Xin chào Nguyễn Hồng Hải Hải, bạn có lịch tái khám vào ngày 23/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-11-15 16:34:41 | +84362111351 | Xin chào Hải Nguyễn Audit New New, bạn có lịch tái khám vào ngày 20/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+=======
+
+2025-11-11 14:22:34 | +84362111351 | Xin chào Hải Nguyễn Audit New New, bạn có lịch tái khám vào ngày 20/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-11-11 14:22:35 | +18777804236 | Xin chào Nguyễn Hồng Hải Hải, bạn có lịch tái khám vào ngày 23/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-11-11 14:33:58 | +84362111351 | Xin chào Hải Nguyễn Audit New New, bạn có lịch tái khám vào ngày 20/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-11-11 14:33:59 | +18777804236 | Xin chào Nguyễn Hồng Hải Hải, bạn có lịch tái khám vào ngày 23/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-11-11 23:05:02 | +84909090909 | Xin chào Bn, bạn có lịch tái khám vào ngày 06/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+>>>>>>> origin/zangle

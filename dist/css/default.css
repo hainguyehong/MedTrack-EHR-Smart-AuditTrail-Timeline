@@ -16,7 +16,7 @@ body>.wrapper>.content-wrapper {
 
 section.content-header {
     border-bottom: 0px solid #707070;
-    margin-bottom: 1em;
+    /* margin-bottom: 1em; */
 }
 
 .logo-xl,
