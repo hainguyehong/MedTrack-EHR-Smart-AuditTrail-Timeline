@@ -1,3 +1,4 @@
 # .env và các file config chứa key
 .env
 common_service/env_loader.php
+infobip_sms_log.txt
