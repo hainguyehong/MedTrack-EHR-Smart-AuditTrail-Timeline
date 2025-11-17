@@ -141,7 +141,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             Thông báo
                         </p>
                     </a>
-                    <a href="#" class="nav-link">
+                    <a href="book.php" class="nav-link">
                         <i class="nav-icon fa-solid fa-calendar-plus"></i>
                         <p>
                             Đặt lịch khám

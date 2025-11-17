@@ -4,7 +4,6 @@ include './common_service/common_functions.php';
 include './common_service/date.php';
 $message = '';
 $userId = $_SESSION['user_id']; 
-
 if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     $patientId = intval($_POST['patient_id']);
 
@@ -150,6 +149,30 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
         border-top: 0px solid #007bff;
 
+    }
+
+    /* Chiều cao giống form-control */
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        padding: 6px 12px;
+        border: 1px solid #ced4da !important;
+        border-radius: 4px !important;
+    }
+
+    /* Căn giữa text */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px !important;
+    }
+
+    /* Mũi tên */
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px !important;
+    }
+
+    /* Khi focus */
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #86b7fe !important;
+        box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25) !important;
     }
     </style>
 </head>
