@@ -2,65 +2,70 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-
+islogin();
 $message = '';
-
-if (isset($_POST['submit'])) {
-    $patientId = $_POST['patient'];
-    $bp = $_POST['bp']; 
-    $weight = $_POST['weight']; 
-    $height = $_POST['height']; 
-    $temperature = $_POST['temperature']; 
-    $pulse = $_POST['pulse']; 
-    $heartRate = $_POST['heart_rate']; 
-    $ultrasound = $_FILES['ultrasound']; 
-    $xray = $_FILES['xray']; 
-
-    $tc = $_POST['tc']; 
-    $cd = $_POST['cd']; 
-    $bienphap = $_POST['bienphap']; 
-    $nv = $_POST['nv']; 
-    $disease = $_POST['disease']; 
-
-    // --- Xử lý ngày hẹn tái khám ---
-    $next_visit_date = $_POST['next_visit_date'] ?? null;
-    if (!empty($next_visit_date)) {
-        $date = DateTime::createFromFormat('d/m/Y', $next_visit_date);
-        $next_visit_date = $date ? $date->format('Y-m-d') : null;
-    } else {
-        $next_visit_date = null;
-    }
-
-    // --- Tạo thư mục upload nếu chưa có ---
-    $ultrasoundDir = "uploads/anhsieuam/";
-    $xrayDir = "uploads/xquang/";
-    if (!is_dir($ultrasoundDir)) mkdir($ultrasoundDir, 0777, true);
-    if (!is_dir($xrayDir)) mkdir($xrayDir, 0777, true);
-
-    // --- Upload file ---
-    $ultrasoundPath = null;
-    if (!empty($ultrasound['name'])) {
-        $ultrasoundName = time() . "_" . basename($ultrasound["name"]);
-        $ultrasoundPath = $ultrasoundDir . $ultrasoundName;
-        move_uploaded_file($ultrasound["tmp_name"], $ultrasoundPath);
-    }
-
-    $xrayPath = null;
-    if (!empty($xray['name'])) {
-        $xrayName = time() . "_" . basename($xray["name"]);
-        $xrayPath = $xrayDir . $xrayName;
-        move_uploaded_file($xray["tmp_name"], $xrayPath);
-    }
-
-    $createdAt = date("Y-m-d H:i:s");
-
+function input($key, $default = null) {
+    return isset($_POST[$key]) ? trim($_POST[$key]) : $default;
+}
+if (isset($_POST['save'])) {
     try {
+        $patientId = input('patient');
+        if (empty($patientId)) throw new Exception('Chưa chọn bệnh nhân.');
+
+        $bp = input('bp');
+        $weight = input('weight');
+        $height = input('height');
+        $temperature = input('temperature');
+        $pulse = input('pulse');
+        $heartRate = input('heart_rate');
+
+        $tc = input('tc');
+        $cd = input('cd');
+        $bienphap = input('bienphap');
+        $nv = input('nv');
+        $disease = input('disease');
+
+        // next_visit_date from d/m/Y to Y-m-d
+        $next_visit_date = input('next_visit_date', null);
+        if (!empty($next_visit_date)) {
+            $date = DateTime::createFromFormat('d/m/Y', $next_visit_date);
+            $next_visit_date = $date ? $date->format('Y-m-d') : null;
+        } else {
+            $next_visit_date = null;
+        }
+
+        // handle uploads
+        $ultrasoundPath = null;
+        $xrayPath = null;
+
+        $ultrasoundDir = "uploads/anhsieuam/";
+        $xrayDir = "uploads/xquang/";
+        if (!is_dir($ultrasoundDir)) mkdir($ultrasoundDir, 0777, true);
+        if (!is_dir($xrayDir)) mkdir($xrayDir, 0777, true);
+
+        if (!empty($_FILES['ultrasound']['name'])) {
+            $ultrasoundName = time() . "_ultra_" . basename($_FILES['ultrasound']['name']);
+            $ultrasoundPath = $ultrasoundDir . $ultrasoundName;
+            if (!move_uploaded_file($_FILES['ultrasound']['tmp_name'], $ultrasoundPath)) {
+                throw new Exception('Không thể upload file siêu âm.');
+            }
+        }
+
+        if (!empty($_FILES['xray']['name'])) {
+            $xrayName = time() . "_xray_" . basename($_FILES['xray']['name']);
+            $xrayPath = $xrayDir . $xrayName;
+            if (!move_uploaded_file($_FILES['xray']['tmp_name'], $xrayPath)) {
+                throw new Exception('Không thể upload file X-ray.');
+            }
+        }
+
+        $createdAt = date("Y-m-d H:i:s");
+
         $con->beginTransaction();
 
-        // --- Thêm hồ sơ khám bệnh ---
         $queryVisit = "INSERT INTO patient_diseases
-            (patient_id, huyet_ap, can_nang, chieu_cao, nhiet_do, 
-             mach_dap, nhip_tim, anh_sieu_am, anh_chup_xq, 
+            (patient_id, huyet_ap, can_nang, chieu_cao, nhiet_do,
+             mach_dap, nhip_tim, anh_sieu_am, anh_chup_xq,
              trieu_chung, chuan_doan, bien_phap, nhap_vien, tien_su_benh, created_at, next_visit_date)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -71,48 +76,29 @@ if (isset($_POST['submit'])) {
             $tc, $cd, $bienphap, $nv, $disease, $createdAt, $next_visit_date
         ]);
 
-        $lastInsertId = $con->lastInsertId();
+        $visitId = $con->lastInsertId();
+        if (!$visitId) throw new Exception('Không lấy được ID của hồ sơ khám bệnh.');
 
-        // --- Thêm danh sách thuốc ---
-        $medicineIds = $_POST['medicineIds'] ?? [];
-        $quantities  = $_POST['quantities'] ?? [];
-        $dosages     = $_POST['dosages'] ?? [];
-        $notes       = $_POST['notes'] ?? [];
+        // fetch patient name for display
+        $stmt = $con->prepare("SELECT patient_name FROM patients WHERE id = ?");
+        $stmt->execute([$patientId]);
+        $patient = $stmt->fetch(PDO::FETCH_ASSOC);
+        $patientName = $patient['patient_name'] ?? '';
 
-        $medLog = [];
-        foreach ($medicineIds as $index => $medicineId) {
-            $quantity = $quantities[$index] ?? null;
-            $dosage   = $dosages[$index] ?? null;
-            $note     = $notes[$index] ?? null;
+        // store in session for later prescription submit
+        $_SESSION['visit_id'] = $visitId;
+        $_SESSION['selected_patient_id'] = $patientId;
+        $_SESSION['selected_patient_name'] = $patientName;
 
-            $query = "INSERT INTO patient_medication_history 
-                      (patient_id, medicine_id, quantity, dosage, note, created_at) 
-                      VALUES (:patient_id, :medicine_id, :quantity, :dosage, :note, NOW())";
-            $stmt = $con->prepare($query);
-            $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
-            $stmt->bindParam(':medicine_id', $medicineId, PDO::PARAM_INT);
-            $stmt->bindParam(':quantity', $quantity);
-            $stmt->bindParam(':dosage', $dosage);
-            $stmt->bindParam(':note', $note);
-            $stmt->execute();
-
-            $medLog[] = [
-                'medicine_id' => $medicineId,
-                'quantity' => $quantity,
-                'dosage' => $dosage,
-                'note' => $note
-            ];
-        }
-
-        // --- Ghi log audit ---
+        // audit log (use $visitId)
         if (function_exists('log_audit')) {
             log_audit(
                 $con,
-                $_SESSION['user_id'] ?? 'unknown', // Người thao tác
-                'patient_diseases',                // Bảng bị tác động
-                $lastInsertId,                     // ID hồ sơ vừa thêm
-                'insert',                          // Hành động
-                null,                              // Không có dữ liệu cũ
+                $_SESSION['user_id'] ?? 'unknown',
+                'patient_diseases',
+                $visitId,
+                'insert',
+                null,
                 [
                     'patient_id' => $patientId,
                     'huyet_ap' => $bp,
@@ -126,25 +112,102 @@ if (isset($_POST['submit'])) {
                     'bien_phap' => $bienphap,
                     'nhap_vien' => $nv,
                     'tien_su_benh' => $disease,
-                    'thuoc' => $medLog,
-                    'created_at' => $createdAt
+                    'created_at' => $createdAt,
+                    'next_visit_date' => $next_visit_date
                 ]
             );
         }
 
         $con->commit();
         $_SESSION['success_message'] = 'Thông tin khám bệnh đã được lưu thành công.';
+        // After save, redirect to same page to show selected patient in dropdown
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
 
-    } catch (PDOException $ex) {
-        $con->rollback();
+    } catch (Exception $ex) {
+        if ($con->inTransaction()) $con->rollBack();
         $_SESSION['error_message'] = 'Lỗi khi lưu dữ liệu: ' . $ex->getMessage();
-        exit;
+        // Let the page continue to show the form with error
     }
-
-    header("Location: patients_visit.php");
-    exit();
 }
+if (isset($_POST['submit'])) {
+    try {
+        $visitId = $_SESSION['visit_id'] ?? null;
+        $patientId = input('patient', $_SESSION['selected_patient_id'] ?? null);
 
+        if (empty($visitId) && empty($patientId)) {
+            throw new Exception('Không tìm thấy hồ sơ khám bệnh hoặc bệnh nhân để lưu đơn thuốc.');
+        }
+
+        $medicineIds = $_POST['medicineIds'] ?? [];
+        $quantities  = $_POST['quantities'] ?? [];
+        $dosages     = $_POST['dosages'] ?? [];
+        $notes       = $_POST['notes'] ?? [];
+
+        if (empty($medicineIds)) {
+            throw new Exception('Chưa có thuốc nào được thêm vào đơn.');
+        }
+
+        $con->beginTransaction();
+
+        $medLog = [];
+        $insertQuery = "INSERT INTO patient_medication_history
+            (visit_id, patient_id, medicine_id, quantity, dosage, note, created_at)
+            VALUES (:visit_id, :patient_id, :medicine_id, :quantity, :dosage, :note, NOW())";
+        $stmtIns = $con->prepare($insertQuery);
+
+        foreach ($medicineIds as $index => $medicineId) {
+            $quantity = $quantities[$index] ?? null;
+            $dosage   = $dosages[$index] ?? null;
+            $note     = $notes[$index] ?? null;
+
+            $stmtIns->execute([
+                ':visit_id' => $visitId,
+                ':patient_id' => $patientId,
+                ':medicine_id' => $medicineId,
+                ':quantity' => $quantity,
+                ':dosage' => $dosage,
+                ':note' => $note
+            ]);
+
+            $medLog[] = [
+                'medicine_id' => $medicineId,
+                'quantity' => $quantity,
+                'dosage' => $dosage,
+                'note' => $note
+            ];
+        }
+
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown',
+                'patient_medication_history',
+                $visitId,
+                'insert',
+                null,
+                $medLog
+            );
+        }
+
+        $con->commit();
+
+        // cleanup session
+        unset($_SESSION['visit_id']);
+        unset($_SESSION['selected_patient_id']);
+        unset($_SESSION['selected_patient_name']);
+
+        $_SESSION['success_message'] = 'Đơn thuốc đã được lưu thành công.';
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+
+    } catch (Exception $ex) {
+        if ($con->inTransaction()) $con->rollBack();
+        $_SESSION['error_message'] = 'Lỗi khi lưu đơn thuốc: ' . $ex->getMessage();
+    }
+}
+$selectedPatientId = $_SESSION['selected_patient_id'] ?? '';
+$selectedPatientName = $_SESSION['selected_patient_name'] ?? '';
 $patients = getPatients($con);
 $medicines = getMedicines($con);
 
@@ -372,7 +435,7 @@ $medicines = getMedicines($con);
                                 <div class="row">
                                     <div class="col-lg-4 col-md-6 mb-3">
                                         <label>Chọn bệnh nhân *</label>
-                                        <select id="patient" name="patient" class="form-control" required>
+                                        <select id="patient" name="patient" class="form-control setupSelect2" required>
                                             <?php echo $patients;?>
                                         </select>
                                     </div>
@@ -510,88 +573,106 @@ $medicines = getMedicines($con);
                                 </div>
 
                                 <div class="text-center mt-4">
-                                    <button type="button" class="btn btn-next" id="nextToMedicine">
-                                        Tiếp theo: Kê đơn thuốc <i class="fas fa-arrow-right ms-2"></i>
+                                    <button type="submit" name="save" class=" btn btn-next" id="#">
+                                        Lưu thông tin bệnh nhân
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Tab Kê đơn thuốc -->
-                            <div class="tab-pane fade" id="prescription" role="tabpanel">
-                                <h5 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> Kê đơn thuốc
-                                </h5>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 mb-3">
-                                        <label>Chọn loại thuốc</label>
-                                        <select id="medicine" class="form-control" name="medicine">
-                                            <option value="">-- Chọn thuốc --</option>
-                                            <?php echo $medicines;?>
-                                        </select>
-                                    </div>
-                                    <div class="col-lg-2 col-md-3 mb-3">
-                                        <label>Số lượng</label>
-                                        <input id="quantity" class="form-control" name="quantity" type="number"
-                                            min="1" />
-                                    </div>
-                                    <div class="col-lg-2 col-md-3 mb-3">
-                                        <label>Liều dùng</label>
-                                        <input id="dosage" class="form-control" name="dosage"
-                                            placeholder="2 viên/ngày" />
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 mb-3">
-                                        <label>Ghi chú</label>
-                                        <input id="note" name="note" class="form-control" placeholder="Sau ăn" />
-                                    </div>
-                                    <div class="col-lg-2 col-md-2 mb-3">
-                                        <label>&nbsp;</label>
-                                        <button id="add_to_list" type="button" class="btn btn-primary btn-block">
-                                            <i class="fa fa-plus"></i> Thêm
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="mt-4">
-                                    <h6 class="mb-3">Danh sách thuốc đã kê</h6>
-                                    <div class="table-responsive">
-                                        <table id="medication_list" class="table table-striped table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th width="8%">STT</th>
-                                                    <th width="35%">Tên Thuốc</th>
-                                                    <th width="12%">Số Lượng</th>
-                                                    <th width="20%">Liều Dùng</th>
-                                                    <th width="15%">Ghi chú</th>
-                                                    <th width="10%">Hành Động</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="current_medicines_list">
-                                                <tr>
-                                                    <td colspan="6" class="text-center text-muted py-4">
-                                                        Chưa có thuốc nào được thêm vào đơn
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="text-center mt-4">
-                                    <button type="button" class="btn btn-secondary me-3" id="backToExam">
-                                        <i class="fas fa-arrow-left me-2"></i> Quay lại khám bệnh
-                                    </button>
-                                    <button type="submit" id="submit" name="submit" class="btn btn-success">
-                                        <i class="fas fa-save me-2"></i> Lưu đơn thuốc
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </form>
-                </div>
-            </section>
-        </div>
 
-        <?php include './config/footer.php';
+                    <!-- Tab Kê đơn thuốc -->
+                    <div class="tab-pane fade" id="prescription" role="tabpanel">
+                        <h5 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> Kê đơn thuốc
+                        </h5>
+                        <form method="post" enctype="multipart/form-data" id="medicalForms">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Bệnh nhân</label>
+                                    <select id="patient_presc" class="form-control">
+                                        <?php
+                        // Prefer session selected patient
+                        if (!empty($selectedPatientId)) {
+                            echo '<option value="'.htmlspecialchars($selectedPatientId).'" selected>'.htmlspecialchars($selectedPatientName).'</option>';
+                            echo '<option disabled>──────────</option>';
+                        }
+                        foreach ($patients as $p) {
+                            if ($p['id'] == $selectedPatientId) continue;
+                            echo '<option value="'.htmlspecialchars($p['id']).'">'.htmlspecialchars($p['patient_name']).'</option>';
+                        }
+                        ?>
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label>Chọn loại thuốc</label>
+                                    <select id="medicine" class="form-control" name="medicine" required>
+                                        <option value="">-- Chọn thuốc --</option>
+                                        <?php echo $medicines;?>
+                                    </select>
+                                </div>
+                                <div class="col-lg-2 col-md-3 mb-3">
+                                    <label>Số lượng</label>
+                                    <input id="quantity" class="form-control" name="quantity" type="number" min="1"
+                                        required />
+                                </div>
+                                <div class="col-lg-2 col-md-3 mb-3">
+                                    <label>Liều dùng</label>
+                                    <input id="dosage" class="form-control " name="dosage" placeholder="2 viên/ngày"
+                                        required />
+                                </div>
+                                <div class="col-lg-2 col-md-3 mb-3">
+                                    <label>Ghi chú</label>
+                                    <input id="note" name="note" class="form-control" placeholder="Sau ăn" />
+                                </div>
+                                <div class="text-center mt-4 col-lg-2 col-md-3 mb-3">
+                                    <button id="add_to_list" type="button" class="btn btn-primary btn-block">
+                                        <i class="fa fa-plus"></i> Thêm
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <h6 class="mb-3">Danh sách thuốc đã kê</h6>
+                                <div class="table-responsive">
+                                    <table id="medication_list" class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th width="8%">STT</th>
+                                                <!-- <th width="15%">Bệnh nhân</th> -->
+                                                <th width="15%">Tên Thuốc</th>
+                                                <th width="12%">Số Lượng</th>
+                                                <th width="20%">Liều Dùng</th>
+                                                <th width="15%">Ghi chú</th>
+                                                <th width="10%">Hành Động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="current_medicines_list">
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">
+                                                    Chưa có thuốc nào được thêm vào đơn
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <!-- <button type="button" class="btn btn-secondary me-3" id="backToExam">
+                                    <i class="fas fa-arrow-left me-2"></i> Quay lại khám bệnh
+                                </button> -->
+                                <button type="submit" id="#" name="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i> Lưu đơn thuốc
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+        </div>
+        </section>
+    </div>
+
+    <?php include './config/footer.php';
         $message = '';
         if (isset($_SESSION['success_message'])) {
             $message = $_SESSION['success_message'];
@@ -607,7 +688,7 @@ $medicines = getMedicines($con);
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- cho tải ảnh -->
-    <script src="date.js"></script>
+    <!-- <script src="date.js"></script> -->
 
     <script>
     function previewImage(inputId, previewId) {
@@ -644,29 +725,29 @@ $medicines = getMedicines($con);
         });
 
         // Tab navigation
-        $('#btn-kham-benh').click(function() {
-            $('#exam-tab').click();
-            $(this).removeClass('btn-outline-primary').addClass('btn-primary');
-            $('#btn-ke-don-thuoc').removeClass('btn-primary').addClass('btn-outline-primary');
-        });
+        // $('#btn-kham-benh').click(function() {
+        //     $('#exam-tab').click();
+        //     $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        //     $('#btn-ke-don-thuoc').removeClass('btn-primary').addClass('btn-outline-primary');
+        // });
 
-        $('#btn-ke-don-thuoc').click(function() {
-            $('#prescription-tab').click();
-            $(this).removeClass('btn-outline-primary').addClass('btn-primary');
-            $('#btn-kham-benh').removeClass('btn-primary').addClass('btn-outline-primary');
-        });
+        // $('#btn-ke-don-thuoc').click(function() {
+        //     $('#prescription-tab').click();
+        //     $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        //     $('#btn-kham-benh').removeClass('btn-primary').addClass('btn-outline-primary');
+        // });
 
-        // Next button
-        $('#nextToMedicine').click(function() {
-            $('#prescription-tab').click();
-            $('#btn-ke-don-thuoc').click();
-        });
+        // // Next button
+        // $('#nextToMedicine').click(function() {
+        //     $('#prescription-tab').click();
+        //     $('#btn-ke-don-thuoc').click();
+        // });
 
-        // Back button  
-        $('#backToExam').click(function() {
-            $('#exam-tab').click();
-            $('#btn-kham-benh').click();
-        });
+        // // Back button  
+        // $('#backToExam').click(function() {
+        //     $('#exam-tab').click();
+        //     $('#btn-kham-benh').click();
+        // });
 
         // Add medication to list
         $("#add_to_list").click(function() {
@@ -711,7 +792,7 @@ $medicines = getMedicines($con);
                 $("#dosage").val('');
 
                 // Show success message
-                showCustomMessage('Đã thêm thuốc vào đơn!');
+                // showCustomMessage('Đã thêm thuốc vào đơn!');
             } else {
                 showCustomMessage('Vui lòng nhập đầy đủ thông tin thuốc!');
             }
@@ -765,6 +846,21 @@ $medicines = getMedicines($con);
     });
     </script>
 
+    <script>
+    // Lưu lại tab đang mở
+    document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            localStorage.setItem('activeTab', e.target.getAttribute('href'));
+        });
+    });
+
+    // Khôi phục tab sau khi reload
+    const activeTab = localStorage.getItem('activeTab');
+    if (activeTab) {
+        const tab = document.querySelector(`[href="${activeTab}"]`);
+        if (tab) new bootstrap.Tab(tab).show();
+    }
+    </script>
 
     <!-- Bootstrap icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
