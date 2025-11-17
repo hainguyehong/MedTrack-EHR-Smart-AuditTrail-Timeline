@@ -4,3 +4,4 @@
 2025-11-11 14:33:58 | +84362111351 | Xin chào Hải Nguyễn Audit New New, bạn có lịch tái khám vào ngày 20/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-11-11 14:33:59 | +18777804236 | Xin chào Nguyễn Hồng Hải Hải, bạn có lịch tái khám vào ngày 23/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-11-11 23:05:02 | +84909090909 | Xin chào Bn, bạn có lịch tái khám vào ngày 06/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-11-16 23:16:56 | +84909090909 | Xin chào Bn, bạn có lịch tái khám vào ngày 06/11/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
