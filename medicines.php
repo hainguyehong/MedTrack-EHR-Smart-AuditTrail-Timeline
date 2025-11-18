@@ -58,16 +58,37 @@ if (isset($_POST['save_medicine'])) {
 }
 
 // else
-try {
-  $query = "select `id`, `medicine_name` from `medicines` 
-   WHERE `is_deleted` = 0 order by `created_at` desc;";
-  $stmt = $con->prepare($query);
-  $stmt->execute();
+// --- Paginated query (like users.php) ---
+$perPage = 10;
+$page = max(1, intval($_GET['page'] ?? 1));
+$offset = ($page - 1) * $perPage;
 
+try {
+    $countSql = "SELECT COUNT(*) FROM `medicines` WHERE `is_deleted` = 0";
+    $stmtCount = $con->prepare($countSql);
+    $stmtCount->execute();
+    $total = (int)$stmtCount->fetchColumn();
+} catch (PDOException $ex) {
+    echo $ex->getMessage();
+    echo $ex->getTraceAsString();
+    $total = 0;
+}
+
+$totalPages = ($total > 0) ? (int)ceil($total / $perPage) : 1;
+
+try {
+    $query = "SELECT `id`, `medicine_name` FROM `medicines`
+              WHERE `is_deleted` = 0
+              ORDER BY `created_at` DESC
+              LIMIT :limit OFFSET :offset";
+    $stmt = $con->prepare($query);
+    $stmt->bindValue(':limit', (int)$perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
 } catch(PDOException $ex) {
-  echo $ex->getMessage();
-  echo $e->getTraceAsString();
-  exit;  
+    echo $ex->getMessage();
+    echo $ex->getTraceAsString();
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -220,9 +241,9 @@ include './config/sidebar.php';?>
 
                                 <tbody>
                                     <?php 
-          $serial = 0;
+          // STT bắt đầu theo trang
+          $serial = $offset + 1;
           while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-           $serial++;
            ?>
                                     <tr>
                                         <td class="text-center"><?php echo $serial;?></td>
@@ -238,16 +259,48 @@ include './config/sidebar.php';?>
                                             </a>
                                         </td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php $serial++; } ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- /.card-footer-->
+                    
+                  <!-- /.card-footer-->
                 </div>
                 <!-- /.card -->
-
+                <!-- Pagination (same style as users.php) -->
+                    <?php if ($totalPages > 1) { ?>
+                    <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 40px;margin-bottom: 50px;">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination mb-0">
+                                <?php
+                                $baseParams = $_GET;
+                                $prev = max(1, $page - 1);
+                                $baseParams['page'] = $prev;
+                                $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                ?>
+                                <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                    <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                                </li>
+                                <?php
+                                for ($p = 1; $p <= $totalPages; $p++) {
+                                    $baseParams['page'] = $p;
+                                    $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                    $active = ($p == $page) ? 'active' : '';
+                                    echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
+                                }
+                                $next = min($totalPages, $page + 1);
+                                $baseParams['page'] = $next;
+                                $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                ?>
+                                <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                    <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <?php } ?>
             </section>
             <!-- /.content -->
         </div>
@@ -284,6 +337,7 @@ include './config/footer.php';
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
+            "paging": false, // paging disabled because server-side paging is used
             // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
             "buttons": ["pdf", "print"],
             "language": {

@@ -77,15 +77,38 @@ if (isset($_POST['send_all_sms']) && !empty($_POST['patient_ids'])) {
     exit;
 }
 
-$query = "SELECT p.id, p.patient_name, p.cnic, p.phone_number,p.created_at, pd.next_visit_date
-          FROM patients p
-          JOIN patient_diseases pd ON p.id = pd.patient_id
-          WHERE pd.next_visit_date IS NOT NULL
-          ORDER BY pd.next_visit_date ASC
-        ";
-$stmt = $con->prepare($query);
-// exit();
-$infor = $stmt->execute();
+// <-- Thay: truy vấn list chuyển sang phân trang -->
+try {
+    $perPage = 10;
+    $page = isset($_GET['page']) && is_numeric($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $perPage;
+
+    // Lấy tổng số bản ghi
+    $countQuery = "SELECT COUNT(*) as total
+                   FROM patients p
+                   JOIN patient_diseases pd ON p.id = pd.patient_id
+                   WHERE pd.next_visit_date IS NOT NULL";
+    $stmtCount = $con->prepare($countQuery);
+    $stmtCount->execute();
+    $total = (int)$stmtCount->fetchColumn();
+    $totalPages = $total > 0 ? (int)ceil($total / $perPage) : 1;
+
+    // Lấy dữ liệu theo trang
+    $query = "SELECT p.id, p.patient_name, p.cnic, p.phone_number, p.created_at, pd.next_visit_date
+              FROM patients p
+              JOIN patient_diseases pd ON p.id = pd.patient_id
+              WHERE pd.next_visit_date IS NOT NULL
+              ORDER BY pd.next_visit_date ASC
+              LIMIT :offset, :perpage";
+    $stmt = $con->prepare($query);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindValue(':perpage', $perPage, PDO::PARAM_INT);
+    $stmt->execute();
+} catch(PDOException $ex) {
+    echo $ex->getMessage();
+    echo $ex->getTraceAsString();
+    exit;
+}
 
 ?>
 <!DOCTYPE html>
@@ -147,12 +170,7 @@ $infor = $stmt->execute();
 
     }
 
-    .form-control,
-    .form-select {
-
-        /* border-radius: 8px; */
-
-    }
+  
 
     .card-title {
 
@@ -240,14 +258,14 @@ include './config/sidebar.php';
                                     </thead>
                                     <tbody>
                                         <?php 
-                                            $count = 0;
+                                            // STT bắt đầu theo trang
+                                            $serial = $offset + 1;
                                             while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                                $count++;
-                                            ?>
+                                         ?>
                                         <tr style="text-align:center;">
                                             <td><input type="checkbox" name="patient_ids[]"
                                                     value="<?php echo $row['id']; ?>" class="checkBoxItem"></td>
-                                            <td><?php echo $count; ?></td>
+                                            <td><?php echo $serial++; ?></td>
                                             <td><?php echo htmlspecialchars($row['patient_name']); ?></td>
                                             <td><?php echo htmlspecialchars($row['cnic']); ?></td>
                                             <td><?php echo htmlspecialchars($row['phone_number']); ?></td>
@@ -271,6 +289,9 @@ include './config/sidebar.php';
                                 </button>
 
                             </form>
+
+                            
+ 
                         </div>
                     </div>
                     <?php include './config/site_js_links.php'; ?>
@@ -348,7 +369,40 @@ include './config/sidebar.php';
                         }
                     });
                     </script>
+                </div>
+                <!-- Pagination (giống users.php) -->
+                            <?php if ($totalPages > 1): ?>
+                             <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 40px;margin-bottom: 50px;">
 
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination mb-0">
+                                        <?php
+                                        $baseParams = $_GET;
+                                        $prev = max(1, $page - 1);
+                                        $baseParams['page'] = $prev;
+                                        $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                        ?>
+                                        <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                            <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                                        </li>
+                                        <?php
+                                        for ($p = 1; $p <= $totalPages; $p++) {
+                                            $baseParams['page'] = $p;
+                                            $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                            $active = ($p == $page) ? 'active' : '';
+                                            echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
+                                        }
+                                        $next = min($totalPages, $page + 1);
+                                        $baseParams['page'] = $next;
+                                        $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
+                                        ?>
+                                        <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                            <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            <?php endif; ?>
 </body>
 
 </html>
