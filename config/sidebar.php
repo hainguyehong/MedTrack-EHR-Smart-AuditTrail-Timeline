@@ -188,6 +188,15 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             </a>
                         </li>
                     </ul>
+                    
+                </li>
+                <li class="nav-item" id="mnu_dashboard" <?php if($role == 3) echo 'style="display:none;"'; ?>>
+                    <a href="doctor_book.php" class="nav-link">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>
+                            Xác nhận lịch khám
+                        </p>
+                    </a>
                 </li>
                 <li class="nav-item" id="mnu_medicines" <?php if($role == 1) echo 'style="display:none;"'; ?>>
                     <a href="#" class="nav-link">
