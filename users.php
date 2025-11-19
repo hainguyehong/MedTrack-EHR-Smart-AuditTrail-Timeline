@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 $message = '';
-
+islogin([1]); // chỉ cho admin (1) truy cập
 if (isset($_POST['save_user'])) {
     $displayName = trim($_POST['display_name']);
     $userName = trim($_POST['user_name']);
@@ -100,7 +100,7 @@ $sn = $serialStart;
 
 <head>
     <?php include './config/site_css_links.php';?>
- <!-- Thêm favicon -->
+    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 
@@ -277,10 +277,12 @@ $sn = $serialStart;
                                 </thead>
 
                                 <tbody>
-                                                                <?php 
+                                    <?php 
                                     if (empty($users)) { ?>
-                                                                    <tr><td colspan="5" class="text-center text-muted">Không tìm thấy tài khoản nào</td></tr>
-                                                                <?php } else {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Không tìm thấy tài khoản nào</td>
+                                    </tr>
+                                    <?php } else {
                                                                     foreach($users as $row) {
                                     ?>
                                     <tr>
@@ -323,26 +325,28 @@ $sn = $serialStart;
                         </div>
                     </div>
 
-                    
+
 
                     <!-- /.card-footer-->
                 </div>
-<!-- add pagination UI -->
-                    <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 50px;margin-bottom: 50px;">
-                        <!-- <div class="text-muted">Hiển thị <?php echo min($totalUsers, $perPage + $offset);?> trên tổng <?php echo $totalUsers;?> người dùng</div> -->
-                        <?php if ($totalPages > 1) { ?>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0">
-                                <?php
+                <!-- add pagination UI -->
+                <div class="d-flex justify-content-between align-items-center mt-3"
+                    style="margin-left: 50px;margin-bottom: 50px;">
+                    <!-- <div class="text-muted">Hiển thị <?php echo min($totalUsers, $perPage + $offset);?> trên tổng <?php echo $totalUsers;?> người dùng</div> -->
+                    <?php if ($totalPages > 1) { ?>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <?php
                                 $baseParams = $_GET;
                                 $prev = max(1, $page - 1);
                                 $baseParams['page'] = $prev;
                                 $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                                 ?>
-                                <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                    <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                                </li>
-                                <?php
+                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                <a class="page-link"
+                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                            </li>
+                            <?php
                                 for ($p = 1; $p <= $totalPages; $p++) {
                                     $baseParams['page'] = $p;
                                     $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
@@ -353,13 +357,14 @@ $sn = $serialStart;
                                 $baseParams['page'] = $next;
                                 $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                                 ?>
-                                <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                    <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                                </li>
-                            </ul>
-                        </nav>
-                        <?php } ?>
-                    </div>
+                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                <a class="page-link"
+                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <?php } ?>
+                </div>
                 <!-- /.card -->
 
             </section>

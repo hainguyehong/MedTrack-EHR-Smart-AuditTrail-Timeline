@@ -2,7 +2,7 @@
     include './config/connection.php';
     include './common_service/common_functions.php';
     include './common_service/date.php';
-    islogin();
+    islogin([3]); // chỉ cho bệnh nhân (3) truy cập
     $message = '';
 
     if (isset($_POST['submit'])) {

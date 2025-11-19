@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/date.php';
 include './common_service/common_functions.php';
-
+islogin([2]); // chỉ cho admin (2) truy cập
  $message = '';
 if (isset($_POST['save_medicine'])) {
     $medicineName = trim($_POST['medicine_name']);
@@ -109,7 +109,7 @@ try {
 
 <head>
     <?php include './config/site_css_links.php';?>
-     <!-- Thêm favicon -->
+    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>

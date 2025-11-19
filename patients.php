@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-
+islogin([2]); // chỉ cho bs (2) truy cập
 // session_start();
 
 $form_errors = $_SESSION['form_errors'] ?? [];
@@ -225,7 +225,7 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
     <?php include './config/data_tables_css.php';?>
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
 
-     <!-- Thêm favicon -->
+    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 

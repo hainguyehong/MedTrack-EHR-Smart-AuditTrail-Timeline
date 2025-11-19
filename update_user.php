@@ -1,7 +1,7 @@
 <?php
 include './config/connection.php';
 include './common_service/common_functions.php';
-// isLogin();
+isLogin([1]); // Chỉ admin (1) được phép truy cập
 $message = '';
 $user_id = $_GET['user_id'];
 
@@ -98,7 +98,7 @@ if (isset($_POST['save_user'])) {
 
 <head>
     <?php include './config/site_css_links.php';?>
-     <!-- Thêm favicon -->
+    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Người Dùng - MedTrack-EHR-Smart-AuditTrail-Timeline</title>

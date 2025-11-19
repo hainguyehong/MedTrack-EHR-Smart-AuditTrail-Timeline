@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 $message = '';
-
+islogin([1]); // chỉ cho admin (1) và bác sĩ (2) truy cập
 // Build filters from GET
 $search = trim($_GET['search'] ?? '');
 $timeRange = $_GET['timeRange'] ?? 'all';
@@ -159,7 +159,7 @@ $sn = $serialStart;
 
 <head>
     <?php include './config/site_css_links.php';?>
- <!-- Thêm favicon -->
+    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 
@@ -219,6 +219,7 @@ $sn = $serialStart;
     label {
         font-weight: 500;
     }
+
     .json-preview {
         max-height: 80px;
         overflow: hidden;
@@ -227,7 +228,13 @@ $sn = $serialStart;
         font-family: Menlo, Monaco, monospace;
         font-size: 13px;
     }
-    .filter-row { gap: 12px; display:flex; flex-wrap:wrap; align-items:flex-end; }
+
+    .filter-row {
+        gap: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
     </style>
 </head>
 
@@ -264,16 +271,23 @@ $sn = $serialStart;
                             <div class="row">
                                 <div class="col-lg-4 col-md-6 col-sm-12 mb-2">
                                     <label>Tìm kiếm</label>
-                                    <input type="search" name="search" id="searchInput" placeholder="Tìm kiếm theo từ khóa (bệnh nhân, mã hồ sơ...)" value="<?php echo htmlspecialchars($search);?>" class="form-control form-control-sm">
+                                    <input type="search" name="search" id="searchInput"
+                                        placeholder="Tìm kiếm theo từ khóa (bệnh nhân, mã hồ sơ...)"
+                                        value="<?php echo htmlspecialchars($search);?>"
+                                        class="form-control form-control-sm">
                                 </div>
 
                                 <div class="col-lg-2 col-md-6 col-sm-6 mb-2">
                                     <label class="small text-muted">Khoảng thời gian</label>
                                     <select name="timeRange" id="timeRange" class="form-control form-control-sm">
-                                        <option value="all" <?php if($timeRange=='all') echo 'selected';?>>Tất cả</option>
-                                        <option value="today" <?php if($timeRange=='today') echo 'selected';?>>Hôm nay</option>
-                                        <option value="this_week" <?php if($timeRange=='this_week') echo 'selected';?>>Tuần này</option>
-                                        <option value="this_month" <?php if($timeRange=='this_month') echo 'selected';?>>Tháng này</option>
+                                        <option value="all" <?php if($timeRange=='all') echo 'selected';?>>Tất cả
+                                        </option>
+                                        <option value="today" <?php if($timeRange=='today') echo 'selected';?>>Hôm nay
+                                        </option>
+                                        <option value="this_week" <?php if($timeRange=='this_week') echo 'selected';?>>
+                                            Tuần này</option>
+                                        <option value="this_month"
+                                            <?php if($timeRange=='this_month') echo 'selected';?>>Tháng này</option>
                                     </select>
                                 </div>
 
@@ -305,10 +319,14 @@ $sn = $serialStart;
                                 <div class="col-lg-2 col-md-6 col-sm-6 mb-2">
                                     <label class="small text-muted">Loại hành động</label>
                                     <select name="actionFilter" id="actionFilter" class="form-control form-control-sm">
-                                        <option value="all" <?php if($actionFilter=='all') echo 'selected';?>>Tất cả</option>
-                                        <option value="insert" <?php if($actionFilter=='insert') echo 'selected';?>>Tạo</option>
-                                        <option value="update" <?php if($actionFilter=='update') echo 'selected';?>>Cập nhật</option>
-                                        <option value="delete" <?php if($actionFilter=='delete') echo 'selected';?>>Xóa</option>
+                                        <option value="all" <?php if($actionFilter=='all') echo 'selected';?>>Tất cả
+                                        </option>
+                                        <option value="insert" <?php if($actionFilter=='insert') echo 'selected';?>>Tạo
+                                        </option>
+                                        <option value="update" <?php if($actionFilter=='update') echo 'selected';?>>Cập
+                                            nhật</option>
+                                        <option value="delete" <?php if($actionFilter=='delete') echo 'selected';?>>Xóa
+                                        </option>
                                     </select>
                                 </div>
 
@@ -319,7 +337,8 @@ $sn = $serialStart;
                                 </div>
 
                                 <div class="col-12 d-flex gap-2 mt-2">
-                                    <button type="button" id="resetFilters" class="btn btn-light btn-sm">Đặt lại bộ lọc</button>
+                                    <button type="button" id="resetFilters" class="btn btn-light btn-sm">Đặt lại bộ
+                                        lọc</button>
                                     <button type="button" id="exportCsv" class="btn btn-dark btn-sm">Xuất Excel</button>
                                 </div>
                             </div>
@@ -353,7 +372,9 @@ $sn = $serialStart;
                                 </thead>
                                 <tbody>
                                     <?php if (empty($logs)) { ?>
-                                        <tr><td colspan="7" class="text-center text-muted">Không tìm thấy bản ghi nào</td></tr>
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Không tìm thấy bản ghi nào</td>
+                                    </tr>
                                     <?php } else {
                                         foreach($logs as $row) {
                                             // prepare brief preview of new_value (prefer readable json)
@@ -393,9 +414,10 @@ $sn = $serialStart;
                 </div>
 
                 <!-- after the table (within the same card-body) -->
-                <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 50px;margin-bottom: 50px;">
+                <div class="d-flex justify-content-between align-items-center mt-3"
+                    style="margin-left: 50px;margin-bottom: 50px;">
                     <!-- <div class="text-muted">Hiển thị <?php echo min($totalLogs, $perPage + $offset);?> trên tổng <?php echo $totalLogs;?> bản ghi</div> -->
-                    
+
                     <?php if ($totalPages > 1) { ?>
                     <nav aria-label="Page navigation">
                         <ul class="pagination mb-0">
@@ -407,7 +429,8 @@ $sn = $serialStart;
                             $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                             ?>
                             <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                                <a class="page-link"
+                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
                             </li>
                             <?php
                             // render pages (simple full list; for many pages could be shortened)
@@ -423,7 +446,8 @@ $sn = $serialStart;
                             $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                             ?>
                             <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                                <a class="page-link"
+                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
                             </li>
                         </ul>
                     </nav>
@@ -437,22 +461,24 @@ $sn = $serialStart;
 
         <!-- Modal for JSON view -->
         <div id="jsonModal" class="modal" tabindex="-1" role="dialog">
-          <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Chi tiết JSON</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <pre id="jsonContent" style="white-space:pre-wrap;word-break:break-all;font-family:Menlo,monospace;"></pre>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">Đóng</button>
-              </div>
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chi tiết JSON</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                            onclick="closeModal()">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <pre id="jsonContent"
+                            style="white-space:pre-wrap;word-break:break-all;font-family:Menlo,monospace;"></pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Đóng</button>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
     </div>
@@ -462,7 +488,7 @@ $sn = $serialStart;
     <?php include './config/data_tables_js.php'; ?>
     <script>
     // Keep existing helper usage
-    document.getElementById('resetFilters').addEventListener('click', function(){
+    document.getElementById('resetFilters').addEventListener('click', function() {
         document.getElementById('searchInput').value = '';
         document.getElementById('timeRange').value = 'all';
         document.getElementById('userFilter').value = 'all';
@@ -470,7 +496,7 @@ $sn = $serialStart;
         document.getElementById('filterForm').submit();
     });
 
-    document.getElementById('exportCsv').addEventListener('click', function(){
+    document.getElementById('exportCsv').addEventListener('click', function() {
         const params = new URLSearchParams(new FormData(document.getElementById('filterForm')));
         params.set('export', '1');
         const url = location.pathname + '?' + params.toString();
@@ -478,7 +504,7 @@ $sn = $serialStart;
     });
 
     // delegate view-json buttons
-    document.addEventListener('click', function(e){
+    document.addEventListener('click', function(e) {
         if (e.target && e.target.classList.contains('view-json')) {
             const content = e.target.getAttribute('data-json') || '';
             document.getElementById('jsonContent').textContent = content;
@@ -486,12 +512,13 @@ $sn = $serialStart;
         }
     });
 
-    function openModal(){
+    function openModal() {
         const m = document.getElementById('jsonModal');
         m.style.display = 'block';
         m.classList.add('show');
     }
-    function closeModal(){
+
+    function closeModal() {
         const m = document.getElementById('jsonModal');
         m.style.display = 'none';
         m.classList.remove('show');
@@ -505,7 +532,9 @@ $sn = $serialStart;
             "autoWidth": false,
             "paging": false,
             "ordering": true,
-            "order": [[0, "desc"]],
+            "order": [
+                [0, "desc"]
+            ],
             "language": {
                 "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
                 "paginate": {

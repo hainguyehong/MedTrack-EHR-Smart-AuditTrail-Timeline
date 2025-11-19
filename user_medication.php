@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-islogin();
+islogin([3]);
 $message = '';
 $userId = $_SESSION['user_id']; // lấy id user sau khi login 
 // echo "🔍 userId hiện tại: " . htmlspecialchars($userId) . "<br>";

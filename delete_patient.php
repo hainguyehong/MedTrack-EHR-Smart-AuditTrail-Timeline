@@ -1,10 +1,7 @@
 <?php
 include './config/connection.php';
 include './common_service/common_functions.php';
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit;
-}
+islogin([2]);
 
 // Kiểm tra quyền (chỉ role 1 hoặc 2 mới được xoá)
 if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {

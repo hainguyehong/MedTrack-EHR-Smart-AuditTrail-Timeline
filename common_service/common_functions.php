@@ -155,22 +155,40 @@ function log_audit($pdo, $user, $table, $record_id, $action, $old, $new) {
     }
 }
 
-function islogin() {
-	if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-		return true;
-	} else {
-		header('Location: index.php');
-		exit();
-	}
-}
-// function checkrole() {
-// 	if ($_SESSION['role'] == 1) {
-//         header("location:dashboard.php"); // admin
-// 		} elseif ($_SESSION['role'] == 3) {
-// 			header("location:user_medication.php"); // bệnh nhân
-// 		} elseif ($_SESSION['role'] == 2) {
-// 			header("location:doctor_patient.php"); // bác sĩ
-// 		} else {
-// 			header("location:index.php");
+// function islogin() {
+// 	if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+// 		return true;
+// 	} else {
+// 		header('Location: index.php');
+// 		exit();
 // 	}
 // }
+function islogin(array $allowedRoles = [])
+{
+    // Chưa login -> về trang login
+    if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+        header("Location: index.php"); // trang login của bạn
+        exit();
+    }
+
+    // Nếu không truyền $allowedRoles -> chỉ cần login là đủ
+    if (empty($allowedRoles)) {
+        return;
+    }
+
+    // Không có role trong session -> không cho vào
+    if (!isset($_SESSION['role'])) {
+        header('HTTP/1.1 403 Forbidden');
+        header('Location: no_permission.php');
+        exit();
+    }
+
+    $currentRole = (int) $_SESSION['role'];
+
+    // Role không nằm trong danh sách cho phép
+    if (!in_array($currentRole, $allowedRoles, true)) {
+        header('HTTP/1.1 403 Forbidden');
+        header('Location: no_permission.php'); // tạo trang này để báo "không có quyền"
+        exit();
+    }
+}

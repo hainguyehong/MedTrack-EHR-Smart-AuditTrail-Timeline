@@ -2,39 +2,63 @@
     include './config/connection.php';
     include './common_service/common_functions.php';
     include './common_service/date.php';
-    islogin();
+    islogin([3]);
+
     $message = '';
     $userId  = $_SESSION['user_id']; // lấy id user sau khi login
-    // echo "🔍 userId hiện tại: " . htmlspecialchars($userId) . "<br>";
-    // exit();
+
+    // 1) Thông báo lịch khám lại từ bảng patient_diseases
     $query = "
-SELECT pd.id, pd.next_visit_date
-FROM user_patients AS up
-JOIN patient_diseases AS pd ON up.id_patient = pd.patient_id
-WHERE up.id = :userId
-  AND pd.next_visit_date IS NOT NULL
-  AND pd.next_visit_date <> ''
-ORDER BY pd.next_visit_date DESC LIMIT 1;
-";
+        SELECT pd.id, pd.next_visit_date
+        FROM user_patients AS up
+        JOIN patient_diseases AS pd ON up.id_patient = pd.patient_id
+        WHERE up.id = :userId
+          AND pd.next_visit_date IS NOT NULL
+          AND pd.next_visit_date <> ''
+        ORDER BY pd.next_visit_date DESC 
+        LIMIT 1;
+    ";
 
     $stmt = $con->prepare($query);
     $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
     $stmt->execute();
     $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    // var_dump($userId);
 
-    $querylich = "SELECT id, date_visit, time_visit, trieu_chung, noi_dung_kham
-                  FROM book WHERE id_patient = ? AND is_deleted = 0 ORDER BY date_visit DESC, time_visit DESC";
-    $stmtlich = $con->prepare($querylich);
-    $stmtlich->execute([$_SESSION['user_id']]);
-    $rows = $stmtlich->fetchAll(PDO::FETCH_ASSOC);
+    // 2) Lịch khám đã đặt gần nhất + trạng thái xác nhận/từ chối
+    //    Sửa lại: dùng user_patients để map user -> patient -> book,
+    //    đồng thời join appointment_status_log để lấy trạng thái mới nhất.
+    $querylich = "
+    SELECT 
+        b.id, 
+        b.date_visit, 
+        b.time_visit, 
+        b.trieu_chung, 
+        b.noi_dung_kham,
+        COALESCE(s.status, 'pending') AS current_status,
+        s.doctor_note
+    FROM book AS b
+    LEFT JOIN appointment_status_log AS s
+        ON s.id = (
+            SELECT MAX(id) 
+            FROM appointment_status_log 
+            WHERE book_id = b.id
+        )
+    WHERE b.id_patient = :userId
+      AND b.is_deleted = 0
+    ORDER BY b.date_visit DESC, b.time_visit DESC
+    LIMIT 1
+";
+
+$stmtlich = $con->prepare($querylich);
+$stmtlich->bindParam(':userId', $userId, PDO::PARAM_INT);
+$stmtlich->execute();
+$rows = $stmtlich->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <?php include './config/site_css_links.php'; ?>
-
     <?php include './config/data_tables_css.php'; ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
@@ -169,14 +193,15 @@ ORDER BY pd.next_visit_date DESC LIMIT 1;
     </style>
 </head>
 
-<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
-
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
-        <?php include './config/header.php';
-        include './config/sidebar.php'; ?>
+        <?php 
+            include './config/header.php';
+            include './config/sidebar.php'; 
+        ?>
+
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -193,48 +218,74 @@ ORDER BY pd.next_visit_date DESC LIMIT 1;
             <!-- Main content -->
             <section class="content">
 
-                <!-- Default box -->
-                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
+                <!-- Thông báo lịch khám lại -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Thông báo lịch khám lại </h3>
+                        <h3 class="card-title">Thông báo lịch khám lại</h3>
                     </div>
                     <div class="card-body">
                         <?php
                             if (! empty($notifications)) {
                                 foreach ($notifications as $row) {
-                                    $date          = new DateTime($row['next_visit_date']);
+                                    $date = new DateTime($row['next_visit_date']);
                                     $formattedDate = $date->format('d/m/Y'); // định dạng: ngày/tháng/năm
 
-                                    echo '<p>Bạn có lịch khám lại vào ngày ' . htmlspecialchars($formattedDate) . ' </p>';
+                                    echo '<p>Bạn có lịch khám lại vào ngày <strong>' . htmlspecialchars($formattedDate) . '</strong>.</p>';
                                 }
                             } else {
                                 echo '<div class="alert alert-info" role="alert">
-                            Không có thông báo lịch khám lại.
-                          </div>';
+                                        Không có thông báo lịch khám lại.
+                                      </div>';
                             }
                         ?>
-
                     </div>
                 </div>
 
+                <!-- Thông báo trạng thái lịch khám đã đặt -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Thông báo Khác </h3>
+                        <h3 class="card-title">Trạng thái lịch khám đã đặt</h3>
                     </div>
                     <div class="card-body">
                         <?php
                             if (! empty($rows)) {
                                 foreach ($rows as $row) {
-                                    $date          = new DateTime($row['date_visit']);
-                                    $formattedDate = $date->format('d/m/Y'); // định dạng: ngày/tháng/năm
+                                    $date = new DateTime($row['date_visit']);
+                                    $formattedDate = $date->format('d/m/Y');
+                                    $time = htmlspecialchars($row['time_visit']);
+                                    $status = $row['current_status'];
 
-                                    echo '<p>Bạn có lịch khám vào ngày ' . htmlspecialchars($formattedDate) . ' </p>';
+                                    $statusText = '';
+                                    $statusClass = '';
+
+                                    switch ($status) {
+                                        case 'confirmed':
+                                            $statusText = 'Lịch khám của bạn đã được bác sĩ <strong>xác nhận</strong>.';
+                                            $statusClass = 'text-success';
+                                            break;
+                                        case 'rejected':
+                                            $statusText = 'Rất tiếc, lịch khám của bạn đã bị <strong>từ chối</strong>. Vui lòng liên hệ phòng khám để đặt lại.';
+                                            $statusClass = 'text-danger';
+                                            break;
+                                        default:
+                                            $statusText = 'Lịch khám của bạn đang ở trạng thái <strong>chờ bác sĩ xác nhận</strong>.';
+                                            $statusClass = 'text-warning';
+                                            break;
+                                    }
+
+                                    echo '<p>Bạn đã đặt lịch khám vào ngày <strong>' . htmlspecialchars($formattedDate) . '</strong> lúc <strong>' . $time . '</strong>.</p>';
+                                    echo '<p class="' . $statusClass . '">' . $statusText . '</p>';
+
+                                    if (!empty($row['trieu_chung']) || !empty($row['noi_dung_kham'])) {
+                                        echo '<hr>';
+                                        echo '<p><strong>Lý do khám / Triệu chứng:</strong> ' . htmlspecialchars($row['trieu_chung']) . '</p>';
+                                        echo '<p><strong>Nơi khám:</strong> ' . htmlspecialchars($row['noi_dung_kham']) . '</p>';
+                                    }
                                 }
                             } else {
                                 echo '<div class="alert alert-info" role="alert">
-                            Không có thông báo khác.
-                          </div>';
+                                        Hiện tại bạn chưa có lịch khám nào được đặt.
+                                      </div>';
                             }
                         ?>
                     </div>
@@ -242,33 +293,21 @@ ORDER BY pd.next_visit_date DESC LIMIT 1;
 
             </section>
             <br />
-
-
-            <!-- bệnh án select -->
-            <br />
         </div>
-        <!-- /.content -->
-
         <!-- /.content-wrapper -->
+
         <?php
             include './config/footer.php';
 
-            //   $message = '';
-            //   if(isset($_GET['message'])) {
-            //     $message = $_GET['message'];
-            //   }
             $message = '';
             if (isset($_SESSION['success_message'])) {
                 $message = $_SESSION['success_message'];
                 unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
             }
         ?>
-        <!-- /.control-sidebar -->
-
 
         <?php include './config/site_js_links.php'; ?>
         <?php include './config/data_tables_js.php'; ?>
-
 
         <script src="plugins/moment/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
@@ -284,17 +323,16 @@ ORDER BY pd.next_visit_date DESC LIMIT 1;
             showCustomMessage(message);
         }
 
+        // nếu không dùng #date_of_birth thì đoạn này có thể bỏ đi
         $('#date_of_birth').datetimepicker({
             format: 'L'
         });
-
 
         $(function() {
             $("#medicine_details").DataTable({
                 "responsive": true,
                 "lengthChange": false,
                 "autoWidth": false,
-                // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                 "buttons": ["pdf", "print"],
                 "language": {
                     "info": " Tổng cộng _TOTAL_ loại thuốc",

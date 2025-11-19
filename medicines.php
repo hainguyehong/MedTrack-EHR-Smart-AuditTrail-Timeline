@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/date.php';
 include './common_service/common_functions.php';
-
+islogin([2]); // chỉ cho admin (2) truy cập
 $message = '';
 if (isset($_POST['save_medicine'])) {
     $medicineName = trim($_POST['medicine_name']);
@@ -99,7 +99,7 @@ try {
 
 
     <?php include './config/data_tables_css.php';?>
-     <!-- Thêm favicon -->
+    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Medicines - MedTrack-EHR-Smart-AuditTrail-Timeline
@@ -265,25 +265,27 @@ include './config/sidebar.php';?>
                         </div>
                     </div>
 
-                    
-                  <!-- /.card-footer-->
+
+                    <!-- /.card-footer-->
                 </div>
                 <!-- /.card -->
                 <!-- Pagination (same style as users.php) -->
-                    <?php if ($totalPages > 1) { ?>
-                    <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 40px;margin-bottom: 50px;">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0">
-                                <?php
+                <?php if ($totalPages > 1) { ?>
+                <div class="d-flex justify-content-between align-items-center mt-3"
+                    style="margin-left: 40px;margin-bottom: 50px;">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <?php
                                 $baseParams = $_GET;
                                 $prev = max(1, $page - 1);
                                 $baseParams['page'] = $prev;
                                 $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                                 ?>
-                                <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                    <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                                </li>
-                                <?php
+                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                <a class="page-link"
+                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                            </li>
+                            <?php
                                 for ($p = 1; $p <= $totalPages; $p++) {
                                     $baseParams['page'] = $p;
                                     $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
@@ -294,13 +296,14 @@ include './config/sidebar.php';?>
                                 $baseParams['page'] = $next;
                                 $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                                 ?>
-                                <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                    <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                    <?php } ?>
+                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                <a class="page-link"
+                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <?php } ?>
             </section>
             <!-- /.content -->
         </div>

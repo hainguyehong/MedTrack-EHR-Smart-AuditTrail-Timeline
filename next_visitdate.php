@@ -4,7 +4,7 @@ include './common_service/common_functions.php';
 include './common_service/date.php';
 // include './sms_twilio.php';
 include './inforbip.php';
-islogin();
+islogin([2]);
 $message = '';
 $userId = $_SESSION['user_id']; 
 // sms_twilio.php
@@ -170,7 +170,7 @@ try {
 
     }
 
-  
+
 
     .card-title {
 
@@ -290,8 +290,8 @@ include './config/sidebar.php';
 
                             </form>
 
-                            
- 
+
+
                         </div>
                     </div>
                     <?php include './config/site_js_links.php'; ?>
@@ -371,21 +371,23 @@ include './config/sidebar.php';
                     </script>
                 </div>
                 <!-- Pagination (giống users.php) -->
-                            <?php if ($totalPages > 1): ?>
-                             <div class="d-flex justify-content-between align-items-center mt-3" style="margin-left: 40px;margin-bottom: 50px;">
+                <?php if ($totalPages > 1): ?>
+                <div class="d-flex justify-content-between align-items-center mt-3"
+                    style="margin-left: 40px;margin-bottom: 50px;">
 
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination mb-0">
-                                        <?php
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            <?php
                                         $baseParams = $_GET;
                                         $prev = max(1, $page - 1);
                                         $baseParams['page'] = $prev;
                                         $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                                         ?>
-                                        <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                            <a class="page-link" href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                                        </li>
-                                        <?php
+                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
+                                <a class="page-link"
+                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
+                            </li>
+                            <?php
                                         for ($p = 1; $p <= $totalPages; $p++) {
                                             $baseParams['page'] = $p;
                                             $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
@@ -396,13 +398,14 @@ include './config/sidebar.php';
                                         $baseParams['page'] = $next;
                                         $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
                                         ?>
-                                        <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                            <a class="page-link" href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                            <?php endif; ?>
+                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
+                                <a class="page-link"
+                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <?php endif; ?>
 </body>
 
 </html>

@@ -2,6 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
+islogin([2]); // chỉ cho bs (2) truy cập
 $message = '';
 $userId = $_SESSION['user_id']; 
 if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
