@@ -7,27 +7,33 @@ islogin([1,2]); // chỉ cho admin (1) và bác sĩ (2) truy cập
 // --- Lấy dữ liệu đặt lịch từ DB (kèm trạng thái mới nhất từ bảng appointment_status_log) ---
 try {
     $sql = "SELECT 
-                b.id, 
-                b.id_patient, 
-                b.date_visit, 
-                b.time_visit, 
-                b.trieu_chung, 
-                b.noi_dung_kham, 
-                b.created_at,
-                p.patient_name, 
-                p.phone_number,
-                COALESCE(s.status, 'pending') AS current_status,
-                s.doctor_note
-            FROM book b
-            JOIN patients p ON b.id_patient = p.id
-            LEFT JOIN appointment_status_log s
+            b.id, 
+            b.id_patient, 
+            b.date_visit, 
+            b.time_visit, 
+            b.trieu_chung, 
+            b.noi_dung_kham, 
+            b.created_at,
+            -- lấy thông tin bệnh nhân qua user_patients + patients
+            p.patient_name,
+            p.phone_number,
+            COALESCE(s.status, 'pending') AS current_status,
+            s.doctor_note
+            FROM book AS b
+            JOIN user_patients AS up 
+                ON b.id_patient = up.id
+            JOIN patients AS p 
+                ON up.id_patient = p.id
+            LEFT JOIN appointment_status_log AS s
                 ON s.id = (
                     SELECT MAX(id) 
                     FROM appointment_status_log 
                     WHERE book_id = b.id
                 )
             WHERE b.is_deleted = 0
-            ORDER BY b.date_visit ASC, b.time_visit ASC";
+            ORDER BY b.date_visit ASC, b.time_visit ASC
+          ";
+
     $stmtBookings = $con->prepare($sql);
     $stmtBookings->execute();
     $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);

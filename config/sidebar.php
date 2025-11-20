@@ -188,7 +188,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             </a>
                         </li>
                     </ul>
-                    
+
                 </li>
                 <li class="nav-item" id="mnu_dashboard" <?php if($role == 3) echo 'style="display:none;"'; ?>>
                     <a href="doctor_book.php" class="nav-link">
@@ -291,6 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient',
         'next_visitdate.php': 'mi_next_visitdate',
+        'doctor_book.php': 'mnu_dashboard',
         'audit_logs.php': 'mi_audit_logs',
     };
 
