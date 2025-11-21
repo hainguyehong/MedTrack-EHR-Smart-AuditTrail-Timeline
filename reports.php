@@ -118,59 +118,14 @@ include './config/sidebar.php';?>
                             </div>
                         </div>
                     </div>
-                    <!-- /.card-body -->
-
-                    <!-- /.card-footer-->
                 </div>
-                <!-- /.card -->
-
-
-
-                <div class="card card-outline card-primary shadow">
-                    <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
-                    <div class="card-header">
-                        <h3 class="card-title">Báo Cáo Bệnh Lý Trong Khoảng Thời Gian</h3>
-
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label>Bệnh Lý</label>
-                                <input id="disease" class="form-control form-control-sm" />
-                            </div>
-                            <?php 
-            echo getDateTextBox('Từ Ngày', 'disease_from');
-
-            echo getDateTextBox('Đến Ngày', 'disease_to');
-            ?>
-
-                            <div class="col-md-2">
-                                <label>&nbsp;</label>
-                                <button type="button" id="print_diseases" class="btn btn-primary btn-sm btn-block">Xem
-                                    Trước Báo Cáo</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /.card-body -->
-
-                    <!-- /.card-footer-->
-                </div>
+            
 
             </section>
-            <!-- /.content -->
         </div>
-        <!-- /.content-wrapper -->
 
         <?php include './config/footer.php' ?>
-        <!-- /.control-sidebar -->
     </div>
-    <!-- ./wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
     <script src="plugins/moment/moment.min.js"></script>
