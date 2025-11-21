@@ -190,8 +190,8 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                     </ul>
 
                 </li>
-                <li class="nav-item" id="mnu_dashboard" <?php if($role == 3) echo 'style="display:none;"'; ?>>
-                    <a href="doctor_book.php" class="nav-link">
+                <li class="nav-item" <?php if ($role == 3 || $role == 1) echo 'style="display:none;"'; ?>>
+                    <a href="doctor_book.php" class="nav-link" id="mi_doctor_book">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Xác nhận lịch khám
@@ -280,39 +280,39 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     <!-- /.sidebar -->
 </aside>
 <script>
-// Highlight menu/submenu when active
+// Highlight menu/submenu when active (improved)
 document.addEventListener('DOMContentLoaded', function() {
-    // Lấy pathname hiện tại
     var path = window.location.pathname.split('/').pop();
 
-    // Map file sang id menu con
+    // Map file sang id của thẻ <a> (anchors) — chỉ map anchors, không hardcode parent
     var map = {
         'patients.php': 'mi_patientss',
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient',
         'next_visitdate.php': 'mi_next_visitdate',
-        'doctor_book.php': 'mnu_dashboard',
         'audit_logs.php': 'mi_audit_logs',
+        'doctor_book.php': 'mi_doctor_book'
     };
 
-    // Nếu là 1 trong các trang con thì active cả menu cha và con
-    if (map[path]) {
-        var sub = document.getElementById(map[path]);
+    // Remove existing active classes from all links first
+    document.querySelectorAll('.nav-sidebar .nav-link').forEach(function(el) {
+        el.classList.remove('active');
+    });
+
+    var targetId = map[path];
+    if (targetId) {
+        var sub = document.getElementById(targetId);
         if (sub) {
+            // Ensure we're marking the anchor itself active
             sub.classList.add('active');
-            // Active menu cha
-            var parent = document.getElementById('mnu_patients');
-            if (parent) {
-                parent.querySelector('.nav-link').classList.add('active');
+
+            // If this anchor is inside a .nav-treeview, activate its parent menu link (to open the tree)
+            var tree = sub.closest('.nav-treeview');
+            if (tree) {
+                var parentLink = tree.parentElement.querySelector(':scope > .nav-link');
+                if (parentLink) parentLink.classList.add('active');
             }
         }
-    }
-    // Nếu không phải trang con, loại bỏ active khỏi các menu con
-    else {
-        Object.values(map).forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) el.classList.remove('active');
-        });
     }
 });
 </script>
