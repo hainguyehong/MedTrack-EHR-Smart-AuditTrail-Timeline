@@ -157,6 +157,9 @@ $medicines = getMedicines($con);
     <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+        <!-- Thêm favicon giống dashboard.php -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
     body {
         background: #f8fafc;

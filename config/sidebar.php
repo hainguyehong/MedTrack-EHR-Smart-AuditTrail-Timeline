@@ -73,6 +73,19 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     .user-panel .d-block {
         color: #007bff !important;
     }
+
+    /* NEW: khi sidebar thu nhỏ (AdminLTE thêm class 'sidebar-collapse' lên body),
+       ẩn text logo và căn ảnh logo giữa */
+    body.sidebar-collapse .brand-link .brand-text {
+        display: none !important;
+    }
+    body.sidebar-collapse .brand-link {
+        justify-content: center !important;
+        gap: 0 !important;
+    }
+    body.sidebar-collapse .brand-link img {
+        margin: 0 !important;
+    }
     </style>
     <a href="" class="brand-link logo-switch"
         style="display: flex; align-items: center; gap: 12px; justify-content: center;">
@@ -80,7 +93,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
         <!-- <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;"> -->
         <img src="assets/images/img-tn.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
 
-        <span
+        <span class="brand-text"
             style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
     </a>
 
@@ -190,9 +203,10 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                     </ul>
 
                 </li>
-                <li class="nav-item" id="mnu_dashboard" <?php if($role == 3) echo 'style="display:none;"'; ?>>
-                    <a href="doctor_book.php" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                <li class="nav-item" <?php if ($role == 3 || $role == 1) echo 'style="display:none;"'; ?>>
+                    <a href="doctor_book.php" class="nav-link" id="mi_doctor_book">
+                        <!-- changed icon to calendar-check to match "Xác nhận lịch khám" -->
+                        <i class="nav-icon fas fa-calendar-check"></i>
                         <p>
                             Xác nhận lịch khám
                         </p>
@@ -258,9 +272,10 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
                 <!-- audit logs -->
                 <?php if($role == 1) { ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="audit_logs.php" id="mi_audit_logs">
-                        <i class="fas fa-clipboard-list" style="padding-right:14px; padding-left:5px;"></i> Audit Trail
+                <li class="nav-item" id="mnu_audit_logs">
+                    <a class="nav-link" href="audit_logs.php" id="mi_audit_logs" title="Audit Trail">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Audit Trail</p>
                     </a>
                 </li>
 
@@ -280,39 +295,39 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     <!-- /.sidebar -->
 </aside>
 <script>
-// Highlight menu/submenu when active
+// Highlight menu/submenu when active (improved)
 document.addEventListener('DOMContentLoaded', function() {
-    // Lấy pathname hiện tại
     var path = window.location.pathname.split('/').pop();
 
-    // Map file sang id menu con
+    // Map file sang id của thẻ <a> (anchors) — chỉ map anchors, không hardcode parent
     var map = {
         'patients.php': 'mi_patientss',
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient',
         'next_visitdate.php': 'mi_next_visitdate',
-        'doctor_book.php': 'mnu_dashboard',
         'audit_logs.php': 'mi_audit_logs',
+        'doctor_book.php': 'mi_doctor_book'
     };
 
-    // Nếu là 1 trong các trang con thì active cả menu cha và con
-    if (map[path]) {
-        var sub = document.getElementById(map[path]);
+    // Remove existing active classes from all links first
+    document.querySelectorAll('.nav-sidebar .nav-link').forEach(function(el) {
+        el.classList.remove('active');
+    });
+
+    var targetId = map[path];
+    if (targetId) {
+        var sub = document.getElementById(targetId);
         if (sub) {
+            // Ensure we're marking the anchor itself active
             sub.classList.add('active');
-            // Active menu cha
-            var parent = document.getElementById('mnu_patients');
-            if (parent) {
-                parent.querySelector('.nav-link').classList.add('active');
+
+            // If this anchor is inside a .nav-treeview, activate its parent menu link (to open the tree)
+            var tree = sub.closest('.nav-treeview');
+            if (tree) {
+                var parentLink = tree.parentElement.querySelector(':scope > .nav-link');
+                if (parentLink) parentLink.classList.add('active');
             }
         }
-    }
-    // Nếu không phải trang con, loại bỏ active khỏi các menu con
-    else {
-        Object.values(map).forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) el.classList.remove('active');
-        });
     }
 });
 </script>
