@@ -73,6 +73,9 @@ try {
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <title>Xác nhận lịch khám - MedTrack</title>
+    <!-- Thêm favicon giống dashboard.php -->
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
     /* thêm custom CSS nếu cần */
     </style>
