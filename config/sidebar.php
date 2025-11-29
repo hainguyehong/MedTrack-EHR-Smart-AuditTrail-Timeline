@@ -73,6 +73,19 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     .user-panel .d-block {
         color: #007bff !important;
     }
+
+    /* NEW: khi sidebar thu nhỏ (AdminLTE thêm class 'sidebar-collapse' lên body),
+       ẩn text logo và căn ảnh logo giữa */
+    body.sidebar-collapse .brand-link .brand-text {
+        display: none !important;
+    }
+    body.sidebar-collapse .brand-link {
+        justify-content: center !important;
+        gap: 0 !important;
+    }
+    body.sidebar-collapse .brand-link img {
+        margin: 0 !important;
+    }
     </style>
     <a href="" class="brand-link logo-switch"
         style="display: flex; align-items: center; gap: 12px; justify-content: center;">
@@ -80,7 +93,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
         <!-- <img src="assets/images/logoo.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;"> -->
         <img src="assets/images/img-tn.png" alt="Logo" style="height: 40px; width: auto; border-radius: 50%;">
 
-        <span
+        <span class="brand-text"
             style="font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; height: 45px;">MedTrack</span>
     </a>
 
@@ -258,9 +271,10 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
                 <!-- audit logs -->
                 <?php if($role == 1) { ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="audit_logs.php" id="mi_audit_logs">
-                        <i class="fas fa-clipboard-list" style="padding-right:14px; padding-left:5px;"></i> Audit Trail
+                <li class="nav-item" id="mnu_audit_logs">
+                    <a class="nav-link" href="audit_logs.php" id="mi_audit_logs" title="Audit Trail">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Audit Trail</p>
                     </a>
                 </li>
 
