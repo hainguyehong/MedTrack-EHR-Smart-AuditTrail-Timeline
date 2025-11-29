@@ -205,7 +205,8 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 </li>
                 <li class="nav-item" <?php if ($role == 3 || $role == 1) echo 'style="display:none;"'; ?>>
                     <a href="doctor_book.php" class="nav-link" id="mi_doctor_book">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <!-- changed icon to calendar-check to match "Xác nhận lịch khám" -->
+                        <i class="nav-icon fas fa-calendar-check"></i>
                         <p>
                             Xác nhận lịch khám
                         </p>
