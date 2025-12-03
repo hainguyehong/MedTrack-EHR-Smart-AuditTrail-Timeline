@@ -157,7 +157,7 @@ $medicines = getMedicines($con);
     <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
-        <!-- Thêm favicon giống dashboard.php -->
+    <!-- Thêm favicon giống dashboard.php -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
@@ -318,6 +318,30 @@ $medicines = getMedicines($con);
         /* color: #007bff !important; */
         font-size: 0.9em;
     }
+
+    /* Chiều cao giống form-control */
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        padding: 6px 12px;
+        border: 1px solid #ced4da !important;
+        border-radius: 4px !important;
+    }
+
+    /* Căn giữa text */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px !important;
+    }
+
+    /* Mũi tên */
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px !important;
+    }
+
+    /* Khi focus */
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #86b7fe !important;
+        box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25) !important;
+    }
     </style>
 </head>
 
@@ -375,7 +399,7 @@ $medicines = getMedicines($con);
                                 <div class="row">
                                     <div class="col-lg-4 col-md-6 mb-3">
                                         <label>Chọn bệnh nhân *</label>
-                                        <select id="patient" name="patient" class="form-control" required>
+                                        <select id="patient" name="patient" class="form-control setupSelect2" required>
                                             <?php echo $patients;?>
                                         </select>
                                     </div>
@@ -608,6 +632,7 @@ $medicines = getMedicines($con);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <?php include './common_service/loaduser.php';?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- cho tải ảnh -->
     <script src="date.js"></script>
