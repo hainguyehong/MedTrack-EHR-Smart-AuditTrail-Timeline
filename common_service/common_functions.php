@@ -192,3 +192,11 @@ function islogin(array $allowedRoles = [])
         exit();
     }
 }
+function statusToVietnamese($status) {
+    return match($status) {
+        'pending'   => 'Chờ xác nhận',
+        'rejected'  => 'Từ chối',
+        'confirmed'  => 'Đã xác nhận',
+        default     => 'Không rõ'
+    };
+}

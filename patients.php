@@ -168,7 +168,7 @@ if (isset($_POST['save_Patient'])) {
         $stmtUser = $con->prepare($queryUser);
         $stmtUser->execute([
             ':user_name' => $cnic,
-            ':password' => md5("1"),
+            ':password' => md5("123456"),
             ':display_name' => $patientName,
             ':role' => 3,
             ':created_at' => $createdAt,
