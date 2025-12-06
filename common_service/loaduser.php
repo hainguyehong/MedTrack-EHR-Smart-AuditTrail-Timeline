@@ -17,4 +17,16 @@ $(document).ready(function() {
         }
     });
 });
+$(document).ready(function() {
+    $('.setupSelect3').select2({
+        placeholder: "Chọn loại thuốc hoặc tìm kiếm theo tên ",
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "Không có loại thuốc";
+            }
+        }
+    });
+});
 </script>

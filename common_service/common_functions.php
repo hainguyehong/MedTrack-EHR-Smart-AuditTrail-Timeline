@@ -55,19 +55,18 @@ function getRoles($role = '') {
     }
     return $data;
 }
-function Nhapvien($nv = '') {
-    $nv = [
+function Nhapvien($selectedId = '') {
+    $options = [
         1 => "Có",
         2 => "Không",
     ];
 
-    $data = '<option value="">Nhập viện</option>';
-    foreach ($nv as $key => $name) {
-        // So sánh key (số) với giá trị role từ DB
-        $selected = ($nv == $key) ? ' selected="selected"' : '';
-        $data .= '<option value="'.$key.'"'.$selected.'>'.$name.'</option>';
+    $html  = '<option value="">Nhập viện</option>';
+    foreach($options as $val => $label) {
+        $selected = ($selectedId !== '' && $selectedId == $val) ? 'selected' : '';
+        $html .= '<option value="'.$val.'" '.$selected.'>'.$label.'</option>';
     }
-    return $data;
+    return $html;
 }
 
 
@@ -103,28 +102,33 @@ function getMedicines($con, $medicineId = 0) {
 }
 
 
-function getPatients($con) {
-$query = "select `id`, `patient_name`, `phone_number` 
-from `patients` where `is_deleted` = 0 order by `patient_name` asc;";
+function getPatients($con, $selectedId = '') {
+    $query = "SELECT `id`, `patient_name`, `phone_number`
+              FROM `patients`
+              WHERE `is_deleted` = 0
+              ORDER BY `patient_name` ASC;";
 
-	$stmt = $con->prepare($query);
-	try {
-		$stmt->execute();
+    $stmt = $con->prepare($query);
 
-	} catch(PDOException $ex) {
-		echo $ex->getTraceAsString();
-		echo $ex->getMessage();
-		exit;
-	}
+    try {
+        $stmt->execute();
+    } catch(PDOException $ex) {
+        echo $ex->getMessage();
+        exit;
+    }
 
-	$data = '<option value="">Chọn bệnh nhân</option>';
+    $data = '<option value="">Chọn bệnh nhân</option>';
 
-	while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		$data = $data.'<option value="'.$row['id'].'">'.$row['patient_name'].' ('.$row['phone_number'].')'.'</option>';
-	}
+    while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $selected = ($selectedId !== '' && $selectedId == $row['id']) ? 'selected' : '';
+        $data .= '<option value="'.$row['id'].'" '.$selected.'>'
+              .  $row['patient_name'].' ('.$row['phone_number'].')'
+              .  '</option>';
+    }
 
-	return $data;
+    return $data;
 }
+
 
 
 function getDateTextBox($label, $dateId) { 

@@ -83,4 +83,12 @@ label.required::after {
     color: red;
     font-weight: bold;
 }
-
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 3px;
+}
+.pagination .page-item.active .page-link {
+    background: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
