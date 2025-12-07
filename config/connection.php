@@ -1,9 +1,13 @@
 <?php 
 session_start();
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "pms_db";
+$host = "160-191-244-99.cprapid.com";
+$user = "aerinidv_khanhhuyen";
+$password = "khanhhuyen2412";
+$db = "aerinidv_pms_db";
+// $host = "localhost";
+// $user = "root";
+// $password = "";
+// $db = "pms_db";
 try {
 
   $con = new PDO("mysql:dbname=$db;port=3306;host=$host", 
