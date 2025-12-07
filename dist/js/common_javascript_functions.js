@@ -30,12 +30,20 @@ function showMenuSelected(menuId, pageId) {
 }
 
 
-function showCustomMessage(message) {
+function showCustomMessage(msg, type = "info", title = "Thông báo") { // hàm thông báo bằng popup
+    // type: "success" | "error" | "warning" | "info"
+    if (typeof window.Swal === "function") {
+        Swal.fire({
+            title: title,
+            text: msg,
+            icon: type,
+            confirmButtonText: "OK",
+            timer: type === "success" ? 1200 : undefined,
+            timerProgressBar: type === "success",
+        });
+        return;
+    }
 
-    $.alert({
-        confirmButton: 'Ok',
-        confirmButtonClass: "btn-sm btn-flat rounded-0 btn-info",
-        title: 'Message',
-        content: message
-    });
+    // fallback nếu chưa có Swal
+    alert(msg);
 }

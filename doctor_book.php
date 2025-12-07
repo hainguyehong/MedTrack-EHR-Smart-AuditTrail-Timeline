@@ -31,8 +31,10 @@ try {
                     WHERE book_id = b.id
                 )
             WHERE b.is_deleted = 0
-            ORDER BY b.date_visit ASC, b.time_visit ASC
-          ";
+            ORDER BY 
+            TIMESTAMP(b.date_visit, b.time_visit) DESC,
+            b.created_at DESC
+         ";
 
     $stmtBookings = $con->prepare($sql);
     $stmtBookings->execute();
@@ -328,7 +330,7 @@ try {
                               <div className="flex items-center gap-2">
                                 <i className="fa fa-file-alt text-gray-400"></i>
                                 <div>
-                                  <p className="text-sm text-gray-500">Nơi khám</p>
+                                  <p className="text-sm text-gray-500">Lý do khám</p>
                                   <p className="font-medium text-gray-800">{appointment.location}</p>
                                 </div>
                               </div>

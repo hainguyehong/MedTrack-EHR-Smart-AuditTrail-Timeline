@@ -1,131 +1,177 @@
 <?php
-    include './config/connection.php';
-    include './common_service/common_functions.php';
-    include './common_service/date.php';
-    islogin([3]); // chỉ cho bệnh nhân (3) truy cập
-    $message = '';
+include './config/connection.php';
+include './common_service/common_functions.php';
+include './common_service/date.php';
+islogin([3]);  // chỉ cho bệnh nhân (3) truy cập
+$message = '';
 
-    if (isset($_POST['submit'])) {
-        $patientId = $_SESSION['user_id'];
+if (isset($_POST['submit'])) {
+    $patientId = $_SESSION['user_id'];
 
-        $tc = $_POST['tc'];
-        $cd = $_POST['nd'];
+    $tc = $_POST['tc'];
+    $cd = $_POST['nd'];
 
-        // --- Xử lý ngày hẹn khám ---
-        $visit_date = $_POST['visit_date'] ?? null;
-        if (! empty($visit_date)) {
-            $date       = DateTime::createFromFormat('d/m/Y', $visit_date);
-            $visit_date = $date ? $date->format('Y-m-d') : null;
-        } else {
-            $visit_date = null;
-        }
-        $time_visit = $_POST['time_visit'] ?? null;
-        $createdAt  = date("Y-m-d H:i:s");
+    // --- Xử lý ngày hẹn khám ---
+    $visit_date = $_POST['visit_date'] ?? null;
+    if (!empty($visit_date)) {
+        $date = DateTime::createFromFormat('d/m/Y', $visit_date);
+        $visit_date = $date ? $date->format('Y-m-d') : null;
+    } else {
+        $visit_date = null;
+    }
+    $time_visit = $_POST['time_visit'] ?? null;
+    $createdAt = date('Y-m-d H:i:s');
 
-        try {
-            $con->beginTransaction();
+    try {
+        $con->beginTransaction();
 
-            // --- Thêm hồ sơ khám bệnh ---
-            $queryVisit = "INSERT INTO book
+        // --- Thêm hồ sơ khám bệnh ---
+        $queryVisit = 'INSERT INTO book
             (id_patient, date_visit, time_visit, trieu_chung, noi_dung_kham, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?)';
 
-            $stmtVisit = $con->prepare($queryVisit);
-            $stmtVisit->execute([
-                $patientId,
-                $visit_date, $time_visit, $tc, $cd, $createdAt,
-            ]);
+        $stmtVisit = $con->prepare($queryVisit);
+        $stmtVisit->execute([
+            $patientId,
+            $visit_date,
+            $time_visit,
+            $tc,
+            $cd,
+            $createdAt,
+        ]);
 
-            $lastInsertId = $con->lastInsertId();
+        $lastInsertId = $con->lastInsertId();
 
-            // --- Ghi log audit ---
-            if (function_exists('log_audit')) {
-                log_audit(
-                    $con,
-                    $_SESSION['user_id'] ?? 'unknown', // Người thao tác
-                    'book',                            // Bảng bị tác động
-                    $lastInsertId,                     // ID hồ sơ vừa thêm
-                    'insert',                          // Hành động
-                    null,                              // Không có dữ liệu cũ
-                    [
-                        'id_benh_nhan'  => $patientId,
-                        'trieu_chung'   => $tc,
-                        'noi_dung_kham' => $cd,
-                        'date_visit'    => $visit_date,
-                        'time_visit'    => $time_visit,
-                        'created_at'    => $createdAt,
-                    ]
-                );
-            }
-
-            $con->commit();
-            $_SESSION['success_message'] = 'Đặt lịch khám thành công.';
-
-        } catch (PDOException $ex) {
-            $con->rollback();
-            $_SESSION['error_message'] = 'Lỗi khi lưu dữ liệu: ' . $ex->getMessage();
-            exit;
+        // --- Ghi log audit ---
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown',  // Người thao tác
+                'book',  // Bảng bị tác động
+                $lastInsertId,  // ID hồ sơ vừa thêm
+                'insert',  // Hành động
+                null,  // Không có dữ liệu cũ
+                [
+                    'id_benh_nhan'  => $patientId,
+                    'trieu_chung'   => $tc,
+                    'noi_dung_kham' => $cd,
+                    'date_visit'    => $visit_date,
+                    'time_visit'    => $time_visit,
+                    'created_at'    => $createdAt,
+                ]
+            );
         }
 
-        header("Location: book.php");
-        exit();
+        $con->commit();
+        $_SESSION['success_message'] = 'Đặt lịch khám thành công.';
+    } catch (PDOException $ex) {
+        $con->rollback();
+        $_SESSION['error_message'] = 'Lỗi khi lưu dữ liệu: ' . $ex->getMessage();
+        exit;
     }
-    // xóa  lịch khám
-    if (isset($_POST['save'])) {
-        $id = $_POST['id'];
 
-        try {
-            // Bắt đầu transaction
-            $con->beginTransaction();
+    header('Location: book.php');
+    exit();
+}
+// xóa  lịch khám
+if (isset($_POST['save'])) {
+    $id = $_POST['id'];
 
-            // 🔍 Lấy dữ liệu cũ
-            $queryOld = "SELECT * FROM `book` WHERE `id` = :id LIMIT 1";
-            $stmtOld  = $con->prepare($queryOld);
-            $stmtOld->execute([':id' => $id]);
-            $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+    try {
+        // Bắt đầu transaction
+        $con->beginTransaction();
 
-            if (! $oldData) {
-                throw new Exception("Không tìm thấy lịch khám với ID = $id.");
-            }
+        // 🔍 Lấy dữ liệu cũ
+        $queryOld = 'SELECT * FROM `book` WHERE `id` = :id LIMIT 1';
+        $stmtOld = $con->prepare($queryOld);
+        $stmtOld->execute([':id' => $id]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
 
-            // 🔥 Cập nhật trạng thái xóa
-            $queryDelete = "UPDATE `book` SET `is_deleted` = 1 WHERE `id` = :id";
-            $stmtDelete  = $con->prepare($queryDelete);
-            $stmtDelete->execute([':id' => $id]);
-
-            // 📝 Ghi log audit (nếu có hàm log_audit)
-            if (function_exists('log_audit')) {
-                log_audit(
-                    $con,
-                    $_SESSION['user_id'] ?? 'unknown', // người thực hiện
-                    'book',                            // bảng
-                    $id,                               // id bản ghi
-                    'delete',                          // hành động
-                    $oldData,                          // dữ liệu cũ
-                    ['is_deleted' => 1]                // dữ liệu mới
-                );
-            }
-
-            // Hoàn tất
-            $con->commit();
-            $_SESSION['success_message'] = 'Xóa thành công.';
-
-        } catch (Exception $ex) {
-            $con->rollBack();
-            $_SESSION['error_message'] = "Lỗi khi xóa: " . $ex->getMessage();
+        if (!$oldData) {
+            throw new Exception("Không tìm thấy lịch khám với ID = $id.");
         }
 
-        header("Location: book.php");
-        exit();
+        // 🔥 Cập nhật trạng thái xóa
+        $queryDelete = 'UPDATE `book` SET `is_deleted` = 1 WHERE `id` = :id';
+        $stmtDelete = $con->prepare($queryDelete);
+        $stmtDelete->execute([':id' => $id]);
+
+        // 📝 Ghi log audit (nếu có hàm log_audit)
+        if (function_exists('log_audit')) {
+            log_audit(
+                $con,
+                $_SESSION['user_id'] ?? 'unknown',  // người thực hiện
+                'book',  // bảng
+                $id,  // id bản ghi
+                'delete',  // hành động
+                $oldData,  // dữ liệu cũ
+                ['is_deleted' => 1]  // dữ liệu mới
+            );
+        }
+
+        // Hoàn tất
+        $con->commit();
+        $_SESSION['success_message'] = 'Xóa thành công.';
+    } catch (Exception $ex) {
+        $con->rollBack();
+        $_SESSION['error_message'] = 'Lỗi khi xóa: ' . $ex->getMessage();
     }
+
+    header('Location: book.php');
+    exit();
+}
+$sql = "SELECT 
+            b.id, 
+            b.id_patient, 
+            b.date_visit, 
+            b.time_visit, 
+            b.trieu_chung, 
+            b.noi_dung_kham, 
+            b.created_at,
+            p.patient_name,
+            p.phone_number,
+            COALESCE(s.status, 'pending') AS current_status,
+            s.doctor_note
+        FROM book AS b
+        JOIN user_patients AS up 
+            ON up.id_patient = b.id_patient
+        JOIN patients AS p 
+            ON p.id = b.id_patient
+        LEFT JOIN appointment_status_log AS s
+            ON s.id = (
+                SELECT MAX(id) 
+                FROM appointment_status_log 
+                WHERE book_id = b.id
+            )
+        WHERE b.is_deleted = 0
+          AND b.id_patient = :patient_id
+        ORDER BY 
+            TIMESTAMP(b.date_visit, b.time_visit) DESC,
+            b.created_at DESC";
+
+$currentPatientId = $_SESSION['user_id'];
+
+$stmtBookings = $con->prepare($sql);
+$stmtBookings->bindParam(':patient_id', $currentPatientId, PDO::PARAM_INT);
+$stmtBookings->execute();
+$rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
+
+// foreach ($rows as $row) {
+//     $statusVi = statusToVietnamese($row['current_status']);
+
+//     // echo "Booking ID: {$row['id']} <br>";
+//     // echo "Trạng thái: {$statusVi} <br>";
+//     // echo "----------------------<br>";
+// }
+// exit();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <?php include './config/site_css_links.php'?>
+    <?php include './config/site_css_links.php' ?>
     <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
-
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <!-- Thêm favicon -->
@@ -385,7 +431,7 @@
                                     <div class="col-lg-6 mb-3">
                                         <label>Nội dung khám </label>
                                         <textarea id="nd" name="nd" class="form-control" rows="4"
-                                            placeholder="Nội dung khám ( khám tổng quát, khám chuyên khoa,....)"></textarea>
+                                            placeholder="Nội dung khám (khám tổng quát, khám chuyên khoa, ....)"></textarea>
                                     </div>
 
                                 </div>
@@ -410,45 +456,61 @@
                                                     <th width="10%">Giờ khám</th>
                                                     <th width="15%">Triệu chứng</th>
                                                     <th width="15%">Nội dung khám</th>
+                                                    <th width="15%">Trạng thái</th>
                                                     <th width="10%">Hành Động</th>
+
                                                 </tr>
                                             </thead>
                                             <tbody id="current_medicines_list">
                                                 <?php
-                                                    $query = "SELECT id, date_visit, time_visit, trieu_chung, noi_dung_kham
-                                                    FROM book WHERE id_patient = ? AND is_deleted = 0 ORDER BY date_visit DESC, time_visit DESC";
-                                                    $stmt = $con->prepare($query);
-                                                    $stmt->execute([$_SESSION['user_id']]);
-                                                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     if ($rows) {
                                                         $count = 1;
                                                         foreach ($rows as $row) {
-                                                            $date          = new DateTime($row['date_visit']);
-                                                            $formattedDate = $date->format('d/m/Y'); // định dạng: ngày/tháng/năm
-                                                            echo '<tr style="text-align: center;">
-                                                                <td>' . htmlspecialchars($count) . '</td>
-                                                                <td>' . htmlspecialchars($formattedDate) . '</td>
-                                                                <td>' . htmlspecialchars($row['time_visit']) . '</td>
-                                                                <td>' . htmlspecialchars($row['trieu_chung']) . '</td>
-                                                                <td>' . htmlspecialchars($row['noi_dung_kham']) . '</td>
-                                                                <td>
-                                                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteBooking(' . htmlspecialchars($row['id']) . ')">
-                                                                    <i class="bi bi-trash"></i> Xóa
-                                                                    </button>
+                                                            $date = new DateTime($row['date_visit']);
+                                                            $formattedDate = $date->format('d/m/Y');
+                                                            $currentStatus = $row['current_status'] ?? 'pending';
 
-                                                                </td>
-                                                            </tr>'
-                                                            ;
-                                                            $count++;
-                                                            }
+                                                            // tính trạng thái tiếng Việt ngay trong loop
+                                                            $statusVi = statusToVietnamese($row['current_status'] ?? 'pending');
+                                                            
+                                                            $isConfirmed = ($currentStatus === 'confirmed');
+                                                            
+                                                            echo '<tr style="text-align: center;">
+                                                            <td>' . htmlspecialchars($count) . '</td>
+                                                            <td>' . htmlspecialchars($formattedDate) . '</td>
+                                                            <td>' . htmlspecialchars($row['time_visit']) . '</td>
+                                                            <td>' . htmlspecialchars($row['trieu_chung']) . '</td>
+                                                            <td>' . htmlspecialchars($row['noi_dung_kham']) . '</td>
+
+                                                            <td>' . htmlspecialchars($statusVi) . '</td>
+
+                                                             <td>';
+
+                                                            if (!$isConfirmed) {
+                                                                echo '<button type="button" class="btn btn-danger btn-sm"
+                                                                            onclick="deleteBooking(' . (int)$row['id'] . ')">
+                                                                        <i class="bi bi-trash"></i> Xóa
+                                                                    </button>';
                                                             } else {
-                                                            echo '<tr>
-                                                                <td colspan="6" class="text-center">Chưa có lịch khám nào được đặt.
-                                                                </td>
-                                                            </tr>';
+                                                                echo '<button type="button" class="btn btn-danger btn-sm" disabled
+                                                                            style="opacity:0.5; cursor:not-allowed;">
+                                                                        <i class="bi bi-trash"></i> Xóa
+                                                                    </button>';
+                                                                // hoặc: echo '<span class="text-muted">Không thể xóa</span>';
                                                             }
+
+                                                            echo    '</td>
+                                                                </tr>';
+                                                        $count++;
+                                                        }
+                                                        } else {
+                                                            echo '<tr> 
+                                                                   <td colspan="7" class="text-center">Chưa có lịch khám nào được đặt.</td>
+                                                                </tr>';
+                                                    }
                                                 ?>
                                             </tbody>
+
                                         </table>
                                     </div>
 
@@ -466,12 +528,13 @@
             </section>
         </div>
 
-        <?php include './config/footer.php';
-            $message = '';
-            if (isset($_SESSION['success_message'])) {
-                $message = $_SESSION['success_message'];
-                unset($_SESSION['success_message']);
-            }
+        <?php
+        include './config/footer.php';
+        $message = '';
+        if (isset($_SESSION['success_message'])) {
+            $message = $_SESSION['success_message'];
+            unset($_SESSION['success_message']);
+        }
         ?>
     </div>
 
@@ -493,7 +556,7 @@
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="preview">`;
+                    preview.innerHTML = `<img src="${e.target.result} " alt="preview">`;
                 };
                 reader.readAsDataURL(this.files[0]);
             }
@@ -536,7 +599,6 @@
         }
     }
     </script>
-
 
     <!-- Bootstrap icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">

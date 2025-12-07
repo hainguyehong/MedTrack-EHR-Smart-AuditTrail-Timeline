@@ -168,7 +168,7 @@ if (isset($_POST['save_Patient'])) {
         $stmtUser = $con->prepare($queryUser);
         $stmtUser->execute([
             ':user_name' => $cnic,
-            ':password' => md5("1"),
+            ':password' => md5("123456"),
             ':display_name' => $patientName,
             ':role' => 3,
             ':created_at' => $createdAt,
@@ -203,16 +203,41 @@ if (isset($_POST['save_Patient'])) {
     exit();
 } // end if isset save_Patient
 
-try { // lấy danh sách bệnh nhân (giữ nguyên)
-    $query = "SELECT `id`, `patient_name`, `address`,
-    `cnic`, date_format(`date_of_birth`, '%d %b %Y') as `date_of_birth`,
-    `phone_number`, `gender`, `created_at`
-    FROM `patients` WHERE `is_deleted` = 0 ORDER BY `created_at` DESC;";
-    $stmtPatient1 = $con->prepare($query);
-    $stmtPatient1->execute();
+// ========= PAGINATION CONFIG =========
+$perPage = 10; // số bệnh nhân / trang (bạn đổi tùy ý)
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+$offset = ($page - 1) * $perPage;
+
+// ========= ĐẾM TỔNG BỆNH NHÂN =========
+try {
+    $countQuery = "SELECT COUNT(*) as total FROM patients WHERE is_deleted = 0";
+    $stmtCount = $con->prepare($countQuery);
+    $stmtCount->execute();
+    $totalRows = (int)$stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = (int)ceil($totalRows / $perPage);
 } catch(PDOException $ex) {
     echo $ex->getMessage();
-    echo $ex->getTraceAsString();
+    exit;
+}
+
+// ========= LẤY DS BỆNH NHÂN THEO TRANG =========
+try {
+    $query = "SELECT `id`, `patient_name`, `address`,
+                     `cnic`, date_format(`date_of_birth`, '%d %b %Y') as `date_of_birth`,
+                     `phone_number`, `gender`, `created_at`
+              FROM `patients`
+              WHERE `is_deleted` = 0
+              ORDER BY `created_at` DESC
+              LIMIT :limit OFFSET :offset";
+
+    $stmtPatient1 = $con->prepare($query);
+    $stmtPatient1->bindValue(':limit',  $perPage, PDO::PARAM_INT);
+    $stmtPatient1->bindValue(':offset', $offset,  PDO::PARAM_INT);
+    $stmtPatient1->execute();
+
+} catch(PDOException $ex) {
+    echo $ex->getMessage();
     exit;
 }
 
@@ -417,8 +442,8 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
 
                                 <tbody>
                                     <?php 
-                                    $count = 0;
-                                    while($row =$stmtPatient1->fetch(PDO::FETCH_ASSOC)){
+                                   $count = $offset; // bắt đầu từ offset
+                                    while($row = $stmtPatient1->fetch(PDO::FETCH_ASSOC)) {
                                         $count++;
                                     ?>
                                     <tr style="text-align:center;">
@@ -456,6 +481,39 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
                                     ?>
                                 </tbody>
                             </table>
+                            <?php if ($totalPages > 1): ?>
+                            <nav aria-label="Patients pagination">
+                                <ul class="pagination justify-content-center mt-3">
+
+                                    <!-- Previous -->
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page-1 ?>">«</a>
+                                    </li>
+
+                                    <?php
+                                    // hiển thị tối đa 5 trang quanh trang hiện tại
+                                    $start = max(1, $page - 2);
+                                    $end   = min($totalPages, $page + 2);
+                                    ?>
+                                    <?php for($i = $start; $i <= $end; $i++): ?>
+                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                    </li>
+                                    <?php endfor; ?>
+
+                                    <!-- Next -->
+                                    <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page+1 ?>">»</a>
+                                    </li>
+
+                                </ul>
+
+                                <div class="text-center text-muted small">
+                                    Trang <?= $page ?> / <?= $totalPages ?> (<?= $totalRows ?> bệnh nhân)
+                                </div>
+                            </nav>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                     <!-- /.card-footer-->
@@ -490,7 +548,7 @@ try { // lấy danh sách bệnh nhân (giữ nguyên)
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
         <script src="plugins/daterangepicker/daterangepicker.js"></script>
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-        <script src="date.js"></script>
+        <script src="plugins/daterangepicker/date.js"></script>
 
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");

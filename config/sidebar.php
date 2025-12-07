@@ -79,10 +79,12 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
     body.sidebar-collapse .brand-link .brand-text {
         display: none !important;
     }
+
     body.sidebar-collapse .brand-link {
         justify-content: center !important;
         gap: 0 !important;
     }
+
     body.sidebar-collapse .brand-link img {
         margin: 0 !important;
     }
@@ -195,7 +197,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="next_visitdate.php" class="nav-link" id="mi_next_visitdate">
+                            <a href="next_visitdate.php" class="nav-link" id="next_visit_date">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Danh sách lịch tái khám</p>
                             </a>
@@ -304,9 +306,11 @@ document.addEventListener('DOMContentLoaded', function() {
         'patients.php': 'mi_patientss',
         'patients_visit.php': 'mi_new_prescription',
         'doctor_patient.php': 'mi_doctor_patient',
-        'next_visitdate.php': 'mi_next_visitdate',
         'audit_logs.php': 'mi_audit_logs',
-        'doctor_book.php': 'mi_doctor_book'
+        'doctor_book.php': 'mi_doctor_book',
+        'medicines.php': 'mi_medicines',
+        'reports.php': 'mi_reports',
+        'next_visitdate.php': 'next_visit_date'
     };
 
     // Remove existing active classes from all links first
@@ -324,7 +328,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // If this anchor is inside a .nav-treeview, activate its parent menu link (to open the tree)
             var tree = sub.closest('.nav-treeview');
             if (tree) {
-                var parentLink = tree.parentElement.querySelector(':scope > .nav-link');
+                var parentLi = tree.closest('.nav-item'); // li cha
+                if (parentLi) parentLi.classList.add('menu-open');
+
+                var parentLink = parentLi.querySelector(':scope > .nav-link');
                 if (parentLink) parentLink.classList.add('active');
             }
         }
