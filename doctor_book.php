@@ -2,11 +2,11 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-islogin([1,2]); // chỉ cho admin (1) và bác sĩ (2) truy cập
+islogin([1, 2]);  // chỉ cho admin (1) và bác sĩ (2) truy cập
 
 // --- Lấy dữ liệu đặt lịch từ DB (kèm trạng thái mới nhất từ bảng appointment_status_log) ---
 try {
-    $sql = "SELECT 
+  $sql = "SELECT 
             b.id, 
             b.id_patient, 
             b.date_visit, 
@@ -36,35 +36,35 @@ try {
             b.created_at DESC
          ";
 
-    $stmtBookings = $con->prepare($sql);
-    $stmtBookings->execute();
-    $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
+  $stmtBookings = $con->prepare($sql);
+  $stmtBookings->execute();
+  $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
 
-    $appointmentsForJs = [];
-    foreach ($rows as $r) {
-        $appointmentsForJs[] = [
-            'id' => (int)$r['id'],
-            'patientName' => $r['patient_name'],
-            'appointmentDate' => !empty($r['date_visit']) ? date('d/m/Y', strtotime($r['date_visit'])) : '',
-            'appointmentTime' => $r['time_visit'],
-            'symptoms' => $r['trieu_chung'],
-            'location' => $r['noi_dung_kham'],
-            'status' => $r['current_status'] ?? 'pending',
-            'bookingDate' => !empty($r['created_at']) ? date('d/m/Y H:i', strtotime($r['created_at'])) : '',
-            'phone' => $r['phone_number'],
-            'doctorNote' => $r['doctor_note'] ?? ''
-        ];
-    }
-    $appointmentsJson = json_encode($appointmentsForJs, JSON_UNESCAPED_UNICODE);
+  $appointmentsForJs = [];
+  foreach ($rows as $r) {
+    $appointmentsForJs[] = [
+      'id'              => (int) $r['id'],
+      'patientName'     => $r['patient_name'],
+      'appointmentDate' => !empty($r['date_visit']) ? date('d/m/Y', strtotime($r['date_visit'])) : '',
+      'appointmentTime' => $r['time_visit'],
+      'symptoms'        => $r['trieu_chung'],
+      'location'        => $r['noi_dung_kham'],
+      'status'          => $r['current_status'] ?? 'pending',
+      'bookingDate'     => !empty($r['created_at']) ? date('d/m/Y H:i', strtotime($r['created_at'])) : '',
+      'phone'           => $r['phone_number'],
+      'doctorNote'      => $r['doctor_note'] ?? ''
+    ];
+  }
+  $appointmentsJson = json_encode($appointmentsForJs, JSON_UNESCAPED_UNICODE);
 } catch (Exception $ex) {
-    $appointmentsJson = '[]';
+  $appointmentsJson = '[]';
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <?php include './config/site_css_links.php';?>
+    <?php include './config/site_css_links.php'; ?>
     <!-- Tailwind (play CDN) for the React UI classes used -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons used in the component -->
@@ -85,8 +85,8 @@ try {
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <div class="wrapper">
-        <?php 
-        include './config/header.php'; 
+        <?php
+        include './config/header.php';
         include './config/sidebar.php';
         ?>
 
@@ -99,17 +99,17 @@ try {
             </section>
         </div>
 
-        <?php include './config/footer.php';?>
+        <?php include './config/footer.php'; ?>
 
         <?php
         // Lấy message từ session (nếu có) để JS hiển thị bằng showCustomMessage
         $message = '';
         if (isset($_SESSION['success_message'])) {
-            $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']);
+          $message = $_SESSION['success_message'];
+          unset($_SESSION['success_message']);
         } elseif (isset($_SESSION['error_message'])) {
-            $message = $_SESSION['error_message'];
-            unset($_SESSION['error_message']);
+          $message = $_SESSION['error_message'];
+          unset($_SESSION['error_message']);
         }
         ?>
 
@@ -131,26 +131,28 @@ try {
           const [selectedAppointment, setSelectedAppointment] = useState(null);
           const [filterStatus, setFilterStatus] = useState("all");
           const [doctorNote, setDoctorNote] = useState("");
+          const PAGE_SIZE = 5; // số lịch hẹn trên 1 trang (tuỳ bạn)
 
+          const [currentPage, setCurrentPage] = useState(1);
           // Gọi API lưu DB
           const saveStatusToServer = async (id, action, note) => {
             const res = await fetch('doctor_appointment_action.php', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
-              },
+              } ,
               body: JSON.stringify({
                 id,
                 action,
                 note
-              })
-            });
+              } )
+            } );
             const data = await res.json();
             if (!data.success) {
               throw new Error(data.message || "Không thể lưu trạng thái");
             }
             return data;
-          };
+          } ;
 
           const handleConfirm = async (id) => {
             try {
@@ -169,7 +171,7 @@ try {
             } catch (err) {
               alert("Lỗi khi lưu dữ liệu: " + err.message);
             }
-          };
+          } ;
 
           const handleReject = async (id) => {
             if (!doctorNote.trim()) {
@@ -192,15 +194,21 @@ try {
             } catch (err) {
               alert("Lỗi khi lưu dữ liệu: " + err.message);
             }
-          };
+          } ;
 
           const filteredAppointments = appointments.filter(apt => {
             if (filterStatus === "all") return true;
             return apt.status === filterStatus;
-          });
+          } );
+          const totalPages = Math.ceil(filteredAppointments.length / PAGE_SIZE);
+
+          const currentAppointments = filteredAppointments.slice(
+            (currentPage - 1) * PAGE_SIZE,
+            currentPage * PAGE_SIZE
+          );
 
           const getStatusBadge = (status) => {
-            switch(status) {
+            switch (status) {
               case "pending":
                 return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">Chờ xác nhận</span>;
               case "confirmed":
@@ -210,7 +218,7 @@ try {
               default:
                 return null;
             }
-          };
+          } ;
 
           const pendingCount = appointments.filter(apt => apt.status === "pending").length;
           // test 
@@ -228,11 +236,10 @@ try {
               if (typeof showCustomMessage === "function") {
                 showCustomMessage("Đã đưa lịch về trạng thái chờ xác nhận");
               }
-
             } catch (err) {
               alert("Lỗi khi lưu dữ liệu: " + err.message);
             }
-          };
+          } ;
 
           return (
             <div className="min-h-screen bg-gray-50">
@@ -257,51 +264,57 @@ try {
                     <i className="fa fa-filter text-gray-500 w-5 h-5"></i>
                     <div className="flex gap-2 flex-wrap">
                       <button
-                        onClick={() => setFilterStatus("all")}
+                        onClick={() => {
+                          setFilterStatus("all");
+                          SetCurrentPage(1);
+                        } }
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                           filterStatus === "all"
                             ? "bg-blue-500 text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                        } `}
                       >
-                        Tất cả ({appointments.length})
+                        Tất cả ({appointments.length} )
                       </button>
                       <button
                         onClick={() => setFilterStatus("pending")}
+                        onClick={() => SetCurrentPage(1)}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                           filterStatus === "pending"
                             ? "bg-yellow-500 text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                        } `}
                       >
-                        Chờ xác nhận ({pendingCount})
+                        Chờ xác nhận ({pendingCount} )
                       </button>
                       <button
                         onClick={() => setFilterStatus("confirmed")}
+                        onClick={() => SetCurrentPage(1)}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                           filterStatus === "confirmed"
                             ? "bg-green-500 text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                        } `}
                       >
-                        Đã xác nhận ({appointments.filter(apt => apt.status === "confirmed").length})
+                        Đã xác nhận ({appointments.filter(apt => apt.status === "confirmed").length} )
                       </button>
                       <button
                         onClick={() => setFilterStatus("rejected")}
+                        onClick={() => SetCurrentPage(1)}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                           filterStatus === "rejected"
                             ? "bg-red-500 text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                        } `}
                       >
-                        Đã từ chối ({appointments.filter(apt => apt.status === "rejected").length})
+                        Đã từ chối ({appointments.filter(apt => apt.status === "rejected").length} )
                       </button>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid gap-4">
-                  {filteredAppointments.map((appointment) => (
+                  {currentAppointments.map((appointment) => (
                     <div key={appointment.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                       <div className="p-6">
                         <div className="flex items-start justify-between">
@@ -311,8 +324,8 @@ try {
                                 <i className="fa fa-user text-blue-600"></i>
                               </div>
                               <div>
-                                <h3 className="text-lg font-semibold text-gray-800">{appointment.patientName}</h3>
-                                <p className="text-sm text-gray-500">SĐT: {appointment.phone}</p>
+                                <h3 className="text-lg font-semibold text-gray-800">{appointment.patientName} </h3>
+                                <p className="text-sm text-gray-500">SĐT: {appointment.phone} </p>
                               </div>
                             </div>
 
@@ -331,25 +344,25 @@ try {
                                 <i className="fa fa-file-alt text-gray-400"></i>
                                 <div>
                                   <p className="text-sm text-gray-500">Lý do khám</p>
-                                  <p className="font-medium text-gray-800">{appointment.location}</p>
+                                  <p className="font-medium text-gray-800">{appointment.location} </p>
                                 </div>
                               </div>
                             </div>
 
                             <div className="bg-gray-50 rounded-lg p-4 mb-4">
                               <p className="text-sm text-gray-500 mb-1">Triệu chứng / Lý do khám:</p>
-                              <p className="text-gray-800 whitespace-pre-wrap">{appointment.symptoms}</p>
+                              <p className="text-gray-800 whitespace-pre-wrap">{appointment.symptoms} </p>
                             </div>
 
                             {appointment.status === "rejected" && appointment.doctorNote && (
                               <div className="bg-red-50 rounded-lg p-4 mb-4 border border-red-100">
                                 <p className="text-sm text-red-600 font-medium mb-1">Lý do từ chối:</p>
-                                <p className="text-red-700 whitespace-pre-wrap">{appointment.doctorNote}</p>
+                                <p className="text-red-700 whitespace-pre-wrap">{appointment.doctorNote} </p>
                               </div>
                             )}
 
                             <div className="flex items-center gap-4 text-sm text-gray-500 flex-wrap">
-                              <span>Đặt lúc: {appointment.bookingDate}</span>
+                              <span>Đặt lúc: {appointment.bookingDate} </span>
                               {getStatusBadge(appointment.status)}
                             </div>
                           </div>
@@ -360,7 +373,7 @@ try {
                                 onClick={() => {
                                   setSelectedAppointment(appointment);
                                   setDoctorNote(appointment.doctorNote || "");
-                                }}
+                                } }
                                 className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium flex items-center gap-2"
                               >
                                 <i className="fa fa-file-alt w-4 h-4"></i>
@@ -371,7 +384,7 @@ try {
                                 onClick={() => {
                                   setSelectedAppointment(appointment);
                                   setDoctorNote(appointment.doctorNote || "");
-                                }}
+                                } }
                                 className="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium flex items-center gap-2"
                               >
                                 <i className="fa fa-edit w-4 h-4"></i>
@@ -392,6 +405,47 @@ try {
                   )}
                 </div>
               </div>
+                  {filteredAppointments.length > 0 && (
+                    <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1 rounded-lg border text-sm ${
+                          currentPage === 1
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
+                        } `}
+                      >
+                        Trước
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, idx) => idx + 1).map(page => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`px-3 py-1 rounded-lg border text-sm ${
+                            currentPage === page
+                              ? "bg-blue-500 text-white border-blue-500"
+                              : "bg-white text-gray-700 hover:bg-gray-100"
+                          } `}
+                        >
+                          {page}
+                        </button>
+                      ))}
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-1 rounded-lg border text-sm ${
+                      currentPage === totalPages || totalPages === 0
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                    } `}
+                  >
+                    Sau
+                  </button>
+                </div>
+              )}
 
               {selectedAppointment && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -408,35 +462,35 @@ try {
                             <i className="fa fa-user text-blue-600 w-8 h-8"></i>
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-gray-800">{selectedAppointment.patientName}</h3>
-                            <p className="text-gray-600">SĐT: {selectedAppointment.phone}</p>
+                            <h3 className="text-xl font-bold text-gray-800">{selectedAppointment.patientName} </h3>
+                            <p className="text-gray-600">SĐT: {selectedAppointment.phone} </p>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-blue-50 rounded-lg p-4">
                             <p className="text-sm text-blue-600 font-medium mb-1">Ngày khám</p>
-                            <p className="text-lg font-semibold text-gray-800">{selectedAppointment.appointmentDate}</p>
+                            <p className="text-lg font-semibold text-gray-800">{selectedAppointment.appointmentDate} </p>
                           </div>
                           <div className="bg-blue-50 rounded-lg p-4">
                             <p className="text-sm text-blue-600 font-medium mb-1">Giờ khám</p>
-                            <p className="text-lg font-semibold text-gray-800">{selectedAppointment.appointmentTime}</p>
+                            <p className="text-lg font-semibold text-gray-800">{selectedAppointment.appointmentTime} </p>
                           </div>
                         </div>
 
                         <div className="bg-gray-50 rounded-lg p-4">
                           <p className="text-sm text-gray-600 font-medium mb-2">Nơi khám:</p>
-                          <p className="text-gray-800 font-medium">{selectedAppointment.location}</p>
+                          <p className="text-gray-800 font-medium">{selectedAppointment.location} </p>
                         </div>
 
                         <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
                           <p className="text-sm text-yellow-700 font-medium mb-2">Triệu chứng / Lý do khám:</p>
-                          <p className="text-gray-800 whitespace-pre-wrap">{selectedAppointment.symptoms}</p>
+                          <p className="text-gray-800 whitespace-pre-wrap">{selectedAppointment.symptoms} </p>
                         </div>
 
                         <div className="bg-gray-50 rounded-lg p-4">
                           <p className="text-sm text-gray-600 mb-2">Thời gian đặt lịch:</p>
-                          <p className="text-gray-800 font-medium">{selectedAppointment.bookingDate}</p>
+                          <p className="text-gray-800 font-medium">{selectedAppointment.bookingDate} </p>
                         </div>
                       </div>
 
@@ -488,7 +542,7 @@ try {
                         onClick={() => {
                           setSelectedAppointment(null);
                           setDoctorNote("");
-                        }}
+                        } }
                         className="w-full mt-3 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                       >
                         Đóng

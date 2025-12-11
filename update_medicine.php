@@ -232,14 +232,23 @@ include './config/sidebar.php';?>
  include './config/footer.php';
 
 	$message = '';
-    if (isset($_SESSION['success_message'])) {
-        $message = $_SESSION['success_message'];
-        unset($_SESSION['success_message']);
-    } 
-    // elseif (isset($_SESSION['error_message'])) {
-    //     $message = $_SESSION['error_message'];
-    //     unset($_SESSION['error_message']);
-    // }
+    $messageType = 'info';
+
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    $messageType = 'success';
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $message = $_SESSION['error_message'];
+    $messageType = 'error';
+    unset($_SESSION['error_message']);
+}
+if ($message == '' && isset($_GET['message'])) {
+    $message = $_GET['message'];
+    $messageType = 'info';
+}
 
 ?>
         <!-- /.control-sidebar -->
@@ -247,15 +256,15 @@ include './config/sidebar.php';?>
     <!-- ./wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
     showMenuSelected("#mnu_medicines", "#mi_medicine_details");
-    var message = '<?php echo $message;?>';
+    var message = '<?php echo addslashes($message); ?>';
+    var messageType = '<?php echo $messageType; ?>';
+
     if (message !== '') {
-        <?php if (isset($_SESSION['error_message'])): ?>
-        showCustomMessage(message, 'error');
-        <?php else: ?>
-        showCustomMessage(message, 'success');
-        <?php endif; ?>
+        showCustomMessage(message, messageType);
     }
     </script>
 

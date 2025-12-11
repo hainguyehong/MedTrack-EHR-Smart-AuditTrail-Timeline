@@ -3,59 +3,7 @@ include './config/connection.php';
 include './common_service/common_functions.php';
 islogin([2]); // chỉ cho và bác sĩ (2) truy cập
 $message = '';
-// if (isset($_POST['save_Patient'])) {
-  
-//     $hiddenId = $_POST['hidden_id'];
 
-//     $patientName = trim($_POST['patient_name']);
-//     $address = trim($_POST['address']);
-//     $cnic = trim($_POST['cnic']);
-    
-//     $dateBirth = !empty($_POST['date_of_birth']) 
-//     ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth']))) 
-//     : null;
-
-//     $phoneNumber = trim($_POST['phone_number']);
-
-//     $patientName = ucwords(strtolower($patientName));
-//     $address = ucwords(strtolower($address));
-
-//     $gender = $_POST['gender'];
-// if ($patientName != '' && $address != '' && 
-//   $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
-//       $query = "update `patients` 
-//     set `patient_name` = '$patientName', 
-//     `address` = '$address', 
-//     `cnic` = '$cnic', 
-//     `date_of_birth` = '$dateBirth', 
-//     `phone_number` = '$phoneNumber', 
-//     `gender` = '$gender' 
-// where `id` = $hiddenId;";
-// try {
-
-//   $con->beginTransaction();
-
-//   $stmtPatient = $con->prepare($query);
-//   $stmtPatient->execute();
-
-//   $con->commit();
-
-// //   $message = 'Cập Nhật Dữ liệu thành công.';
-// $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
-
-// } catch(PDOException $ex) {
-//   $con->rollback();
-
-//   echo $ex->getMessage();
-//   echo $ex->getTraceAsString();
-//   exit;
-// }
-// }
-// //   header("Location:congratulation.php?goto_page=patients.php&message=$message");
-// //   exit();
-// header("Location: patients.php"); // quay lại thẳng patients.php
-// exit();
-// }
 if (isset($_POST['save_Patient'])) {
     $hiddenId = $_POST['hidden_id'];
 
@@ -169,8 +117,14 @@ if (isset($_POST['save_Patient'])) {
     exit();
 }
 
+
 try {
 $id = $_GET['id'];
+if(empty($id)) {
+  header("Location: patients.php");
+  exit;
+    
+}
 $query = "SELECT `id`, `patient_name`, `address`, 
 `cnic`, date_format(`date_of_birth`, '%m/%d/%Y') as `date_of_birth`,  `phone_number`, `gender` 
 FROM `patients` where `id` = $id;";
@@ -200,6 +154,8 @@ $dob = $row['date_of_birth'];
 <link rel="icon" type="image/png" href="assets/images/img-tn.png">
 <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
 <style>
 body {
@@ -372,9 +328,23 @@ include './config/sidebar.php';?>
  include './config/footer.php';
 
   $message = '';
-  if(isset($_GET['message'])) {
+$messageType = 'info';
+
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    $messageType = 'success';
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $message = $_SESSION['error_message'];
+    $messageType = 'error';
+    unset($_SESSION['error_message']);
+}
+if ($message == '' && isset($_GET['message'])) {
     $message = $_GET['message'];
-  }
+    $messageType = 'info';
+}
 ?>
         <!-- /.control-sidebar -->
     </div>
@@ -383,15 +353,20 @@ include './config/sidebar.php';?>
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
     <script src="plugins/moment/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="date.js"></script>
+    <script src="dist/js/common_javascript_functions.js"></script>
+
     <script>
     showMenuSelected("#mnu_patients", "#mi_patients");
-    var message = '<?php echo $message;?>';
+    var message = '<?php echo addslashes($message); ?>';
+    var messageType = '<?php echo $messageType; ?>';
+
     if (message !== '') {
-        showCustomMessage(message);
+        showCustomMessage(message, messageType);
     }
     $('#date_of_birth').datetimepicker({
         format: 'L'

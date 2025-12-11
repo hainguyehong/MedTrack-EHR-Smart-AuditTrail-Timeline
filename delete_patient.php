@@ -74,11 +74,11 @@ if (isset($_POST['delete_Patient'])) {
         $stmtPatient->execute([':id' => $id]);
 
         // 🧩 Soft delete các lần khám
-        $queryVisit = "UPDATE `patient_visits` 
-                       SET `is_deleted` = 1 
-                       WHERE `patient_id` = :id";
-        $stmtVisit = $con->prepare($queryVisit);
-        $stmtVisit->execute([':id' => $id]);
+        // $queryVisit = "UPDATE `patient_visits` 
+        //                SET `is_deleted` = 1 
+        //                WHERE `patient_id` = :id";
+        // $stmtVisit = $con->prepare($queryVisit);
+        // $stmtVisit->execute([':id' => $id]);
 
         // 🧩 Soft delete user bệnh nhân (dựa vào cnic)
         $queryUser = "UPDATE `user_patients` 

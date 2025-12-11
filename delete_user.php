@@ -219,17 +219,25 @@ include './config/sidebar.php';?>
             <br />
             <br />
 
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
         <?php 
- include './config/footer.php';
+        include './config/footer.php';
 
-$message = '';
+        $message = '';
+        $messageType = 'info';
+
         if (isset($_SESSION['success_message'])) {
             $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+            $messageType = 'success';
+            unset($_SESSION['success_message']);
+        } elseif (isset($_SESSION['error_message'])) {
+            $message = $_SESSION['error_message'];
+            $messageType = 'error';
+            unset($_SESSION['error_message']);
         }
 ?>
         <!-- /.control-sidebar -->
@@ -239,9 +247,11 @@ $message = '';
     <?php include './config/site_js_links.php'; ?>
     <script>
     showMenuSelected("#mnu_users", "#mi_users");
-    var message = '<?php echo $message;?>';
+    var message = '<?php echo addslashes($message); ?>';
+    var messageType = '<?php echo $messageType; ?>';
+
     if (message !== '') {
-        showCustomMessage(message);
+        showCustomMessage(message, messageType);
     }
     </script>
 

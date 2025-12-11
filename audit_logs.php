@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 $message = '';
-islogin([1]); // chỉ cho admin (1) và bác sĩ (2) truy cập
+islogin([1]); // chỉ cho admin (1)
 // Build filters from GET
 $search = trim($_GET['search'] ?? '');
 $timeRange = $_GET['timeRange'] ?? 'all';
@@ -337,7 +337,7 @@ $sn = $serialStart;
                                 </div>
 
                                 <div class="col-12 d-flex gap-2 mt-2">
-                                    <button type="button" id="resetFilters" class="btn btn-light btn-sm">Đặt lại bộ
+                                    <button type="button" id="resetFilters" class="btn btn-success btn-sm">Đặt lại bộ
                                         lọc</button>
                                     <button type="button" id="exportCsv" class="btn btn-dark btn-sm">Xuất Excel</button>
                                 </div>
@@ -409,51 +409,41 @@ $sn = $serialStart;
                                     } ?>
                                 </tbody>
                             </table>
+                            <?php if ($totalPages > 1): ?>
+                            <nav aria-label="Patients pagination">
+                                <ul class="pagination justify-content-center mt-3">
+
+                                    <!-- Previous -->
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page-1 ?>">«</a>
+                                    </li>
+
+                                    <?php
+                                    // hiển thị tối đa 5 trang quanh trang hiện tại
+                                    $start = max(1, $page - 10);
+                                    $end   = min($totalPages, $page + 10 );
+                                    ?>
+                                    <?php for($i = $start; $i <= $end; $i++): ?>
+                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                    </li>
+                                    <?php endfor; ?>
+
+                                    <!-- Next -->
+                                    <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page+1 ?>">»</a>
+                                    </li>
+
+                                </ul>
+
+                                <div class="text-center text-muted small">
+                                    Trang <?= $page ?> / <?= $totalPages ?> (<?= $totalLogs ?> bản log)
+                                </div>
+                            </nav>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
-
-                <!-- after the table (within the same card-body) -->
-                <div class="d-flex justify-content-between align-items-center mt-3"
-                    style="margin-left: 50px;margin-bottom: 50px;">
-                    <!-- <div class="text-muted">Hiển thị <?php echo min($totalLogs, $perPage + $offset);?> trên tổng <?php echo $totalLogs;?> bản ghi</div> -->
-
-                    <?php if ($totalPages > 1) { ?>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination mb-0">
-                            <?php
-                            $baseParams = $_GET;
-                            // Previous
-                            $prev = max(1, $page - 1);
-                            $baseParams['page'] = $prev;
-                            $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                            ?>
-                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                            </li>
-                            <?php
-                            // render pages (simple full list; for many pages could be shortened)
-                            for ($p = 1; $p <= $totalPages; $p++) {
-                                $baseParams['page'] = $p;
-                                $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                $active = ($p == $page) ? 'active' : '';
-                                echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
-                            }
-                            // Next
-                            $next = min($totalPages, $page + 1);
-                            $baseParams['page'] = $next;
-                            $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                            ?>
-                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                            </li>
-                        </ul>
-                    </nav>
-                    <?php } ?>
-                </div>
-
             </section>
         </div>
         <!-- /.content-wrapper -->
@@ -523,27 +513,6 @@ $sn = $serialStart;
         m.style.display = 'none';
         m.classList.remove('show');
     }
-
-    // DataTables init: disable client-side paging because we use server-side paging
-    $(function() {
-        $("#auditTable").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "paging": false,
-            "ordering": true,
-            "order": [
-                [0, "desc"]
-            ],
-            "language": {
-                "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
-                "paginate": {
-                    "previous": "«",
-                    "next": "»"
-                }
-            }
-        });
-    });
     </script>
 </body>
 

@@ -67,13 +67,13 @@ try {
     $stmtCount = $con->prepare($countSql);
     $stmtCount->execute();
     $totalUsers = (int)$stmtCount->fetchColumn();
+    $totalPages = ($totalUsers > 0) ? (int)ceil($totalUsers / $perPage) : 1;
 } catch (PDOException $ex) {
     echo $ex->getTraceAsString();
     echo $ex->getMessage();
     $totalUsers = 0;
 }
 
-$totalPages = ($totalUsers > 0) ? (int)ceil($totalUsers / $perPage) : 1;
 
 try {
     $queryUsers = "SELECT `id`, `display_name`, `user_name`, `role` 
@@ -322,6 +322,38 @@ $sn = $serialStart;
                                     <?php } } ?>
                                 </tbody>
                             </table>
+                            <?php if ($totalPages > 1): ?>
+                            <nav aria-label="Patients pagination">
+                                <ul class="pagination justify-content-center mt-3">
+
+                                    <!-- Previous -->
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page-1 ?>">«</a>
+                                    </li>
+
+                                    <?php
+                                    // hiển thị tối đa 5 trang quanh trang hiện tại
+                                    $start = max(1, $page - 10);
+                                    $end   = min($totalPages, $page + 10);
+                                    ?>
+                                    <?php for($i = $start; $i <= $end; $i++): ?>
+                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                    </li>
+                                    <?php endfor; ?>
+
+                                    <!-- Next -->
+                                    <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page+1 ?>">»</a>
+                                    </li>
+
+                                </ul>
+
+                                <div class="text-center text-muted small">
+                                    Trang <?= $page ?> / <?= $totalPages ?> (<?= $totalUsers ?> người dùng)
+                                </div>
+                            </nav>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -330,41 +362,7 @@ $sn = $serialStart;
                     <!-- /.card-footer-->
                 </div>
                 <!-- add pagination UI -->
-                <div class="d-flex justify-content-between align-items-center mt-3"
-                    style="margin-left: 50px;margin-bottom: 50px;">
-                    <!-- <div class="text-muted">Hiển thị <?php echo min($totalUsers, $perPage + $offset);?> trên tổng <?php echo $totalUsers;?> người dùng</div> -->
-                    <?php if ($totalPages > 1) { ?>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination mb-0">
-                            <?php
-                                $baseParams = $_GET;
-                                $prev = max(1, $page - 1);
-                                $baseParams['page'] = $prev;
-                                $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                ?>
-                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                            </li>
-                            <?php
-                                for ($p = 1; $p <= $totalPages; $p++) {
-                                    $baseParams['page'] = $p;
-                                    $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                    $active = ($p == $page) ? 'active' : '';
-                                    echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
-                                }
-                                $next = min($totalPages, $page + 1);
-                                $baseParams['page'] = $next;
-                                $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                ?>
-                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                            </li>
-                        </ul>
-                    </nav>
-                    <?php } ?>
-                </div>
+
                 <!-- /.card -->
 
             </section>
@@ -372,12 +370,19 @@ $sn = $serialStart;
         </div>
         <!-- /.content-wrapper -->
         <?php 
-include './config/footer.php';
+        include './config/footer.php';
 
-$message = '';
+       $message = '';
+       $messageType = 'info';
+
         if (isset($_SESSION['success_message'])) {
             $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+            $messageType = 'success';
+            unset($_SESSION['success_message']);
+        } elseif (isset($_SESSION['error_message'])) {
+            $message = $_SESSION['error_message'];
+            $messageType = 'error';
+            unset($_SESSION['error_message']);
         }
 ?>
         <!-- /.control-sidebar -->
@@ -387,20 +392,22 @@ $message = '';
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
     <script src="plugins/moment/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-    <script src="date.js"></script>
+    <script src="plugins\daterangepicker\date.js"></script>
 
     <script>
     showMenuSelected("#mnu_users", "");
 
-    var message = '<?php echo $message;?>';
+    var message = '<?php echo addslashes($message); ?>';
+    var messageType = '<?php echo $messageType; ?>';
 
     if (message !== '') {
-        showCustomMessage(message);
+        showCustomMessage(message, messageType);
     }
-
 
     $(document).ready(function() {
 
@@ -434,24 +441,6 @@ $message = '';
             }
 
         });
-    });
-    $(function() {
-        $("#all_users").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "paging": false,
-            "buttons": ["pdf", "print"],
-
-            "language": {
-                "info": " Tổng cộng _TOTAL_ người dùng",
-                "paginate": {
-                    "previous": "<span style='font-size:18px;'>&#8592;</span>",
-                    "next": "<span style='font-size:18px;'>&#8594;</span>"
-                }
-            }
-        }).buttons().container().appendTo('#all_users_wrapper .col-md-6:eq(0)');
-
     });
     </script>
 </body>

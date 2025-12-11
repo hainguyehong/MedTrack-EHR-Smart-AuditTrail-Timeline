@@ -194,7 +194,6 @@ if (isset($_POST['save_Patient'])) {
         );
     } catch(PDOException $ex) {
         $con->rollback();
-        // bạn có thể log $ex->getMessage() vào log file, ở đây tạm echo / set session error
         $_SESSION['error_message'] = 'Lỗi hệ thống: ' . $ex->getMessage();
         header("Location: patients.php");
         exit;
@@ -204,7 +203,7 @@ if (isset($_POST['save_Patient'])) {
 } // end if isset save_Patient
 
 // ========= PAGINATION CONFIG =========
-$perPage = 10; // số bệnh nhân / trang (bạn đổi tùy ý)
+$perPage = 10; // số bệnh nhân / trang 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $perPage;
@@ -492,8 +491,8 @@ try {
 
                                     <?php
                                     // hiển thị tối đa 5 trang quanh trang hiện tại
-                                    $start = max(1, $page - 2);
-                                    $end   = min($totalPages, $page + 2);
+                                    $start = max(1, $page - 5);
+                                    $end   = min($totalPages, $page + 5);
                                     ?>
                                     <?php for($i = $start; $i <= $end; $i++): ?>
                                     <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
@@ -513,7 +512,6 @@ try {
                                 </div>
                             </nav>
                             <?php endif; ?>
-
                         </div>
                     </div>
                     <!-- /.card-footer-->
@@ -526,17 +524,17 @@ try {
         <?php 
         include './config/footer.php';
 
-        //   $message = '';
-        //   if(isset($_GET['message'])) {
-        //     $message = $_GET['message'];
-        //   }
         $message = '';
+        $messageType = 'info';
+
         if (isset($_SESSION['success_message'])) {
             $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
-        }elseif (isset($_SESSION['error_message'])) {
+            $messageType = 'success';
+            unset($_SESSION['success_message']);
+        } elseif (isset($_SESSION['error_message'])) {
             $message = $_SESSION['error_message'];
-            unset($_SESSION['error_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+            $messageType = 'error';
+            unset($_SESSION['error_message']);
         }
         ?>
         <!-- /.control-sidebar -->
@@ -545,7 +543,11 @@ try {
 
 
         <script src="plugins/moment/moment.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
+
+        </script>
         <script src="plugins/daterangepicker/daterangepicker.js"></script>
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
         <script src="plugins/daterangepicker/date.js"></script>
@@ -553,11 +555,12 @@ try {
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");
 
-        var message = '<?php echo $message;?>';
-        if (message !== '') {
-            showCustomMessage(message);
-        }
+        var message = '<?php echo addslashes($message); ?>';
+        var messageType = '<?php echo $messageType; ?>';
 
+        if (message !== '') {
+            showCustomMessage(message, messageType);
+        }
         // Khởi tạo datetimepicker
         $('#date_of_birth').datetimepicker({
             format: 'L'
@@ -655,7 +658,6 @@ try {
                 }
             });
 
-            // Clear error when user types/selects
             document.querySelectorAll('#patientForm input, #patientForm select').forEach(function(el) {
                 el.addEventListener('input', function() {
                     var eid = this.id ? 'error_' + this.id : null;
@@ -677,13 +679,6 @@ try {
             });
         })();
 
-
-
-        // document.getElementById('patient_name').addEventListener('focus', function() {
-        //     this.classList.remove('error-input');
-        //     const userError = document.getElementById('user_error');
-        //     if (userError) userError.style.display = 'none';
-        // });
         document.querySelectorAll("#patientForm input, #patientForm select").forEach(function(el) {
             ["focus", "change"].forEach(function(evt) {
                 el.addEventListener(evt, function() {
@@ -718,25 +713,6 @@ try {
                     }
                 });
             }
-        });
-        // Danh sách bệnh nhân
-        $(function() {
-            $("#all_patients").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-                "buttons": ["pdf", "print"],
-
-                "language": {
-                    "info": " Tổng cộng _TOTAL_ người dùng",
-                    "paginate": {
-                        "previous": "<span style='font-size:18px;'>&#8592;</span>",
-                        "next": "<span style='font-size:18px;'>&#8594;</span>"
-                    }
-                }
-            }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
-
         });
         </script>
 </body>

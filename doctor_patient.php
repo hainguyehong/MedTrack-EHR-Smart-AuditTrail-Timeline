@@ -370,7 +370,7 @@ include './config/sidebar.php';
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
         <?php include './common_service/loaduser.php';?>
 
-        <script src="date.js"></script>
+        <!-- <script src="date.js"></script> -->
 
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");
@@ -380,20 +380,9 @@ include './config/sidebar.php';
             showCustomMessage(message);
         }
 
-        $('#date_of_birth').datetimepicker({
-            format: 'L'
-        });
-
-
-        $(function() {
-            $("#all_patients").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
-
-        });
+        // $('#date_of_birth').datetimepicker({
+        //     format: 'L'
+        // });
         </script>
 
         <script>

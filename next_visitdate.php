@@ -6,25 +6,25 @@ include './common_service/date.php';
 include './inforbip.php';
 islogin([2]);
 $message = '';
-$userId = $_SESSION['user_id']; 
+$userId = $_SESSION['user_id'];
 // sms_twilio.php
 if (isset($_POST['send_sms'])) {
     $patient_id = $_POST['send_sms'];
-    
-    $stmt = $con->prepare("
+
+    $stmt = $con->prepare('
     SELECT p.id, p.patient_name, p.cnic, p.phone_number,p.created_at, pd.next_visit_date
           FROM patients p
           JOIN patient_diseases pd ON p.id = pd.patient_id
           WHERE p.id = :id AND pd.next_visit_date IS NOT NULL
           ORDER BY pd.next_visit_date ASC Limit 1
-    ");
+    ');
     $stmt->execute(['id' => $patient_id]);
     $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($patient) {
-        $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày " . 
-            date('d/m/Y', strtotime($patient['next_visit_date'])) . 
-            ". Vui lòng liên hệ phòng khám để xác nhận.";
+        $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày "
+            . date('d/m/Y', strtotime($patient['next_visit_date']))
+            . '. Vui lòng liên hệ phòng khám để xác nhận.';
 
         // Gửi SMS Twilio (tự convert số)
         $send_result = sendSMS($patient['phone_number'], $message_text, 'OTHER');
@@ -37,7 +37,7 @@ if (isset($_POST['send_sms'])) {
     } else {
         $_SESSION['error_message'] = "Không tìm thấy bệnh nhân với ID: $patient_id";
     }
-header("Location: " . $_SERVER['PHP_SELF']);
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
 // Gửi tất cả SMS
@@ -46,21 +46,20 @@ if (isset($_POST['send_all_sms']) && !empty($_POST['patient_ids'])) {
     $fail = 0;
 
     foreach ($_POST['patient_ids'] as $patient_id) {
-
-        $stmt = $con->prepare("
+        $stmt = $con->prepare('
             SELECT p.id, p.patient_name, p.phone_number, pd.next_visit_date
             FROM patients p
             JOIN patient_diseases pd ON p.id = pd.patient_id
             WHERE p.id = :id AND pd.next_visit_date IS NOT NULL
             ORDER BY pd.next_visit_date ASC LIMIT 1
-        ");
+        ');
         $stmt->execute(['id' => $patient_id]);
         $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($patient) {
-            $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày " .
-                date('d/m/Y', strtotime($patient['next_visit_date'])) .
-                ". Vui lòng liên hệ phòng khám để xác nhận.";
+            $message_text = "Xin chào {$patient['patient_name']}, bạn có lịch tái khám vào ngày "
+                . date('d/m/Y', strtotime($patient['next_visit_date']))
+                . '. Vui lòng liên hệ phòng khám để xác nhận.';
 
             $result = sendSMS($patient['phone_number'], $message_text, 'OTHER');
 
@@ -73,38 +72,38 @@ if (isset($_POST['send_all_sms']) && !empty($_POST['patient_ids'])) {
     }
 
     $_SESSION['success_message'] = "Đã gửi thành công $success SMS. Thất bại $fail trường hợp.";
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
 
 // <-- Thay: truy vấn list chuyển sang phân trang -->
 try {
     $perPage = 10;
-    $page = isset($_GET['page']) && is_numeric($_GET['page']) && (int)$_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+    $page = isset($_GET['page']) && is_numeric($_GET['page']) && (int) $_GET['page'] > 0 ? (int) $_GET['page'] : 1;
     $offset = ($page - 1) * $perPage;
 
     // Lấy tổng số bản ghi
-    $countQuery = "SELECT COUNT(*) as total
+    $countQuery = 'SELECT COUNT(*) as total
                    FROM patients p
                    JOIN patient_diseases pd ON p.id = pd.patient_id
-                   WHERE pd.next_visit_date IS NOT NULL";
+                   WHERE pd.next_visit_date IS NOT NULL';
     $stmtCount = $con->prepare($countQuery);
     $stmtCount->execute();
-    $total = (int)$stmtCount->fetchColumn();
-    $totalPages = $total > 0 ? (int)ceil($total / $perPage) : 1;
+    $total = (int) $stmtCount->fetchColumn();
+    $totalPages = $total > 0 ? (int) ceil($total / $perPage) : 1;
 
     // Lấy dữ liệu theo trang
-    $query = "SELECT p.id, p.patient_name, p.cnic, p.phone_number, p.created_at, pd.next_visit_date
+    $query = 'SELECT p.id, p.patient_name, p.cnic, p.phone_number, p.created_at, pd.next_visit_date
               FROM patients p
               JOIN patient_diseases pd ON p.id = pd.patient_id
               WHERE pd.next_visit_date IS NOT NULL
               ORDER BY pd.next_visit_date ASC
-              LIMIT :offset, :perpage";
+              LIMIT :offset, :perpage';
     $stmt = $con->prepare($query);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindValue(':perpage', $perPage, PDO::PARAM_INT);
     $stmt->execute();
-} catch(PDOException $ex) {
+} catch (PDOException $ex) {
     echo $ex->getMessage();
     echo $ex->getTraceAsString();
     exit;
@@ -115,13 +114,13 @@ try {
 <html lang="en">
 
 <head>
-    <?php include './config/site_css_links.php';?>
+    <?php include './config/site_css_links.php'; ?>
 
-    <?php include './config/data_tables_css.php';?>
+    <?php include './config/data_tables_css.php'; ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
-        <!-- Thêm favicon giống dashboard.php -->
+    <!-- Thêm favicon giống dashboard.php -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
@@ -162,8 +161,6 @@ try {
 
     }
 
-
-
     .btn-primary:hover,
     .btn-danger:hover {
 
@@ -172,8 +169,6 @@ try {
         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 
     }
-
-
 
     .card-title {
 
@@ -202,15 +197,14 @@ try {
 
 </head>
 
-<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
-
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
-        <?php include './config/header.php';
-include './config/sidebar.php';
-?>
+        <?php
+        include './config/header.php';
+        include './config/sidebar.php';
+        ?>
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
@@ -239,7 +233,7 @@ include './config/sidebar.php';
 
                     </div>
                     <div class="card-body">
-                        <?php if(!empty($message)) : ?>
+                        <?php if (!empty($message)): ?>
                         <div class="alert alert-success"><?php echo $message; ?></div>
                         <?php endif; ?>
 
@@ -260,11 +254,11 @@ include './config/sidebar.php';
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php 
-                                            // STT bắt đầu theo trang
-                                            $serial = $offset + 1;
-                                            while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-                                         ?>
+                                        <?php
+                                        // STT bắt đầu theo trang
+                                        $serial = $offset + 1;
+                                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                            ?>
                                         <tr style="text-align:center;">
                                             <td><input type="checkbox" name="patient_ids[]"
                                                     value="<?php echo $row['id']; ?>" class="checkBoxItem"></td>
@@ -272,9 +266,9 @@ include './config/sidebar.php';
                                             <td><?php echo htmlspecialchars($row['patient_name']); ?></td>
                                             <td><?php echo htmlspecialchars($row['cnic']); ?></td>
                                             <td><?php echo htmlspecialchars($row['phone_number']); ?></td>
-                                            <td><?php echo (!empty($row['created_at']) && $row['created_at'] != '0000-00-00 00:00:00') ? date("d/m/Y", strtotime($row['created_at'])) : ''; ?>
+                                            <td><?php echo (!empty($row['created_at']) && $row['created_at'] != '0000-00-00 00:00:00') ? date('d/m/Y', strtotime($row['created_at'])) : ''; ?>
                                             </td>
-                                            <td><?php echo (!empty($row['next_visit_date']) && $row['next_visit_date'] != '0000-00-00') ? date("d/m/Y", strtotime($row['next_visit_date'])) : 'NULL'; ?>
+                                            <td><?php echo (!empty($row['next_visit_date']) && $row['next_visit_date'] != '0000-00-00') ? date('d/m/Y', strtotime($row['next_visit_date'])) : 'NULL'; ?>
                                             </td>
                                             <td>
                                                 <button type="submit" name="send_sms" value="<?php echo $row['id']; ?>"
@@ -287,14 +281,43 @@ include './config/sidebar.php';
                                         <?php } ?>
                                     </tbody>
                                 </table>
+                                <?php if ($totalPages > 1): ?>
+                                <nav aria-label="Patients pagination">
+                                    <ul class="pagination justify-content-center mt-3">
+
+                                        <!-- Previous -->
+                                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                            <a class="page-link" href="?page=<?= $page - 1 ?>">«</a>
+                                        </li>
+
+                                        <?php
+                                        // hiển thị tối đa 5 trang quanh trang hiện tại
+                                        $start = max(1, $page - 5);
+                                        $end = min($totalPages, $page + 5);
+                                        ?>
+                                        <?php for ($i = $start; $i <= $end; $i++): ?>
+                                        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                        </li>
+                                        <?php endfor; ?>
+
+                                        <!-- Next -->
+                                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                            <a class="page-link" href="?page=<?= $page + 1 ?>">»</a>
+                                        </li>
+
+                                    </ul>
+
+                                    <div class="text-center text-muted small">
+                                        Trang <?= $page ?> / <?= $totalPages ?> (<?= $total ?> bệnh nhân)
+                                    </div>
+                                </nav>
+                                <?php endif; ?>
                                 <button type="submit" name="send_all_sms" class="btn btn-primary btn-sm">
                                     <i class="fa-solid fa-paper-plane"></i> Gửi tất cả
                                 </button>
 
                             </form>
-
-
-
                         </div>
                     </div>
                     <?php include './config/site_js_links.php'; ?>
@@ -330,13 +353,13 @@ include './config/sidebar.php';
                     });
                     </script>
 
-                    <?php 
-                        include './config/footer.php';
-                        $message = '';
-                        if (isset($_SESSION['success_message'])) {
-                            $message = $_SESSION['success_message'];
-                            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
-                        }
+                    <?php
+                    include './config/footer.php';
+                    $message = '';
+                    if (isset($_SESSION['success_message'])) {
+                        $message = $_SESSION['success_message'];
+                        unset($_SESSION['success_message']);  // Xóa ngay sau khi lấy để F5 không lặp lại
+                    }
                     ?>
                     <!-- /.control-sidebar -->
                     <script>
@@ -373,42 +396,6 @@ include './config/sidebar.php';
                     });
                     </script>
                 </div>
-                <!-- Pagination (giống users.php) -->
-                <?php if ($totalPages > 1): ?>
-                <div class="d-flex justify-content-between align-items-center mt-3"
-                    style="margin-left: 40px;margin-bottom: 50px;">
-
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination mb-0">
-                            <?php
-                                        $baseParams = $_GET;
-                                        $prev = max(1, $page - 1);
-                                        $baseParams['page'] = $prev;
-                                        $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                        ?>
-                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                            </li>
-                            <?php
-                                        for ($p = 1; $p <= $totalPages; $p++) {
-                                            $baseParams['page'] = $p;
-                                            $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                            $active = ($p == $page) ? 'active' : '';
-                                            echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
-                                        }
-                                        $next = min($totalPages, $page + 1);
-                                        $baseParams['page'] = $next;
-                                        $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                        ?>
-                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <?php endif; ?>
 </body>
 
 </html>
