@@ -119,29 +119,50 @@ if (isset($_POST['save_Patient'])) {
 
 
 try {
-$id = $_GET['id'];
-if(empty($id)) {
-  header("Location: patients.php");
-  exit;
-    
+    // Ưu tiên lấy id từ POST (khi click nút ở patients.php)
+    if (isset($_POST['id'])) {
+        $id = (int)$_POST['id'];
+    }
+    // Fallback: nếu ai đó vẫn truy cập kiểu GET cũ thì vẫn hoạt động
+    elseif (isset($_GET['id'])) {
+        $id = (int)$_GET['id'];
+    } else {
+        // Không có id -> quay về danh sách
+        header("Location: patients.php");
+        exit;
+    }
+
+    if (empty($id)) {
+        header("Location: patients.php");
+        exit;
+    }
+
+    $query = "SELECT `id`, `patient_name`, `address`,
+                     `cnic`,
+                     DATE_FORMAT(`date_of_birth`, '%m/%d/%Y') AS `date_of_birth`,
+                     `phone_number`, `gender`
+              FROM `patients`
+              WHERE `id` = :id";
+
+    $stmtPatient1 = $con->prepare($query);
+    $stmtPatient1->execute([':id' => $id]);
+    $row = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        // không tìm thấy bệnh nhân
+        header("Location: patients.php");
+        exit;
+    }
+
+    $gender = $row['gender'];
+    $dob    = $row['date_of_birth'];
+
+} catch (PDOException $ex) {
+    echo $ex->getMessage();
+    echo $ex->getTraceAsString();
+    exit;
 }
-$query = "SELECT `id`, `patient_name`, `address`, 
-`cnic`, date_format(`date_of_birth`, '%m/%d/%Y') as `date_of_birth`,  `phone_number`, `gender` 
-FROM `patients` where `id` = $id;";
 
-  $stmtPatient1 = $con->prepare($query);
-  $stmtPatient1->execute();
-  $row = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
-
-  $gender = $row['gender'];
-
-$dob = $row['date_of_birth']; 
-} catch(PDOException $ex) {
-
-  echo $ex->getMessage();
-  echo $ex->getTraceAsString();
-  exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">

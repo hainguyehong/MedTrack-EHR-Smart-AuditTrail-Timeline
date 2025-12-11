@@ -3,20 +3,8 @@ include './config/connection.php';
 include './common_service/common_functions.php';
 isLogin([1]); // Chỉ admin (1) được phép truy cập
 $message = '';
-$user_id = $_GET['user_id'];
 
-$query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `id` = :id";
 
-try {
-  $stmtUpdateUser = $con->prepare($query);
-  $stmtUpdateUser->bindParam(':id', $user_id, PDO::PARAM_INT);
-  $stmtUpdateUser->execute();
-  $row = $stmtUpdateUser->fetch(PDO::FETCH_ASSOC);
-} catch(PDOException $ex) {
-  echo $ex->getTraceAsString();
-  echo $ex->getMessage();
-  exit;
-}
 
 if (isset($_POST['save_user'])) {
     $displayName = trim($_POST['display_name']);
@@ -89,6 +77,27 @@ if (isset($_POST['save_user'])) {
 
     header("Location: users.php");
     exit();
+}
+try {
+    if (isset($_POST['user_id'])) {
+    $user_id = (int)$_POST['user_id'];
+} elseif (isset($_GET['user_id'])) { // fallback nếu ai tự gõ link
+    $user_id = (int)$_GET['user_id'];
+} else {
+    header('Location: users.php'); // trang danh sách user
+    exit;
+}
+
+
+$query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `id` = :id";
+  $stmtUpdateUser = $con->prepare($query);
+  $stmtUpdateUser->bindParam(':id', $user_id, PDO::PARAM_INT);
+  $stmtUpdateUser->execute();
+  $row = $stmtUpdateUser->fetch(PDO::FETCH_ASSOC);
+} catch(PDOException $ex) {
+  echo $ex->getTraceAsString();
+  echo $ex->getMessage();
+  exit;
 }
 
 

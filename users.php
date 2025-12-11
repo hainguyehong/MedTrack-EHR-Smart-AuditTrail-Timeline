@@ -309,15 +309,23 @@ $sn = $serialStart;
                                         <td class="px-2 py-1 align-middle"><?php echo $row['user_name'];?></td>
 
                                         <td class="px-2 py-1 align-middle text-center">
-                                            <a href="update_user.php?user_id=<?php echo $row['id']; ?>"
-                                                class="btn btn-primary btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="delete_user.php?user_id=<?php echo $row['id']; ?>"
-                                                class="btn btn-danger btn-sm">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
+                                            <!-- Nút sửa user -->
+                                            <form method="post" action="update_user.php" style="display:inline;">
+                                                <input type="hidden" name="user_id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                            </form>
+
+                                            <!-- Nút xóa user -->
+                                            <form method="post" action="delete_user.php" style="display:inline;">
+                                                <input type="hidden" name="user_id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
+
                                     </tr>
                                     <?php } } ?>
                                 </tbody>
@@ -440,6 +448,20 @@ $sn = $serialStart;
                 });
             }
 
+        });
+    });
+    $(document).ready(function() {
+        $('#all_users').DataTable({
+            paging: false,
+            info: false,
+            lengthChange: false,
+            searching: true,
+            ordering: false,
+            language: {
+                search: "Tìm kiếm tài khoản:",
+                zeroRecords: "Không tìm thấy tài khoản phù hợp",
+                emptyTable: "Không có dữ liệu"
+            }
         });
     });
     </script>

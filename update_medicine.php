@@ -87,11 +87,18 @@ if (isset($_POST['save_medicine'])) {
 }
 
 
-
-
 try {
 
- $id = $_GET['id'];
+    if (isset($_POST['id'])) {
+        $id = (int)$_POST['id'];
+    } elseif (isset($_GET['id'])) {
+        // fallback nếu ai đó truy cập thủ công bằng GET
+        $id = (int)$_GET['id'];
+    } else {
+        header('Location: medicines.php'); // trang danh sách thuốc
+        exit;
+    }
+
 	$query = "SELECT `id`, `medicine_name` from `medicines`
 	          where `id` = $id";
 	$stmt = $con->prepare($query);

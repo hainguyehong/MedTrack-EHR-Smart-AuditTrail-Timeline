@@ -8,45 +8,6 @@ if ($_SESSION['role'] != 1 && $_SESSION['role'] != 2) {
     die("Bạn không có quyền xoá bệnh nhân.");
 }
 $message = '';
-// if (isset($_POST['delete_Patient'])) {
-//   $id = $_POST['hidden_id'];
-// try {
-
-//   $con->beginTransaction();
-  
-//      // Soft delete bệnh nhân
-//         $query = "UPDATE `patients` SET `is_deleted` = 1 WHERE `id` = :id";
-//         $stmtPatient = $con->prepare($query);
-//         $stmtPatient->bindParam(':id', $id, PDO::PARAM_INT);
-//         $stmtPatient->execute();
-
-//         // Soft delete các lần khám của bệnh nhân
-//         $queryVisit = "UPDATE `patient_visits` SET `is_deleted` = 1 WHERE `patient_id` = :id";
-//         $stmtVisit = $con->prepare($queryVisit);
-//         $stmtVisit->bindParam(':id', $id, PDO::PARAM_INT);
-//         $stmtVisit->execute();
-        
-//         // Soft delete user bệnh nhân
-//         $queryUser = "UPDATE `user_patients` SET `is_deleted` = 1 WHERE `user_name` = :cnic";
-//         $stmtUser = $con->prepare($queryUser);
-//         $stmtUser->bindParam(':cnic', $cnic, PDO::PARAM_STR);
-//         $stmtUser->execute();
-
-//     $con->commit();
-//     // $message = 'Bệnh nhân đã được xoá (soft delete).';
-//     $_SESSION['success_message'] = 'Bệnh nhân đã được xoá (soft delete).';
-
-// } catch(PDOException $ex) {
-//   $con->rollback();
-
-//   echo $ex->getMessage();
-//   echo $ex->getTraceAsString();
-//   exit;
-// }
-
-//     header("Location: patients.php"); // quay về trang danh sách
-//     exit();
-// }
 if (isset($_POST['delete_Patient'])) {
     $id = $_POST['hidden_id'];
 
@@ -112,11 +73,24 @@ if (isset($_POST['delete_Patient'])) {
     exit();
 }
 
-
-
-
 try {
-$id = $_GET['id'];
+// Ưu tiên lấy id từ POST (khi click nút ở patients.php)
+    if (isset($_POST['id'])) {
+        $id = (int)$_POST['id'];
+    }
+    // Fallback: nếu ai đó vẫn truy cập kiểu GET cũ thì vẫn hoạt động
+    elseif (isset($_GET['id'])) {
+        $id = (int)$_GET['id'];
+    } else {
+        // Không có id -> quay về danh sách
+        header("Location: patients.php");
+        exit;
+    }
+
+    if (empty($id)) {
+        header("Location: patients.php");
+        exit;
+    }
 $query = "SELECT `id`, `patient_name`, `address`, 
 `cnic`, date_format(`date_of_birth`, '%m/%d/%Y') as `date_of_birth`,  `phone_number`, `gender` 
 FROM `patients` where `id` = $id;";

@@ -464,15 +464,23 @@ try {
                                         </td>
 
                                         <td>
-                                            <a href="update_patient.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-primary btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="delete_patient.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-danger btn-sm">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
+                                            <!-- Nút sửa: POST sang update_patient.php -->
+                                            <form method="post" action="update_patient.php" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                            </form>
+
+                                            <!-- Nút xóa: POST sang delete_patient.php -->
+                                            <form method="post" action="delete_patient.php" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
+
 
                                     </tr>
                                     <?php
@@ -713,6 +721,20 @@ try {
                     }
                 });
             }
+        });
+        $(document).ready(function() {
+            $('#all_patients').DataTable({
+                paging: false,
+                info: false,
+                lengthChange: false,
+                searching: true,
+                ordering: false,
+                language: {
+                    search: "Tìm kiếm bệnh nhân:",
+                    zeroRecords: "Không tìm thấy bệnh nhân phù hợp",
+                    emptyTable: "Không có dữ liệu"
+                }
+            });
         });
         </script>
 </body>

@@ -394,6 +394,20 @@ try {
                             alert("Vui lòng chọn ít nhất 1 bệnh nhân.");
                         }
                     });
+                    $(document).ready(function() {
+                        $('#all_patients').DataTable({
+                            paging: false,
+                            info: false,
+                            lengthChange: false,
+                            searching: true,
+                            ordering: false,
+                            language: {
+                                search: "Tìm kiếm bệnh nhân:",
+                                zeroRecords: "Không tìm thấy bệnh nhân phù hợp",
+                                emptyTable: "Không có dữ liệu"
+                            }
+                        });
+                    });
                     </script>
                 </div>
 </body>

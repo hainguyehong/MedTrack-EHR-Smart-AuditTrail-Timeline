@@ -241,23 +241,31 @@ include './config/sidebar.php';?>
 
                                 <tbody>
                                     <?php 
-          // STT bắt đầu theo trang
-          $serial = $offset + 1;
-          while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-           ?>
+                                    // STT bắt đầu theo trang
+                                    $serial = $offset + 1;
+                                    while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                    ?>
                                     <tr>
-                                        <td class="text-center"><?php echo $serial;?></td>
-                                        <td><?php echo $row['medicine_name'];?></td>
+                                        <td class="text-center"><?php echo $serial; ?></td>
+                                        <td><?php echo $row['medicine_name']; ?></td>
                                         <td class="text-center">
-                                            <a href="update_medicine.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-primary btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="delete_medicine.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-danger btn-sm">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
+                                            <!-- Nút sửa thuốc -->
+                                            <form method="post" action="update_medicine.php" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                            </form>
+
+                                            <!-- Nút xóa thuốc -->
+                                            <form method="post" action="delete_medicine.php" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
+
                                     </tr>
                                     <?php $serial++; } ?>
                                 </tbody>
@@ -365,6 +373,20 @@ include './config/sidebar.php';?>
                 });
             }
 
+        });
+    });
+    $(document).ready(function() {
+        $('#all_medicines').DataTable({
+            paging: false,
+            info: false,
+            lengthChange: false,
+            searching: true,
+            ordering: false,
+            language: {
+                search: "Tìm kiếm thuốc:",
+                zeroRecords: "Không tìm thấy thuốc phù hợp",
+                emptyTable: "Không có dữ liệu"
+            }
         });
     });
     </script>

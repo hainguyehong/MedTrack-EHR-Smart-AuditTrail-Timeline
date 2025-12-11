@@ -57,11 +57,19 @@ if (isset($_POST['delete_user'])) {
 }
 
 
-$user_id = $_GET['user_id'];
+try {
+    
+if (isset($_POST['user_id'])) {
+    $user_id = (int)$_POST['user_id'];
+} elseif (isset($_GET['user_id'])) { // fallback nếu ai tự gõ link
+    $user_id = (int)$_GET['user_id'];
+} else {
+    header('Location: users.php'); // trang danh sách user
+    exit;
+}
 
 $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `id` = :id ";
 
-try {
   $stmtUpdateUser = $con->prepare($query);
   $stmtUpdateUser->bindParam(':id', $user_id, PDO::PARAM_INT);
   $stmtUpdateUser->execute();
