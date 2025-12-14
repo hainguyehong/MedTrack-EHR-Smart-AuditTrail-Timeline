@@ -223,7 +223,7 @@ try {
             <section class="content">
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách Bệnh nhân</h3>
+                        <h3 class="card-title"> <i class="fa-solid fa-list mr-2"></i>DANH SÁCH BỆNH NHÂN</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">

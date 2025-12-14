@@ -4,6 +4,21 @@ include './common_service/common_functions.php';
 include './common_service/date.php';
 islogin([2]);
 $message = '';
+// ===== RESET TRẠNG THÁI KHI LOAD FORM KHÁM MỚI =====
+// if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+//     unset($_SESSION['last_visit_id']);
+//     unset($_SESSION['last_patient_id']);
+// }
+// reset CHỈ khi chọn bệnh nhân mới
+if (
+    $_SERVER['REQUEST_METHOD'] === 'GET' &&
+    isset($_GET['new_exam'])
+) {
+    unset($_SESSION['last_visit_id']);
+    unset($_SESSION['last_patient_id']);
+    unset($_SESSION['exam_old']);
+}
+
 
 // ====================== SAU KHI TÁCH 2 FORM ======================
 
@@ -25,11 +40,117 @@ if (isset($_POST['submit_exam'])) {
     $disease     = $_POST['disease'] ?? '';
 
     // bắt buộc chọn bệnh nhân
-    if (empty($patientId)) {
-        $_SESSION['error_message'] = 'Vui lòng chọn bệnh nhân trước khi lưu khám bệnh.';
+    // if (empty($patientId)) {
+    //     $_SESSION['error_message'] = 'Vui lòng chọn bệnh nhân trước khi lưu khám bệnh.';
+    //     header("Location: patients_visit.php");
+    //     exit();
+    // }
+    // ===== VALIDATE BACKEND BẮT BUỘC =====
+// ===== VALIDATE UPLOAD HÌNH ẢNH Y TẾ (ƯU TIÊN CAO) =====
+$allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+$maxSize = 2 * 1024 * 1024; // 2MB
+
+$uploadFiles = [
+    'ultrasound' => $_FILES['ultrasound'] ?? null,
+    'xray'       => $_FILES['xray'] ?? null
+];
+
+foreach ($uploadFiles as $file) {
+    if ($file && !empty($file['name'])) {
+
+        // kiểm tra định dạng
+        if (!in_array($file['type'], $allowedTypes)) {
+            $_SESSION['error_message'] =
+                "Vui lòng chọn file có định dạng ảnh như .JPEG, .PNG hoặc .JPG";
+            $_SESSION['exam_old'] = $_POST;
+            header("Location: patients_visit.php");
+            exit();
+        }
+
+        // kiểm tra kích thước
+        if ($file['size'] > $maxSize) {
+            $_SESSION['error_message'] =
+                "Vui lòng chọn file kích thước < 2MB!";
+            $_SESSION['exam_old'] = $_POST;
+            header("Location: patients_visit.php");
+            exit();
+        }
+    }
+}
+
+// ===== VALIDATE LOGIC NGÀY (ƯU TIÊN CAO NHẤT) =====
+$visit_date      = $_POST['visit_date'] ?? null;
+$next_visit_date = $_POST['next_visit_date'] ?? null;
+
+if (!empty($visit_date) && !empty($next_visit_date)) {
+    $visitDateObj = DateTime::createFromFormat('d/m/Y', $visit_date);
+    $nextDateObj  = DateTime::createFromFormat('d/m/Y', $next_visit_date);
+
+    if ($visitDateObj && $nextDateObj && $nextDateObj < $visitDateObj) {
+        $_SESSION['error_message'] = "Ngày tái khám không được nhỏ hơn ngày khám!";
+        $_SESSION['exam_old'] = $_POST;
         header("Location: patients_visit.php");
         exit();
     }
+}
+
+    $errors = [];
+// ===== VALIDATE CHỈ SỐ SINH HIỆU =====
+if ($weight <= 0) {
+    $_SESSION['error_message'] = "Cân nặng phải lớn hơn 0!";
+    $_SESSION['exam_old'] = $_POST;
+    header("Location: patients_visit.php");
+    exit();
+}
+
+if ($height <= 0) {
+    $_SESSION['error_message'] = "Chiều cao phải lớn hơn 0!";
+    $_SESSION['exam_old'] = $_POST;
+    header("Location: patients_visit.php");
+    exit();
+}
+
+if ($temperature < 34 || $temperature > 42) {
+    $_SESSION['error_message'] = "Nhiệt độ cơ thể không hợp lệ (34–42°C)!";
+    $_SESSION['exam_old'] = $_POST;
+    header("Location: patients_visit.php");
+    exit();
+}
+
+if ($pulse < 30 || $pulse > 200) {
+    $_SESSION['error_message'] = "Mạch đập không hợp lệ (30–200 bpm)!";
+    $_SESSION['exam_old'] = $_POST;
+    header("Location: patients_visit.php");
+    exit();
+}
+
+if ($heartRate < 30 || $heartRate > 200) {
+    $_SESSION['error_message'] = "Nhịp tim không hợp lệ (30–200 bpm)!";
+    $_SESSION['exam_old'] = $_POST;
+    header("Location: patients_visit.php");
+    exit();
+}
+
+
+if (empty($bp))          $errors[] = 1;
+if (empty($weight))      $errors[] = 1;
+if (empty($height))      $errors[] = 1;
+if (empty($temperature)) $errors[] = 1;
+if (empty($pulse))       $errors[] = 1;
+if (empty($heartRate))   $errors[] = 1;
+if (empty($tc))          $errors[] = 1;
+if (empty($cd))          $errors[] = 1;
+if (empty($bienphap))    $errors[] = 1;
+if (empty($disease))     $errors[] = 1;
+if ($nv === '')          $errors[] = 1;
+
+if (!empty($errors)) {
+    $_SESSION['error_message'] = "Vui lòng điền đầy đủ thông tin khám bệnh!";
+    $_SESSION['exam_old'] = $_POST;
+    header("Location: patients_visit.php");
+    exit();
+}
+
 
     // --- Xử lý ngày hẹn tái khám ---
     $next_visit_date = $_POST['next_visit_date'] ?? null;
@@ -535,8 +656,8 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Khám Bệnh</h1>
-                            <p class="text-muted">Hệ thống khám bệnh và kê đơn thuốc tích hợp</p>
+                            <!-- <h1>Khám Bệnh</h1>
+                            <p class="text-muted">Hệ thống khám bệnh và kê đơn thuốc tích hợp</p> -->
                         </div>
                     </div>
                 </div>
@@ -556,11 +677,21 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                         </li>
 
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="prescription-tab" data-bs-toggle="tab"
+                            <!-- <button class="nav-link" id="prescription-tab" data-bs-toggle="tab"
                                 data-bs-target="#prescription" type="button" role="tab" aria-controls="prescription"
                                 aria-selected="false">
                                 <i class="fas fa-pills me-2"></i>Kê đơn thuốc
+                            </button> -->
+                            <button class="nav-link"
+                                    id="prescription-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#prescription"
+                                    type="button"
+                                    role="tab"
+                                    <?php echo $examSaved ? '' : 'disabled'; ?>>
+                                <i class="fas fa-pills me-2"></i>Kê đơn thuốc
                             </button>
+
                         </li>
                     </ul>
 
@@ -576,17 +707,17 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
                                 <div class="row">
                                     <div class="col-lg-4 col-md-6 mb-3">
-                                        <label>Chọn bệnh nhân *</label>
-                                        <select id="patient" name="patient" class="form-control setupSelect2" required>
+                                        <label>Chọn bệnh nhân <span class="text-danger">*</span></label>
+                                        <select id="patient" name="patient" class="form-control setupSelect2" >
                                             <?php echo $patients; ?>
                                         </select>
                                     </div>
 
                                     <div class="col-lg-4 col-md-6 mb-3">
-                                        <label>Ngày khám *</label>
+                                        <label>Ngày khám <span class="text-danger">*</span></label>
                                         <div class="input-group date">
                                             <input type="text" class="form-control" name="visit_date"
-                                                id="visit_date_input" required autocomplete="off"
+                                                id="visit_date_input"  autocomplete="off"
                                                 value="<?= htmlspecialchars($old['visit_date'] ?? '') ?>">
                                             <span class="input-group-text bg-white calendar-btn" id="visit_date_btn">
                                                 <i class="fas fa-calendar-alt"></i>
@@ -595,7 +726,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                     </div>
 
                                     <div class="col-lg-4 col-md-6 mb-3">
-                                        <label>Ngày tái khám</label>
+                                        <label>Ngày tái khám <span class="text-danger">*</span></label>
                                         <div class="input-group date">
                                             <input type="text" class="form-control" name="next_visit_date"
                                                 id="next_visit_date_input" autocomplete="off"
@@ -612,43 +743,43 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                 <div class="info-row">
                                     <div class="row">
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                                            <label>Huyết áp (mmHg) *</label>
-                                            <input type="text" id="bp" class="form-control" name="bp" required
+                                            <label>Huyết áp (mmHg) <span class="text-danger">*</span></label>
+                                            <input type="text" id="bp" class="form-control" name="bp" 
                                                 placeholder="120/80"
                                                 value="<?= htmlspecialchars($old['bp'] ?? '') ?>" />
                                         </div>
 
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                                            <label>Cân nặng (kg) *</label>
+                                            <label>Cân nặng (kg) <span class="text-danger">*</span></label>
                                             <input type="number" id="weight" name="weight" class="form-control"
-                                                placeholder="50" required step="0.1"
+                                                placeholder="50"  step="0.1"
                                                 value="<?= htmlspecialchars($old['weight'] ?? '') ?>" />
                                         </div>
 
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                                            <label>Chiều cao (cm) *</label>
+                                            <label>Chiều cao (cm) <span class="text-danger">*</span></label>
                                             <input type="number" id="height" name="height" class="form-control"
-                                                placeholder="170" required
+                                                placeholder="170" 
                                                 value="<?= htmlspecialchars($old['height'] ?? '') ?>" />
                                         </div>
 
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                                            <label>Nhiệt độ (°C) *</label>
+                                            <label>Nhiệt độ (°C) <span class="text-danger">*</span></label>
                                             <input type="number" id="temperature" name="temperature"
-                                                class="form-control" required step="0.1" placeholder="36.5"
+                                                class="form-control"  step="0.1" placeholder="36.5"
                                                 value="<?= htmlspecialchars($old['temperature'] ?? '') ?>" />
                                         </div>
 
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                                            <label>Mạch đập (bpm) *</label>
-                                            <input type="number" id="pulse" name="pulse" class="form-control" required
+                                            <label>Mạch đập (bpm) <span class="text-danger">*</span></label>
+                                            <input type="number" id="pulse" name="pulse" class="form-control" 
                                                 placeholder="70" value="<?= htmlspecialchars($old['pulse'] ?? '') ?>" />
                                         </div>
 
                                         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                                            <label>Nhịp tim (bpm) *</label>
+                                            <label>Nhịp tim (bpm) <span class="text-danger">*</span></label>
                                             <input type="number" id="heart_rate" name="heart_rate" class="form-control"
-                                                required placeholder="70"
+                                                 placeholder="70"
                                                 value="<?= htmlspecialchars($old['heart_rate'] ?? '') ?>" />
                                         </div>
                                     </div>
@@ -706,35 +837,35 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
                                 <div class="row">
                                     <div class="col-lg-6 mb-3">
-                                        <label>Triệu chứng *</label>
-                                        <textarea id="trieuchung" class="form-control" name="tc" required rows="4"
+                                        <label>Triệu chứng <span class="text-danger">*</span></label>
+                                        <textarea id="trieuchung" class="form-control" name="tc"  rows="4"
                                             placeholder="Mô tả triệu chứng của bệnh nhân..."><?= htmlspecialchars($old['tc'] ?? '') ?></textarea>
                                     </div>
 
                                     <div class="col-lg-6 mb-3">
-                                        <label>Tiền sử bệnh *</label>
-                                        <textarea id="disease" class="form-control" name="disease" required rows="4"
+                                        <label>Tiền sử bệnh <span class="text-danger">*</span></label>
+                                        <textarea id="disease" class="form-control" name="disease"  rows="4"
                                             placeholder="Tiền sử bệnh của bệnh nhân..."><?= htmlspecialchars($old['disease'] ?? '') ?></textarea>
 
                                     </div>
 
                                     <div class="col-lg-6 mb-3">
-                                        <label>Chuẩn đoán *</label>
-                                        <textarea id="chuandoan" class="form-control" name="cd" required rows="4"
+                                        <label>Chuẩn đoán <span class="text-danger">*</span></label>
+                                        <textarea id="chuandoan" class="form-control" name="cd"  rows="4"
                                             placeholder="Kết quả chẩn đoán..."><?= htmlspecialchars($old['cd'] ?? '') ?></textarea>
                                     </div>
 
                                     <div class="col-lg-6 mb-3">
-                                        <label>Biện pháp xử lý *</label>
-                                        <textarea id="bienphap" class="form-control" name="bienphap" required rows="4"
+                                        <label>Biện pháp xử lý <span class="text-danger">*</span></label>
+                                        <textarea id="bienphap" class="form-control" name="bienphap"  rows="4"
                                             placeholder="Phương pháp điều trị..."><?= htmlspecialchars($old['bienphap'] ?? '') ?></textarea>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-lg-4 mb-3">
-                                        <label>Yêu cầu nhập viện *</label>
-                                        <select class="form-control" id="nv" name="nv" required>
+                                        <label>Yêu cầu nhập viện <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="nv" name="nv" >
                                             <?php echo $nvOptions; ?>
                                         </select>
                                     </div>
@@ -747,9 +878,16 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                     </button>
 
 
-                                    <button type="button" class="btn btn-next ms-2" id="nextToMedicine">
+                                    <!-- <button type="button" class="btn btn-next ms-2" id="nextToMedicine" disabled>
+                                        Tiếp theo: Kê đơn thuốc <i class="fas fa-arrow-right ms-2"></i>
+                                    </button> -->
+                                    <button type="button"
+                                            class="btn btn-next ms-2"
+                                            id="nextToMedicine"
+                                            <?php echo $examSaved ? '' : 'disabled'; ?>>
                                         Tiếp theo: Kê đơn thuốc <i class="fas fa-arrow-right ms-2"></i>
                                     </button>
+
                                 </div>
 
                             </form>
@@ -765,7 +903,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                 <h5 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> Kê đơn thuốc
                                 </h5>
 
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-lg-3 col-md-4 mb-3">
                                         <label>Chọn loại thuốc</label>
                                         <select id="medicine" class="form-control setupSelect3" name="medicine">
@@ -782,7 +920,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
                                     <div class="col-lg-2 col-md-3 mb-3">
                                         <label>Liều dùng</label>
-                                        <input id="dosage" class="form-control" name="dosage"
+                                        <input id="dosage" class="form-control" name="dosage" type="number"
                                             placeholder="2 viên/ngày" />
                                     </div>
 
@@ -797,7 +935,59 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                             <i class="fa fa-plus"></i> Thêm
                                         </button>
                                     </div>
+                                </div> -->
+                                <!-- ===== FORM NHẬP THUỐC ===== -->
+
+                                <!-- DÒNG 1 -->
+                                <div class="row">
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Chọn loại thuốc</label>
+                                        <select id="medicine" class="form-control setupSelect3" name="medicine">
+                                            <option value="">-- Chọn thuốc --</option>
+                                            <?php echo $medicines; ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Số lượng</label>
+                                        <input id="quantity"
+                                            class="form-control"
+                                            name="quantity"
+                                            type="number"
+                                            min="1"
+                                            placeholder="Ví dụ: 10" />
+                                    </div>
                                 </div>
+
+                                <!-- DÒNG 2 -->
+                                <div class="row">
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Liều dùng</label>
+                                        <input id="dosage"
+                                            class="form-control"
+                                            name="dosage"
+                                            type="number"
+                                            placeholder="Ví dụ: 2" />
+                                    </div>
+
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Ghi chú</label>
+                                        <input id="note"
+                                            name="note"
+                                            class="form-control"
+                                            placeholder="Ví dụ: Sau ăn" />
+                                    </div>
+                                </div>
+
+                                <!-- NÚT THÊM -->
+                                <div class="text-center mt-3">
+                                    <button id="add_to_list"
+                                            type="button"
+                                            class="btn btn-primary px-5">
+                                        <i class="fa fa-plus me-2"></i> Thêm thuốc
+                                    </button>
+                                </div>
+
 
                                 <div class="mt-4">
                                     <h6 class="mb-3">Danh sách thuốc đã kê</h6>
@@ -918,6 +1108,8 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
     if (message !== '') {
         showCustomMessage(message, messageType);
     }
+    
+    
 
 
     $(document).ready(function() {
@@ -946,6 +1138,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
             tab.show();
         });
 
+
         $("#backToExam").on("click", function(e) {
             e.preventDefault();
             let tab = new bootstrap.Tab(document.querySelector('#exam-tab'));
@@ -954,76 +1147,199 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
 
         // Add medication to list
-        $("#add_to_list").click(function() {
-            var medicineId = $("#medicine").val();
-            var medicineName = $("#medicine option:selected").text();
-            var note = $("#note").val().trim();
-            var quantity = $("#quantity").val().trim();
-            var dosage = $("#dosage").val().trim();
+        // $("#add_to_list").click(function() {
+        //     var medicineId = $("#medicine").val();
+        //     var medicineName = $("#medicine option:selected").text();
+        //     var note = $("#note").val().trim();
+        //     var quantity = $("#quantity").val().trim();
+        //     var dosage = $("#dosage").val().trim();
 
-            if (!medicineId) return showCustomMessage("Bạn chưa chọn thuốc!", "warning");
-            if (!quantity) return showCustomMessage("Bạn chưa nhập số lượng!", "warning");
-            if (!dosage) return showCustomMessage("Bạn chưa nhập liều dùng!", "warning");
+        //     if (!medicineId) return showCustomMessage("Bạn chưa chọn thuốc!", "warning");
+        //     if (!quantity) return showCustomMessage("Bạn chưa nhập số lượng!", "warning");
+        //     if (!dosage) return showCustomMessage("Bạn chưa nhập liều dùng!", "warning");
 
-            // Clear the "no medicine" message if it exists
-            if ($("#current_medicines_list tr").length == 1 && $("#current_medicines_list td").attr(
-                    'colspan')) {
-                $("#current_medicines_list").empty();
-            }
 
-            var inputs = '';
-            inputs += '<input type="hidden" name="medicineIds[]" value="' + medicineId + '" />';
-            inputs += '<input type="hidden" name="notes[]" value="' + note + '" />';
-            inputs += '<input type="hidden" name="quantities[]" value="' + quantity + '" />';
-            inputs += '<input type="hidden" name="dosages[]" value="' + dosage + '" />';
+        //     if ($("#current_medicines_list tr").length == 1 && $("#current_medicines_list td").attr(
+        //             'colspan')) {
+        //         $("#current_medicines_list").empty();
+        //     }
 
-            var tr = '<tr>';
-            tr += '<td class="text-center">' + serial + '</td>';
-            tr += '<td>' + medicineName + '</td>';
-            tr += '<td class="text-center">' + quantity + '</td>';
-            tr += '<td>' + dosage + inputs + '</td>';
-            tr += '<td>' + note + '</td>';
-            tr += '<td class="text-center">';
-            tr +=
-                '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteCurrentRow(this);">';
-            tr += '<i class="fa fa-times"></i></button></td>';
-            tr += '</tr>';
+        //     var inputs = '';
+        //     inputs += '<input type="hidden" name="medicineIds[]" value="' + medicineId + '" />';
+        //     inputs += '<input type="hidden" name="notes[]" value="' + note + '" />';
+        //     inputs += '<input type="hidden" name="quantities[]" value="' + quantity + '" />';
+        //     inputs += '<input type="hidden" name="dosages[]" value="' + dosage + '" />';
 
-            $("#current_medicines_list").append(tr);
-            serial++;
+        //     var tr = '<tr>';
+        //     tr += '<td class="text-center">' + serial + '</td>';
+        //     tr += '<td>' + medicineName + '</td>';
+        //     tr += '<td class="text-center">' + quantity + '</td>';
+        //     tr += '<td>' + dosage + inputs + '</td>';
+        //     tr += '<td>' + note + '</td>';
+        //     tr += '<td class="text-center">';
+        //     tr +=
+        //         '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteCurrentRow(this);">';
+        //     tr += '<i class="fa fa-times"></i></button></td>';
+        //     tr += '</tr>';
 
-            $("#medicine").val('');
-            $("#note").val('');
-            $("#quantity").val('');
-            $("#dosage").val('');
+        //     $("#current_medicines_list").append(tr);
+        //     serial++;
 
-            showCustomMessage("Đã thêm thuốc vào đơn!", "success");
-        });
+        //     $("#medicine").val('');
+        //     $("#note").val('');
+        //     $("#quantity").val('');
+        //     $("#dosage").val('');
+
+        //     showCustomMessage("Đã thêm thuốc vào đơn!", "success");
+        // });
+        $("#add_to_list").click(function () {
+
+    var medicineId = $("#medicine").val();
+    var medicineName = $("#medicine option:selected").text();
+    var quantity = $("#quantity").val().trim();
+    var dosage = $("#dosage").val().trim();
+    var note = $("#note").val().trim();
+    var dosageDisplay = dosage + " viên/ngày";
+
+
+    // ===== 1. VALIDATE RỖNG – CHỈ 1 CÂU =====
+    if (!medicineId || !quantity || !dosage) {
+        return showCustomMessage(
+            "Vui lòng điền đầy đủ thông tin thuốc!",
+            "error"
+        );
+    }
+
+    // ===== 2. VALIDATE SỐ LƯỢNG =====
+    if (isNaN(quantity) || Number(quantity) <= 0) {
+        return showCustomMessage(
+            "Số lượng thuốc phải là số lớn hơn 0!",
+            "error"
+        );
+    }
+
+    if (isNaN(dosage) || Number(dosage) <= 0) {
+        return showCustomMessage(
+            "Liều dùng phải là số lớn hơn 0!",
+            "error"
+        );
+    }
+
+
+    // không cho ký tự đặc biệt
+    if (!/^\d+$/.test(quantity)) {
+        return showCustomMessage(
+            "Số lượng thuốc không được chứa ký tự đặc biệt!",
+            "error"
+        );
+    }
+
+    // ===== 3. VALIDATE LIỀU DÙNG =====
+    // cho phép chữ, số, /, khoảng trắng
+    if (!/^[\w\s\/\-\.]+$/.test(dosage)) {
+        return showCustomMessage(
+            "Liều dùng không được chứa ký tự đặc biệt!",
+            "error"
+        );
+    }
+
+    // ===== 4. THÊM THUỐC (GIỮ NGUYÊN CODE CŨ) =====
+    if ($("#current_medicines_list tr").length == 1 &&
+        $("#current_medicines_list td").attr('colspan')) {
+        $("#current_medicines_list").empty();
+    }
+
+    var inputs = '';
+    inputs += '<input type="hidden" name="medicineIds[]" value="' + medicineId + '" />';
+    inputs += '<input type="hidden" name="quantities[]" value="' + quantity + '" />';
+    inputs += '<input type="hidden" name="dosages[]" value="' + dosage + '" />';
+    inputs += '<input type="hidden" name="notes[]" value="' + note + '" />';
+
+    var tr = `
+        <tr>
+            <td class="text-center">${serial}</td>
+            <td>${medicineName}</td>
+            <td class="text-center">${quantity}</td>
+            <td>${dosageDisplay}${inputs}</td>
+
+            <td>${note}</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                    onclick="deleteCurrentRow(this)">
+                    <i class="fa fa-times"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+    $("#current_medicines_list").append(tr);
+    serial++;
+
+    $("#medicine").val('');
+    $("#quantity").val('');
+    $("#dosage").val('');
+    $("#note").val('');
+
+    showCustomMessage("Đã thêm thuốc vào đơn!", "success");
+});
+
+        
 
 
 
         // Form validation
-        $('#examForm').on('submit', function(e) {
-            var hasError = false;
-            var errorMsg = '';
+        $('#examForm').on('submit', function (e) {
 
-            // Check if patient is selected
-            if (!$('#patient').val()) {
-                hasError = true;
-                errorMsg += 'Vui lòng chọn bệnh nhân\n';
-            }
+    // lấy giá trị
+    const weight = parseFloat($('#weight').val());
+    const height = parseFloat($('#height').val());
+    const temperature = parseFloat($('#temperature').val());
+    const pulse = parseInt($('#pulse').val());
+    const heartRate = parseInt($('#heart_rate').val());
 
-            // Check required fields in exam tab
-            var requiredFields = ['bp', 'weight', 'height', 'temperature', 'pulse', 'heart_rate', 'tc',
-                'cd', 'bienphap', 'disease', 'nv'
-            ];
-            requiredFields.forEach(function(field) {
-                if (!$('#' + field).val().trim()) {
-                    hasError = true;
-                    errorMsg += 'Vui lòng điền đầy đủ thông tin khám bệnh\n';
-                    return false;
-                }
-            });
+    // ===== ƯU TIÊN VALIDATE CHỈ SỐ TRƯỚC =====
+    if (weight <= 0) {
+        e.preventDefault();
+        return showCustomMessage("Cân nặng phải lớn hơn 0!", "error");
+    }
+
+    if (height <= 0) {
+        e.preventDefault();
+        return showCustomMessage("Chiều cao phải lớn hơn 0!", "error");
+    }
+
+    if (temperature < 34 || temperature > 42) {
+        e.preventDefault();
+        return showCustomMessage("Nhiệt độ cơ thể không hợp lệ (34–42°C)!", "error");
+    }
+
+    if (pulse < 30 || pulse > 200) {
+        e.preventDefault();
+        return showCustomMessage("Mạch đập không hợp lệ (30–200 bpm)!", "error");
+    }
+
+    if (heartRate < 30 || heartRate > 200) {
+        e.preventDefault();
+        return showCustomMessage("Nhịp tim không hợp lệ (30–200 bpm)!", "error");
+    }
+
+    // ===== SAU CÙNG MỚI CHECK RỖNG =====
+    const requiredFields = [
+        'bp','weight','height','temperature',
+        'pulse','heart_rate','tc','cd','bienphap','disease','nv'
+    ];
+
+    for (let field of requiredFields) {
+        if (!$('#' + field).val().trim()) {
+            e.preventDefault();
+            return showCustomMessage(
+                "Vui lòng điền đầy đủ thông tin khám bệnh!",
+                "error"
+            );
+        }
+    }
+});
+
 
             if (hasError) {
                 e.preventDefault();
@@ -1031,7 +1347,6 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                 $('#exam-tab').click(); // Switch to exam tab to show errors
             }
         });
-    });
 
     function deleteCurrentRow(btn) {
         // nếu có Swal thì confirm đẹp
@@ -1113,11 +1428,26 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                 const file = this.files && this.files[0];
                 if (!file) return;
 
-                if (!file.type.startsWith("image/")) {
-                    alert("Vui lòng chọn file ảnh!");
+                // if (!file.type.startsWith("image/")) {
+                //     alert("Vui lòng chọn file ảnh!");
+                //     this.value = "";
+                //     return;
+                // }
+                const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+
+                if (!allowedTypes.includes(file.type)) {
+                    showCustomMessage("Vui lòng chọn file có định dạng ảnh như .JPEG, .PNG hoặc .JPG", "error");
                     this.value = "";
                     return;
                 }
+
+                if (file.size > maxSize) {
+                    showCustomMessage("Vui lòng chọn file kích thước < 2MB!", "error");
+                    this.value = "";
+                    return;
+                }
+
 
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -1165,6 +1495,8 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                 .html('<i class="fas fa-check me-2"></i> Đã lưu khám bệnh');
         }
     });
+
+    
     </script>
 
 

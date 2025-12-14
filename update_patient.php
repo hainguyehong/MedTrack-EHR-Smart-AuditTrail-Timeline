@@ -247,7 +247,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Bệnh Nhân</h1>
+                            <!-- <h1>Bệnh Nhân</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -260,12 +260,8 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path
-                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
-                            </svg>
-                            Chỉnh sửa thông tin bệnh nhân
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            CHỈNH SỬA THÔNG TIN BỆNH NHÂN
                         </h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -278,7 +274,7 @@ include './config/sidebar.php';?>
                             <input type="hidden" name="hidden_id" value="<?php echo $row['id'];?>">
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên bệnh nhân</label>
+                                    <label>Tên bệnh nhân <span class="text-danger">*</span></label>
                                     <input type="text" id="patient_name" name="patient_name" required="required"
                                         class="form-control form-control-sm"
                                         value="<?php echo $row['patient_name'];?>" />
@@ -287,18 +283,18 @@ include './config/sidebar.php';?>
                                 <br>
                                 <br>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Địa chỉ</label>
+                                    <label>Địa chỉ <span class="text-danger">*</span></label>
                                     <input type="text" id="address" name="address" required="required"
                                         class="form-control form-control-sm" value="<?php echo $row['address'];?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>CCCD</label>
+                                    <label>CCCD <span class="text-danger">*</span></label>
                                     <input type="text" id="cnic" name="cnic" required="required"
                                         class="form-control form-control-sm" value="<?php echo $row['cnic'];?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
                                     <div class="form-group">
-                                        <label>Ngày sinh</label>
+                                        <label>Ngày sinh <span class="text-danger">*</span></label>
                                         <div class="input-group date" id="date_of_birth" data-target-input="nearest">
                                             <input type="text" class="form-control form-control-sm datetimepicker-input"
                                                 data-target="#date_of_birth" name="date_of_birth"
@@ -312,26 +308,38 @@ include './config/sidebar.php';?>
                                     </div>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Số điện thoại</label>
+                                    <label>Số điện thoại <span class="text-danger">*</span></label>
                                     <input type="text" id="phone_number" name="phone_number" required="required"
                                         class="form-control form-control-sm"
                                         value="<?php echo $row['phone_number'];?>" />
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Giới tính</label>
+                                    <label>Giới tính <span class="text-danger">*</span></label>
                                     <select class="form-control form-control-sm" id="gender" name="gender" required>
                                         <?php echo getGender($gender);?>
                                     </select>
                                 </div>
                             </div>
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
+                            <!-- <div class="clearfix">&nbsp;</div> -->
+                            <!-- <div class="row">
                                 <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
                                     <button type="submit" id="save_Patient" name="save_Patient"
                                         class="btn btn-primary btn-sm btn-block">Cập nhật</button>
                                 </div>
+                            </div> -->
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+                                    <button type="submit"
+                                            id="save_Patient"
+                                            name="save_Patient"
+                                            class="btn btn-primary btn-sm px-3">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>
+                                        Cập nhật
+                                    </button>
+                                </div>
                             </div>
+
                         </form>
                     </div>
                 </div>

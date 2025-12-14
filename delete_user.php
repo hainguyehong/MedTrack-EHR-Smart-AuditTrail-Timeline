@@ -177,7 +177,7 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fa-solid fa-user-slash"></i>
+                            <i class="fa-solid fa-user-slash mr-2"></i>
                             XÓA NGƯỜI DÙNG
                         </h3>
                         <div class="card-tools">
@@ -229,7 +229,7 @@ include './config/sidebar.php';?>
                                     class="btn btn-danger btn-sm px-4"
                                     data-toggle="modal"
                                     data-target="#confirmDeleteModal">
-                                    <i class="fa-solid fa-trash me-1"></i> XOÁ
+                                    <i class="fa-solid fa-trash mr-1"></i> XOÁ
                                 </button>
                             </div>
                         </form>
@@ -306,14 +306,14 @@ include './config/sidebar.php';?>
                     <button type="button"
                         class="btn btn-secondary btn-sm px-3"
                         data-dismiss="modal">
-                        <i class="fa-solid fa-xmark me-3"></i>HỦY
+                        <i class="fa-solid fa-xmark mr-1"></i>HỦY
                     </button>
 
                     <button type="submit"
                         form="deleteForm"
                         name="delete_user"
                         class="btn btn-danger btn-sm px-3"> 
-                        <i class="fa-solid fa-trash-can me-3"></i>XÓA
+                        <i class="fa-solid fa-trash-can mr-1"></i>XÓA
                     </button>
                 </div>
             </div>

@@ -125,12 +125,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
 
     }
 
-    .form-control,
-    .form-select {
-
-        /* border-radius: 8px; */
-
-    }
 
     .card-title {
 
@@ -195,7 +189,7 @@ include './config/sidebar.php';
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Bệnh Nhân</h1>
+                            <!-- <h1>Bệnh Nhân</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -209,7 +203,7 @@ include './config/sidebar.php';
                 <div class="card card-outline card-primary shadow">
 
                     <div class="card-header">
-                        <h3 class="card-title">Thông tin bệnh nhân</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-circle-info mr-2"></i>THÔNG TIN BỆNH NHÂN</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
@@ -219,62 +213,57 @@ include './config/sidebar.php';
                     </div>
                     <div class="card-body">
                         <form method="post">
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                    <label>Chọn bệnh nhân</label>
+
+                            <!-- ===== HÀNG 1: CHỌN BỆNH NHÂN (CĂN GIỮA) ===== -->
+                            <div class="row mb-4 justify-content-center">
+                                <div class="col-md-4">
+                                    <label class="text-center d-block">Chọn bệnh nhân <span class="text-danger">*</span></label>
                                     <select id="patient" name="patient"
-                                        class="form-control form-control-sm rounded-0 setupSelect2">
+                                        class="form-control setupSelect2">
                                         <?php echo getPatients($con); ?>
                                     </select>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                            </div>
+
+
+                            <!-- ===== HÀNG 2: 3 TRƯỜNG ===== -->
+                            <div class="row mb-3">
+                                <div class="col-md-4">
                                     <label>Tên bệnh nhân</label>
                                     <input type="text" id="patient_name" readonly class="form-control" />
                                 </div>
-                                <br>
-                                <br>
-                                <br>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Địa chỉ</label>
-                                    <input type="text" id="address" readonly class="form-control" />
 
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                <div class="col-md-4">
                                     <label>CCCD</label>
                                     <input type="text" id="cnic" readonly class="form-control" />
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <div class="form-group">
-                                        <label>Ngày sinh</label>
-                                        <div class="input-group date">
-                                            <input type="text" id="date_of_birth" readonly class="form-control" />
-                                            <!-- <div class="input-group-append" data-target="#date_of_birth"
-                                                data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div> -->
-                                        </div>
 
-                                    </div>
+                                <div class="col-md-4">
+                                    <label>Ngày sinh</label>
+                                    <input type="text" id="date_of_birth" readonly class="form-control" />
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                            </div>
+
+                            <!-- ===== HÀNG 3: 3 TRƯỜNG ===== -->
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label>Địa chỉ</label>
+                                    <input type="text" id="address" readonly class="form-control" />
+                                </div>
+
+                                <div class="col-md-4">
                                     <label>Số điện thoại</label>
                                     <input type="text" id="phone_number" readonly class="form-control" />
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+
+                                <div class="col-md-4">
                                     <label>Giới tính</label>
                                     <input type="text" id="gender" readonly class="form-control" />
-
                                 </div>
                             </div>
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-                                <!-- <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
-                                    <button type="submit" id="save_Patient" name="save_Patient"
-                                        class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
-                                </div> -->
-                            </div>
+
                         </form>
+
                     </div>
                 </div>
             </section>
@@ -289,7 +278,7 @@ include './config/sidebar.php';
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách đơn thuốc</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-list mr-2"></i>DANH SÁCH ĐƠN THUỐC</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -306,11 +295,7 @@ include './config/sidebar.php';
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
-
-
                                         <th>Lần khám</th>
-
-
                                         <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>

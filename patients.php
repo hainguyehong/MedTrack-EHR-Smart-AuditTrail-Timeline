@@ -272,8 +272,8 @@ try {
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>BỆNH NHÂN</h1>
-                            <h7>Quản lý thông tin bệnh nhân và hồ sơ y tế</h7>
+                            <!-- <h1>BỆNH NHÂN</h1>
+                            <h7>Quản lý thông tin bệnh nhân và hồ sơ y tế</h7> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -388,15 +388,24 @@ try {
                                 </div>
                             </div>
 
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
+                            <!-- <div class="clearfix">&nbsp;</div> -->
+                            <!-- <div class="row">
                                 <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
                                     <button type="submit" id="save_Patient" name="save_Patient"
                                         class="btn btn-primary btn-sm btn-block"><i
                                             class="fa-solid fa-floppy-disk"></i>Lưu</button>
                                 </div>
+                            </div> -->
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+                                    <button type="submit" id="save_Patient" name="save_Patient"
+                                        class="btn btn-primary btn-sm px-3">
+                                        <i class="fa-solid fa-floppy-disk"></i>LƯU
+                                    </button>
+                                </div>
                             </div>
+
                         </form>
                         <!-- END FORM -->
                     </div>

@@ -169,7 +169,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Thêm mới Loại thuốc</h1>
+                            <!-- <h1>Thêm mới Loại thuốc</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -180,7 +180,7 @@ include './config/sidebar.php';?>
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Thêm mới Loại thuốc</h3>
+                        <h3 class="card-title"> <i class="fa-solid fa-book-medical mr-2"></i>THÊM MỚI LOẠI THUỐC</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
@@ -191,15 +191,15 @@ include './config/sidebar.php';?>
                         <form method="post">
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên thuốc</label>
-                                    <input type="text" id="medicine_name" name="medicine_name" required="required"
+                                    <label>Tên thuốc <span class="text-danger">*</span></label>
+                                    <input type="text" id="medicine_name" name="medicine_name"
                                         class="form-control form-control-sm" />
                                 </div>
 
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
-                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block"> <i class="fa-solid fa-book-medical mr-2"></i>Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -212,7 +212,7 @@ include './config/sidebar.php';?>
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách loại thuốc</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-list mr-2"></i>DANH SÁCH LOẠI THUỐC</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -232,10 +232,11 @@ include './config/sidebar.php';?>
                                     <col width="10%">
                                 </colgroup>
 
-                                <thead <tr>
-                                    <th class="text-center">STT</th>
-                                    <th>Tên thuốc</th>
-                                    <th class="text-center">Hành động</th>
+                                <thead 
+                                    <tr>
+                                        <th class="text-center">STT</th>
+                                        <th>Tên thuốc</th>
+                                        <th class="text-center">Hành động</th>
                                     </tr>
                                 </thead>
 

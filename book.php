@@ -6,6 +6,28 @@ islogin([3]);  // chỉ cho bệnh nhân (3) truy cập
 $message = '';
 
 if (isset($_POST['submit'])) {
+    // ===== VALIDATE ĐẶT LỊCH KHÁM =====
+$errors = [];
+
+if (empty($_POST['visit_date'])) $errors[] = 1;
+if (empty($_POST['time_visit'])) $errors[] = 1;
+if (empty($_POST['tc']))         $errors[] = 1;
+if (empty($_POST['nd']))         $errors[] = 1;
+
+// kiểm tra ngày
+if (!empty($_POST['visit_date'])) {
+    $date = DateTime::createFromFormat('d/m/Y', $_POST['visit_date']);
+    if (!$date || $date->format('Y-m-d') < date('Y-m-d')) {
+        $errors[] = 1;
+    }
+}
+
+if (!empty($errors)) {
+    $_SESSION['error_message'] = 'Vui lòng nhập đầy đủ và đúng thông tin đặt lịch khám';
+    header('Location: book.php');
+    exit();
+}
+
     $patientId = $_SESSION['user_id'];
 
     $tc = $_POST['tc'];
@@ -401,7 +423,7 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
                                         <label>Ngày khám *</label>
                                         <div class="input-group date" id="visit_date" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#visit_date" name="visit_date" required
+                                                data-target="#visit_date" name="visit_date"
                                                 data-toggle="datetimepicker" autocomplete="off"
                                                 value="<?php echo date('d/m/Y H:i'); ?>" />
                                             <div class="input-group-append" data-target="#visit_date"
@@ -412,7 +434,7 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <div class="col-lg-4 col-md-6 mb-3">
                                         <label>Giờ khám</label>
-                                        <select name="time_visit" class="form-control" required>
+                                        <select name="time_visit" class="form-control">
                                             <?php echo getTime(); ?>
                                         </select>
                                     </div>
@@ -541,6 +563,7 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
     <!--                         <?php include './config/site_js_links.php'; ?> -->
     <script src="plugins/moment/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="plugins/daterangepicker/daterangepicker.js"></script>
     <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -587,21 +610,100 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
         locale: 'vi'
     });
 
-    function deleteBooking(id) {
-        if (confirm('Bạn có chắc chắn muốn xóa lịch khám này không?')) {
-            fetch('book.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'save=1&id=' + id
-            }).then(res => location.reload());
+  
+    function deleteBooking(id, btn) {
+        if (typeof Swal === "function") {
+            Swal.fire({
+                title: "Xác nhận xóa",
+                text: "Bạn có chắc chắn muốn xóa lịch khám này không?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Xóa",
+                cancelButtonText: "Hủy",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Gửi request xóa đến server
+                    fetch('book.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'save=1&id=' + id
+                    })
+                    .then(res => res.text())
+                    .then(() => {
+                        // Xóa dòng khỏi bảng
+                        $(btn).closest('tr').remove();
+
+                        // Kiểm tra nếu không còn lịch
+                        if ($("#current_medicines_list tr").length === 0) {
+                            $("#current_medicines_list").html(
+                                '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có lịch khám nào được đặt.</td></tr>'
+                            );
+                        }
+
+                        Swal.fire(
+                            "Đã xóa!",
+                            "Lịch khám đã được xóa.",
+                            "success"
+                        );
+                    })
+                    .catch(err => {
+                        Swal.fire("Lỗi", "Xảy ra lỗi khi xóa: " + err, "error");
+                    });
+                }
+            });
+            return;
         }
+
+    // fallback nếu không có Swal
+    if (confirm('Bạn có chắc chắn muốn xóa lịch khám này không?')) {
+        fetch('book.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'save=1&id=' + id
+        }).then(res => location.reload());
     }
+}
+
+
+    
     </script>
 
     <!-- Bootstrap icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script>
+document.getElementById("medicalForm").addEventListener("submit", function (e) {
+    // lấy dữ liệu
+    const visitDateStr = document.querySelector("input[name='visit_date']").value.trim();
+    const timeVisit    = document.querySelector("select[name='time_visit']").value.trim();
+    const tc           = document.querySelector("textarea[name='tc']").value.trim();
+    const nd           = document.querySelector("textarea[name='nd']").value.trim();
+
+    // ❌ kiểm tra rỗng
+    if (!visitDateStr || !timeVisit || !tc || !nd) {
+        e.preventDefault();
+        showCustomMessage("Vui lòng nhập đầy đủ và đúng thông tin đặt lịch khám", "error");
+        return;
+    }
+
+    // ❌ kiểm tra ngày khám >= hôm nay
+    const today = moment().startOf('day');
+    const visitDate = moment(visitDateStr, "DD/MM/YYYY", true);
+
+    if (!visitDate.isValid() || visitDate.isBefore(today)) {
+        e.preventDefault();
+        showCustomMessage("Ngày khám không được nhỏ hơn ngày hiện tại", "error");
+        return;
+    }
+
+    // ✅ OK → cho submit
+});
+</script>
+
 </body>
 
 </html>
