@@ -86,6 +86,9 @@ $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `i
 <head>
     <?php include './config/site_css_links.php';?>
     <title>Người Dùng - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
     body {
         background: #f8fafc;
@@ -108,13 +111,15 @@ $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `i
     }
 
     .btn-primary,
-    .btn-danger {
+    .btn-danger,
+    .btn {
         border-radius: 20px;
         transition: 0.2s;
     }
 
     .btn-primary:hover,
-    .btn-danger:hover {
+    .btn-danger:hover,
+    .btn:hover {
         filter: brightness(1.1);
         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
     }
@@ -136,6 +141,12 @@ $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `i
     label {
         font-weight: 500;
     }
+
+    .delete-note {
+        font-size: 0.78rem;
+        font-style: italic;
+    }
+
     </style>
 </head>
 
@@ -152,7 +163,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Xóa Người Dùng</h1>
+                            <!-- <h1>Xóa Người Dùng</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -166,12 +177,8 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path
-                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
-                            </svg>
-                            Xoá người dùng
+                            <i class="fa-solid fa-user-slash"></i>
+                            XÓA NGƯỜI DÙNG
                         </h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -180,43 +187,50 @@ include './config/sidebar.php';?>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="post" id="deleteForm" enctype="multipart/form-data">
-                            <input type="hidden" name="hidden_id" value="<?php echo $user_id;?>">
+                        <form method="post" id="deleteForm">
+                            <input type="hidden" name="hidden_id" value="<?php echo $user_id; ?>">
+
                             <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                <div class="col-md-6">
                                     <label>Tên hiển thị</label>
-                                    <input type="text" id="display_name" name="display_name" required="required"
-                                        class="form-control form-control-sm" value="<?php echo $row['display_name'];?>"
-                                        readonly />
+                                    <input type="text" class="form-control form-control-sm"
+                                        value="<?php echo $row['display_name']; ?>" readonly>
                                 </div>
-                                <br>
-                                <br>
-                                <br>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+
+                                <div class="col-md-6">
                                     <label>Tên đăng nhập</label>
-                                    <input type="text" id="username" name="username" required="required"
-                                        class="form-control form-control-sm" value="<?php echo $row['user_name'];?>"
-                                        readonly />
+                                    <input type="text" class="form-control form-control-sm"
+                                        value="<?php echo $row['user_name']; ?>" readonly>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+
+                                <div class="col-md-6 mt-3">
                                     <label>Mật khẩu</label>
-                                    <input type="password" id="password" name="password"
-                                        class="form-control form-control-sm" value="********" readonly />
+                                    <input type="password" class="form-control form-control-sm"
+                                        value="********" readonly>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+
+                                <div class="col-md-6 mt-3">
                                     <label>Vai trò</label>
-                                    <select name="role" id="role" class="form-control form-control-sm" disabled>
+                                    <select class="form-control form-control-sm" disabled>
                                         <?php echo getRoles((int)$row['role']); ?>
                                     </select>
                                 </div>
                             </div>
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-                                <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12" style="margin-top:20px;">
-                                    <button type="button" class="btn btn-danger btn-sm btn-block" data-toggle="modal"
-                                        data-target="#confirmDeleteModal">Xoá</button>
-                                </div>
+
+                            <!-- WARNING -->
+                            <div class="alert alert-warning mt-4">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                Hành động này sẽ <strong>xoá người dùng (soft delete)</strong> và không thể hoàn tác ngay lập tức.
+                            </div>
+
+                            <!-- BUTTON -->
+                            <div class="text-center mt-4">
+                                <button type="button"
+                                    class="btn btn-danger btn-sm px-4"
+                                    data-toggle="modal"
+                                    data-target="#confirmDeleteModal">
+                                    <i class="fa-solid fa-trash me-1"></i> XOÁ
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -264,23 +278,43 @@ include './config/sidebar.php';?>
     </script>
 
     <!-- Modal xác nhận xoá -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Xác nhận xoá</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        Xác nhận xoá người dùng
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
                     </button>
                 </div>
+
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xoá người dùng này <strong><?php echo $row['user_name']; ?></strong> không?
+                    Bạn có chắc chắn muốn xoá người dùng
+                    <strong class="text-danger">
+                        <?php echo $row['user_name']; ?>
+                    </strong> không?
+                    <br>
+                    <small class="text-muted delete-note">
+                        (Người dùng sẽ bị đánh dấu xoá – không hiển thị trong hệ thống)
+                    </small>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Huỷ</button>
-                    <!-- Nút xác nhận xoá sẽ submit form -->
-                    <button type="submit" form="deleteForm" name="delete_user"
-                        class="btn btn-danger btn-sm">Xoá</button>
+                    <button type="button"
+                        class="btn btn-secondary btn-sm px-3"
+                        data-dismiss="modal">
+                        <i class="fa-solid fa-xmark me-3"></i>HỦY
+                    </button>
+
+                    <button type="submit"
+                        form="deleteForm"
+                        name="delete_user"
+                        class="btn btn-danger btn-sm px-3"> 
+                        <i class="fa-solid fa-trash-can me-3"></i>XÓA
+                    </button>
                 </div>
             </div>
         </div>

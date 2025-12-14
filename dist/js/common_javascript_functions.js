@@ -38,7 +38,7 @@ function showCustomMessage(msg, type = "info", title = "Thông báo") { // hàm 
             text: msg,
             icon: type,
             confirmButtonText: "OK",
-            timer: type === "success" ? 1000 : undefined,
+            timer: type === "success" ? 1200 : undefined,
             timerProgressBar: type === "success",
         });
         return;

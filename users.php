@@ -3,12 +3,65 @@ include './config/connection.php';
 include './common_service/common_functions.php';
 $message = '';
 islogin([1]); // chỉ cho admin (1) truy cập
+// if (isset($_POST['save_user'])) {
+//     $displayName = trim($_POST['display_name']);
+//     $userName = trim($_POST['user_name']);
+//     $password = $_POST['password'];
+//     $role = $_POST['role'];
+//     $encryptedPassword = md5($password);
 if (isset($_POST['save_user'])) {
-    $displayName = trim($_POST['display_name']);
-    $userName = trim($_POST['user_name']);
-    $password = $_POST['password'];
-    $role = $_POST['role'];
+
+    $errors = [];
+
+    $displayName = trim($_POST['display_name'] ?? '');
+    $userName    = trim($_POST['user_name'] ?? '');
+    $password    = $_POST['password'] ?? '';
+    $role        = $_POST['role'] ?? '';
+
+    // ===== VALIDATE TÊN HIỂN THỊ =====
+    if ($displayName === '') {
+        $errors['display_name'] = "Vui lòng nhập tên hiển thị!";
+    } elseif (mb_strlen($displayName) < 3) {
+        $errors['display_name'] = "Tên hiển thị phải từ 3 ký tự!";
+    }
+
+    // ===== VALIDATE TÊN ĐĂNG NHẬP =====
+    if ($userName === '') {
+        $errors['user_name'] = "Vui lòng nhập tên đăng nhập!";
+    } elseif (!preg_match('/^[a-zA-Z0-9_]{4,30}$/', $userName)) {
+        $errors['user_name'] = "Tên đăng nhập 4–30 ký tự, chỉ chữ, số, _!";
+    } else {
+        $stmt = $con->prepare("SELECT COUNT(*) FROM users WHERE user_name = ? AND is_deleted = 0");
+        $stmt->execute([$userName]);
+        if ($stmt->fetchColumn() > 0) {
+            $errors['user_name'] = "Tên đăng nhập đã tồn tại!";
+        }
+    }
+
+    // ===== VALIDATE MẬT KHẨU =====
+    if ($password === '') {
+        $errors['password'] = "Vui lòng nhập mật khẩu!";
+    } elseif (strlen($password) < 6) {
+        $errors['password'] = "Mật khẩu tối thiểu 6 ký tự!";
+    }
+
+    // ===== VALIDATE ROLE =====
+    if ($role === '') {
+        $errors['role'] = "Vui lòng chọn vai trò!";
+    } elseif (!in_array($role, ['1','2','3'], true)) {
+        $errors['role'] = "Vai trò không hợp lệ!";
+    }
+
+    // ===== CÓ LỖI → QUAY LẠI FORM =====
+    if (!empty($errors)) {
+        $_SESSION['form_errors'] = $errors;
+        $_SESSION['old'] = $_POST;
+        header("Location: users.php");
+        exit;
+    }
+
     $encryptedPassword = md5($password);
+
 
     try {
         $con->beginTransaction();
@@ -105,21 +158,22 @@ $sn = $serialStart;
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
 
     <?php include './config/data_tables_css.php';?>
-    <title>Users - MedTrack-EHR-Smart-AuditTrail-Timeline
-    </title>
-
+     <!-- Link Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <!-- <link rel="stylesheet" href="css/users.css"> -->
+    <title>Users - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+    body {
+        background: #f8fafc;
+    }
+
     .user-img {
         width: 3em;
         width: 3em;
         object-fit: cover;
         object-position: center center;
     }
-    </style>
-    <style>
-    body {
-        background: #f8fafc;
-    }
+ 
 
     .card {
         background: #fff;
@@ -162,10 +216,19 @@ $sn = $serialStart;
     label {
         font-weight: 500;
     }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    .invalid-feedback {
+        display: block;
+        font-size: 13px;
+    }
+    .required {
+        color: #dc3545;
+        margin-left: 2px;
+    }
     </style>
 </head>
-
-<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
     <!-- Site wrapper -->
@@ -180,7 +243,7 @@ $sn = $serialStart;
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Tài khoản</h1>
+                            <!-- <h1>TÀI KHOẢN</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -188,64 +251,99 @@ $sn = $serialStart;
             <!-- Main content -->
             <section class="content">
                 <!-- Default box -->
-                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Thêm mới tài khoản</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-user-plus"></i>THÊM MỚI TÀI KHOẢN</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <form method="post" enctype="multipart/form-data">
-                            <div class="row">
+                   <div class="card-body">
 
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên Hiển Thị</label>
-                                    <input type="text" id="display_name" name="display_name" required="required"
-                                        class="form-control form-control-sm" />
-                                </div>
+                    <form method="post">
+                        <div class="row">
 
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên Đăng Nhập</label>
-                                    <input type="text" id="user_name" name="user_name" required="required"
-                                        class="form-control form-control-sm" />
-                                </div>
+                            <!-- Tên hiển thị -->
+                            <div class="col-md-6 mb-3">
+                                <label>Tên hiển thị <span class="required">*</span></label>
+                                <input type="text" name="display_name"
+                                    class="form-control form-control-sm w-100
+                                    <?= isset($_SESSION['form_errors']['display_name']) ? 'is-invalid' : '' ?>"
+                                    value="<?= $_SESSION['old']['display_name'] ?? '' ?>">
 
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Mật Khẩu</label>
-                                    <input type="password" id="password" name="password" required="required"
-                                        class="form-control form-control-sm" />
-                                </div>
-
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Chọn vai trò</label>
-                                    <select class="form-control form-control-sm" id="role" name="role">
-                                        <?php echo getRoles();?>
-                                    </select>
-                                </div>
-
-                                <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
-                                    <label>&nbsp;</label>
-                                    <button type="submit" id="save_medicine" name="save_user"
-                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
-                                </div>
+                                <?php if (isset($_SESSION['form_errors']['display_name'])): ?>
+                                    <div class="invalid-feedback">
+                                        <?= $_SESSION['form_errors']['display_name'] ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                        </form>
-                    </div>
 
+                            <!-- Tên đăng nhập -->
+                            <div class="col-md-6 mb-3">
+                                <label>Tên đăng nhập <span class="required">*</span></label>
+                                <input type="text" name="user_name"
+                                    class="form-control form-control-sm w-100
+                                    <?= isset($_SESSION['form_errors']['user_name']) ? 'is-invalid' : '' ?>"
+                                    value="<?= $_SESSION['old']['user_name'] ?? '' ?>">
+
+                                <?php if (isset($_SESSION['form_errors']['user_name'])): ?>
+                                    <div class="invalid-feedback">
+                                        <?= $_SESSION['form_errors']['user_name'] ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Mật khẩu -->
+                            <div class="col-md-6 mb-3">
+                                <label>Mật khẩu <span class="required">*</span></label>
+                                <input type="password" name="password"
+                                    class="form-control form-control-sm w-100
+                                    <?= isset($_SESSION['form_errors']['password']) ? 'is-invalid' : '' ?>">
+
+                                <?php if (isset($_SESSION['form_errors']['password'])): ?>
+                                    <div class="invalid-feedback">
+                                        <?= $_SESSION['form_errors']['password'] ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Vai trò -->
+                            <div class="col-md-6 mb-3">
+                                <label>Chọn vai trò <span class="required">*</span></label>
+                                <select name="role"
+                                    class="form-control form-control-sm w-100
+                                    <?= isset($_SESSION['form_errors']['role']) ? 'is-invalid' : '' ?>">
+                                    <?php echo getRoles($_SESSION['old']['role'] ?? null); ?>
+                                </select>
+
+                                <?php if (isset($_SESSION['form_errors']['role'])): ?>
+                                    <div class="invalid-feedback">
+                                        <?= $_SESSION['form_errors']['role'] ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Button -->
+                            <div class="col-12 text-center mt-3">
+                                <button type="submit" name="save_user"
+                                    class="btn btn-primary btn-sm px-4">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    LƯU
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
                 </div>
-                <!-- /.card -->
             </section>
             <section class="content">
                 <!-- Default box -->
 
-                <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh Sách Tài Khoản</h3>
+                        <h3 class="card-title"> <i class="fa-solid fa-list"></i> DANH SÁCH TÀI KHOẢN</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -270,9 +368,9 @@ $sn = $serialStart;
                                     <tr>
                                         <th class="p-1 text-center">STT</th>
                                         <th class="p-1 text-center">Vai trò</th>
-                                        <th class="p-1 text-center">Tên Hiển Thị</th>
-                                        <th class="p-1 text-center">Tên Đăng Nhập</th>
-                                        <th class="p-1 text-center">Hành Động</th>
+                                        <th class="p-1 text-center">Tên hiển thị</th>
+                                        <th class="p-1 text-center">Tên đăng nhập</th>
+                                        <th class="p-1 text-center">Hành động</th>
                                     </tr>
                                 </thead>
 
@@ -280,10 +378,11 @@ $sn = $serialStart;
                                     <?php 
                                     if (empty($users)) { ?>
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">Không tìm thấy tài khoản nào</td>
+                                        <td colspan="5" class="text-center text-muted">Không tìm thấy tài khoản nào!</td>
                                     </tr>
-                                    <?php } else {
-                                                                    foreach($users as $row) {
+                                    <?php } 
+                                    else {
+                                        foreach($users as $row) {
                                     ?>
                                     <tr>
                                         <td class="px-2 py-1 align-middle text-center"><?php echo $sn++;?></td>
@@ -364,17 +463,9 @@ $sn = $serialStart;
                             <?php endif; ?>
                         </div>
                     </div>
-
-
-
-                    <!-- /.card-footer-->
                 </div>
-                <!-- add pagination UI -->
-
-                <!-- /.card -->
 
             </section>
-            <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
         <?php 
@@ -464,6 +555,15 @@ $sn = $serialStart;
             }
         });
     });
+    $(document).ready(function () {
+
+    // Khi focus hoặc nhập → chỉ xoá lỗi của ô đó
+    $('input, select').on('focus input change', function () {
+        $(this).removeClass('is-invalid');
+        $(this).closest('.mb-3').find('.invalid-feedback').hide();
+    });
+
+});
     </script>
 </body>
 

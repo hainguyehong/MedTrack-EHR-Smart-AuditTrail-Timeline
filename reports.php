@@ -11,6 +11,7 @@ include './common_service/date.php';
     <?php include './config/site_css_links.php' ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
@@ -62,6 +63,18 @@ include './common_service/date.php';
     .card-primary.card-outline {
         border-top: 0px solid #007bff;
     }
+
+    .card {
+    background: #fff;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.card-outline.card-primary {
+    border-radius: 12px !important;
+}
+
+
     </style>
 </head>
 
@@ -81,7 +94,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Báo Cáo</h1>
+                            <!-- <h1>Báo Cáo</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -94,7 +107,7 @@ include './config/sidebar.php';?>
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Lịch Sử Khám Bệnh Trong Khoảng Thời Gian</h3>
+                        <h3 class="card-title">LỊCH SỬ KHÁM BỆNH TRONG KHOẢNG THỜI GIAN</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -104,23 +117,25 @@ include './config/sidebar.php';?>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="row">
+                        <!-- HÀNG CHỌN NGÀY -->
+                        <div class="row justify-content-center">
                             <?php 
-                            echo getDateTextBox('Từ Ngày', 'patients_from');
-
-                            echo getDateTextBox('Đến Ngày', 'patients_to');
-                        ?>
-
-                            <div class="col-md-2">
-                                <label>&nbsp;</label>
-                                <button type="button" id="print_visits" class="btn btn-primary btn-sm btn-block">Xem
-                                    Trước Báo Cáo</button>
+                                echo getDateTextBox('Từ ngày', 'patients_from','true');
+                                echo getDateTextBox('Đến ngày', 'patients_to','true');
+                            ?>
+                        </div>
+                        <!-- HÀNG BUTTON -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="button"
+                                        id="print_visits"
+                                        class="btn btn-primary btn-sm px-4 rounded-pill">
+                                   <i class="fa-solid fa-file-pdf"></i> XEM TRƯỚC BÁO CÁO
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-
             </section>
         </div>
 
@@ -153,8 +168,10 @@ include './config/sidebar.php';?>
 
             if (!from && !to) {
                 Swal.fire({
-                    icon: 'warning',
+                    icon: 'error',
                     title: 'Thiếu thông tin',
+                    iconColor: '#dc3545',
+                    confirmButtonText: 'Đã hiểu',
                     text: 'Vui lòng chọn Khoảng thời gian trước khi xem báo cáo.'
                 });
                 return;
@@ -162,8 +179,10 @@ include './config/sidebar.php';?>
 
             if (!from) {
                 Swal.fire({
-                    icon: 'warning',
+                    icon: 'error',
                     title: 'Thiếu "Từ Ngày"',
+                    iconColor: '#dc3545',
+                    confirmButtonText: 'Đã hiểu',
                     text: 'Vui lòng chọn "Từ Ngày".'
                 });
                 return;
@@ -171,12 +190,41 @@ include './config/sidebar.php';?>
 
             if (!to) {
                 Swal.fire({
-                    icon: 'warning',
+                    icon: 'error',
                     title: 'Thiếu "Đến Ngày"',
+                    iconColor: '#dc3545',
+                    confirmButtonText: 'Đã hiểu',
                     text: 'Vui lòng chọn "Đến Ngày".'
                 });
                 return;
             }
+            // Convert DD/MM/YYYY → Date
+            function parseDate(dateStr) {
+                var parts = dateStr.split("/");
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+
+            var fromDate = parseDate(from);
+            var toDate   = parseDate(to);
+
+            // Từ ngày > Đến ngày 
+            if (fromDate > toDate) {
+                Swal.fire({
+                    icon: 'error',
+                    iconColor: '#dc3545',
+                    title: 'Khoảng thời gian không hợp lệ',
+                    text: 'Từ ngày không được lớn hơn Đến ngày.',
+                    confirmButtonText: 'Đã hiểu'
+                });
+                return;
+            }
+
+            // Mở báo cáo (Từ = Đến hoặc ngày tương lai đều OK)
+            var win = window.open(
+                "print_patients_visits.php?from=" + encodeURIComponent(from) +
+                "&to=" + encodeURIComponent(to),
+                "_blank"
+            );
 
             var win = window.open(
                 "print_patients_visits.php?from=" + encodeURIComponent(from) +

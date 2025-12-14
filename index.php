@@ -143,7 +143,7 @@ if (isset($_POST['login'])) {
   <div class="container">
     <!-- Left -->
     <div class="login-left">
-      <h2> MEDTRACK MEDICAL</h2>
+      <h2> MEDTRACK MEDICAL</h2> 
       <ul>
         <li><i class="fas fa-chart-line"></i> PHÂN TÍCH DỮ LIỆU & BÁO CÁO</li>
         <li><i class="fas fa-calendar-alt"></i> LỊCH HẸN & TÁI KHÁM</li>

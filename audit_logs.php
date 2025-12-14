@@ -216,10 +216,6 @@ $sn = $serialStart;
         letter-spacing: 0.5px;
     }
 
-    label {
-        font-weight: 500;
-    }
-
     .json-preview {
         max-height: 80px;
         overflow: hidden;
@@ -234,6 +230,18 @@ $sn = $serialStart;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
+    }
+
+    /* Button Đặt lại & Xuất Excel */
+    .action-btn {
+        border-radius: 20px;     /* ← giống nhau tuyệt đối */
+        padding: 6px 18px;
+        font-weight: 500;
+    }
+
+     label {
+        font-weight: 700;
+        color: #000;
     }
     </style>
 </head>
@@ -250,8 +258,8 @@ $sn = $serialStart;
         <div class="content-wrapper">
             <section class="content-header">
                 <div class="container-fluid">
-                    <h2 class="mb-2">Audit Trail</h2>
-                    <p class="text-muted">Lịch sử thay đổi hồ sơ bệnh án</p>
+                    <!-- <h2 class="mb-2">Audit Trail</h2>
+                    <p class="text-muted">Lịch sử thay đổi hồ sơ bệnh án</p> -->
                 </div>
             </section>
 
@@ -259,7 +267,7 @@ $sn = $serialStart;
                 <!-- Filter card — converted to have same header style as users.php -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Lọc dữ liệu</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-filter"></i> LỌC DỮ LIỆU</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
@@ -269,30 +277,31 @@ $sn = $serialStart;
                     <div class="card-body">
                         <form id="filterForm" method="get" class="mb-0">
                             <div class="row">
-                                <div class="col-lg-4 col-md-6 col-sm-12 mb-2">
-                                    <label>Tìm kiếm</label>
-                                    <input type="search" name="search" id="searchInput"
-                                        placeholder="Tìm kiếm theo từ khóa (bệnh nhân, mã hồ sơ...)"
-                                        value="<?php echo htmlspecialchars($search);?>"
-                                        class="form-control form-control-sm">
+
+                                <!-- HÀNG 1 -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="small">Tìm kiếm</label>
+                                    <input type="search"
+                                        name="search"
+                                        id="searchInput"
+                                        class="form-control form-control-sm"
+                                        placeholder="Từ khóa, bảng, mã hồ sơ..."
+                                        value="<?php echo htmlspecialchars($search); ?>">
                                 </div>
 
-                                <div class="col-lg-2 col-md-6 col-sm-6 mb-2">
-                                    <label class="small text-muted">Khoảng thời gian</label>
+                                <div class="col-md-6 mb-3">
+                                    <label class="small">Thời gian</label>
                                     <select name="timeRange" id="timeRange" class="form-control form-control-sm">
-                                        <option value="all" <?php if($timeRange=='all') echo 'selected';?>>Tất cả
-                                        </option>
-                                        <option value="today" <?php if($timeRange=='today') echo 'selected';?>>Hôm nay
-                                        </option>
-                                        <option value="this_week" <?php if($timeRange=='this_week') echo 'selected';?>>
-                                            Tuần này</option>
-                                        <option value="this_month"
-                                            <?php if($timeRange=='this_month') echo 'selected';?>>Tháng này</option>
+                                        <option value="all">Tất cả</option>
+                                        <option value="today" <?= $timeRange=='today'?'selected':'' ?>>Hôm nay</option>
+                                        <option value="this_week" <?= $timeRange=='this_week'?'selected':'' ?>>Tuần này</option>
+                                        <option value="this_month" <?= $timeRange=='this_month'?'selected':'' ?>>Tháng này</option>
                                     </select>
                                 </div>
 
-                                <div class="col-lg-3 col-md-6 col-sm-6 mb-2">
-                                    <label class="small text-muted">Người dùng</label>
+                    <!-- HÀNG 2 -->
+                            <div class="col-md-6 mb-3">
+                                <label class="small">Người dùng</label>
                                     <select name="userFilter" id="userFilter" class="form-control form-control-sm">
                                         <option value="all">Tất cả</option>
                                         <?php 
@@ -316,30 +325,36 @@ $sn = $serialStart;
                                     </select>
                                 </div>
 
-                                <div class="col-lg-2 col-md-6 col-sm-6 mb-2">
-                                    <label class="small text-muted">Loại hành động</label>
+                                <div class="col-md-6 mb-3">
+                                    <label class="small">Hành động</label>
                                     <select name="actionFilter" id="actionFilter" class="form-control form-control-sm">
-                                        <option value="all" <?php if($actionFilter=='all') echo 'selected';?>>Tất cả
-                                        </option>
-                                        <option value="insert" <?php if($actionFilter=='insert') echo 'selected';?>>Tạo
-                                        </option>
-                                        <option value="update" <?php if($actionFilter=='update') echo 'selected';?>>Cập
-                                            nhật</option>
-                                        <option value="delete" <?php if($actionFilter=='delete') echo 'selected';?>>Xóa
-                                        </option>
+                                        <option value="all">Tất cả</option>
+                                        <option value="insert">Tạo</option>
+                                        <option value="update">Cập nhật</option>
+                                        <option value="delete">Xoá</option>
                                     </select>
                                 </div>
 
-                                <div class="col-lg-1 col-md-12 col-sm-12 mb-2 d-flex align-items-end">
-                                    <div style="width:100%;">
-                                        <button type="submit" class="btn btn-primary btn-sm btn-block">Áp dụng</button>
-                                    </div>
-                                </div>
+                                <!-- HÀNG 3: BUTTON -->
+                                <div class="col-12 text-center mt-2">
 
-                                <div class="col-12 d-flex gap-2 mt-2">
-                                    <button type="button" id="resetFilters" class="btn btn-success btn-sm">Đặt lại bộ
-                                        lọc</button>
-                                    <button type="button" id="exportCsv" class="btn btn-dark btn-sm">Xuất Excel</button>
+                                    <button type="submit"
+                                            class="btn btn-primary btn-sm px-4 mx-1">
+                                        <i class="fa-solid fa-filter me-1"></i>Áp dụng
+                                    </button>
+
+                                    <button type="button"
+                                        id="resetFilters"
+                                        class="btn btn-secondary btn-sm px-4 mx-1 action-btn">
+                                        <i class="fa-solid fa-rotate-left me-1"></i>Đặt lại
+                                    </button>
+
+                                    <button type="button"
+                                        id="exportCsv"
+                                        class="btn btn-outline-dark btn-sm px-4 mx-1 action-btn">
+                                        <i class="fa-solid fa-file-excel me-1"></i>Xuất Excel
+                                    </button>
+
                                 </div>
                             </div>
                         </form>
@@ -349,7 +364,7 @@ $sn = $serialStart;
                 <!-- Results card — add header to match users.php visual -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh Sách</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-list"></i>DANH SÁCH</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>

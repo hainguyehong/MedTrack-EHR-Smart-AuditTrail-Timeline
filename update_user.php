@@ -6,42 +6,160 @@ $message = '';
 
 
 
-if (isset($_POST['save_user'])) {
-    $displayName = trim($_POST['display_name']);
-    $userName = trim($_POST['username']);
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-    $hiddenId = $_POST['hidden_id'];
+// if (isset($_POST['save_user'])) {
+//     $displayName = trim($_POST['display_name']);
+//     $userName = trim($_POST['username']);
+//     $password = $_POST['password'];
+//     $role = $_POST['role'];
+//     $hiddenId = $_POST['hidden_id'];
 
+//     try {
+//         // Lấy dữ liệu cũ để log
+//         $stmtOld = $con->prepare("SELECT * FROM `users` WHERE `id` = :id");
+//         $stmtOld->execute([':id' => $hiddenId]);
+//         $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+//         if (!$oldData) {
+//             $_SESSION['error_message'] = 'Không tìm thấy người dùng để cập nhật.';
+//             header("Location: users.php");
+//             exit();
+//         }
+
+//         // Chuẩn bị dữ liệu cập nhật
+//         $encryptedPassword = !empty($password) ? md5($password) : $oldData['password'];
+
+//         // Bắt đầu transaction
+//         $con->beginTransaction();
+
+//         // ✅ Thực hiện cập nhật
+//         $updateQuery = "
+//             UPDATE `users`
+//             SET `display_name` = :display_name,
+//                 `user_name` = :user_name,
+//                 `password` = :password,
+//                 `role` = :role
+//             WHERE `id` = :id
+//         ";
+
+//         $stmtUpdate = $con->prepare($updateQuery);
+//         $stmtUpdate->execute([
+//             ':display_name' => $displayName,
+//             ':user_name' => $userName,
+//             ':password' => $encryptedPassword,
+//             ':role' => $role,
+//             ':id' => $hiddenId
+//         ]);
+
+//         // ✅ Ghi log audit
+//         if (function_exists('log_audit')) {
+//             log_audit(
+//                 $con,
+//                 $_SESSION['user_id'] ?? 'unknown',
+//                 'users',
+//                 $hiddenId,
+//                 'update',
+//                 $oldData, // dữ liệu cũ
+//                 [
+//                     'display_name' => $displayName,
+//                     'user_name' => $userName,
+//                     'role' => $role
+//                 ]
+//             );
+//         }
+
+//         $con->commit();
+//         $_SESSION['success_message'] = 'Cập nhật người dùng thành công.';
+
+//     } catch (PDOException $ex) {
+//         $con->rollBack();
+//         $_SESSION['error_message'] = "Lỗi khi cập nhật: " . $ex->getMessage();
+//     }
+
+//     header("Location: users.php");
+//     exit();
+// }
+if (isset($_POST['save_user'])) {
+
+    $errors = [];
+
+    $displayName = trim($_POST['display_name'] ?? '');
+    $userName    = trim($_POST['username'] ?? '');
+    $password    = $_POST['password'] ?? '';
+    $role        = $_POST['role'] ?? '';
+    $hiddenId    = (int)($_POST['hidden_id'] ?? 0);
+
+    // ===== VALIDATE TÊN HIỂN THỊ =====
+    if ($displayName === '') {
+        $errors['display_name'] = 'Vui lòng nhập tên hiển thị!';
+    } elseif (mb_strlen($displayName) < 3) {
+        $errors['display_name'] = 'Tên hiển thị phải từ 3 ký tự!';
+    }
+
+    // ===== VALIDATE TÊN ĐĂNG NHẬP =====
+    if ($userName === '') {
+        $errors['username'] = 'Vui lòng nhập tên đăng nhập!';
+    } elseif (!preg_match('/^[a-zA-Z0-9_]{4,30}$/', $userName)) {
+        $errors['username'] = 'Tên đăng nhập 4–30 ký tự, chỉ chữ, số, _';
+    } else {
+        // ❗ Không được trùng user khác (trừ chính nó)
+        $stmt = $con->prepare("
+            SELECT COUNT(*) FROM users 
+            WHERE user_name = ? AND id != ? AND is_deleted = 0
+        ");
+        $stmt->execute([$userName, $hiddenId]);
+        if ($stmt->fetchColumn() > 0) {
+            $errors['username'] = 'Tên đăng nhập đã tồn tại!';
+        }
+    }
+
+    // ===== VALIDATE MẬT KHẨU (KHÔNG BẮT BUỘC) =====
+    if ($password !== '' && strlen($password) < 6) {
+        $errors['password'] = 'Mật khẩu tối thiểu 6 ký tự!';
+    }
+
+    // ===== VALIDATE ROLE =====
+    if ($role === '') {
+        $errors['role'] = 'Vui lòng chọn vai trò!';
+    } elseif (!in_array($role, ['1','2','3'], true)) {
+        $errors['role'] = 'Vai trò không hợp lệ!';
+    }
+
+    // ===== CÓ LỖI → QUAY LẠI FORM UPDATE =====
+    if (!empty($errors)) {
+        $_SESSION['form_errors'] = $errors;
+        $_SESSION['old'] = $_POST;
+        header("Location: update_user.php?user_id=".$hiddenId);
+        exit;
+    }
+
+    // ===== KHÔNG LỖI → UPDATE =====
     try {
-        // Lấy dữ liệu cũ để log
-        $stmtOld = $con->prepare("SELECT * FROM `users` WHERE `id` = :id");
-        $stmtOld->execute([':id' => $hiddenId]);
+        // Lấy dữ liệu cũ
+        $stmtOld = $con->prepare("SELECT * FROM users WHERE id = ?");
+        $stmtOld->execute([$hiddenId]);
         $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
 
         if (!$oldData) {
-            $_SESSION['error_message'] = 'Không tìm thấy người dùng để cập nhật.';
+            $_SESSION['error_message'] = 'Không tìm thấy người dùng.';
             header("Location: users.php");
-            exit();
+            exit;
         }
 
-        // Chuẩn bị dữ liệu cập nhật
-        $encryptedPassword = !empty($password) ? md5($password) : $oldData['password'];
+        $encryptedPassword = ($password !== '')
+            ? md5($password)
+            : $oldData['password'];
 
-        // Bắt đầu transaction
         $con->beginTransaction();
 
-        // ✅ Thực hiện cập nhật
-        $updateQuery = "
-            UPDATE `users`
-            SET `display_name` = :display_name,
-                `user_name` = :user_name,
-                `password` = :password,
-                `role` = :role
-            WHERE `id` = :id
-        ";
+        $stmtUpdate = $con->prepare("
+            UPDATE users SET
+                display_name = :display_name,
+                user_name = :user_name,
+                password = :password,
+                role = :role
+            WHERE id = :id
+        ");
 
-        $stmtUpdate = $con->prepare($updateQuery);
         $stmtUpdate->execute([
             ':display_name' => $displayName,
             ':user_name' => $userName,
@@ -50,7 +168,7 @@ if (isset($_POST['save_user'])) {
             ':id' => $hiddenId
         ]);
 
-        // ✅ Ghi log audit
+        // Audit log
         if (function_exists('log_audit')) {
             log_audit(
                 $con,
@@ -58,7 +176,7 @@ if (isset($_POST['save_user'])) {
                 'users',
                 $hiddenId,
                 'update',
-                $oldData, // dữ liệu cũ
+                $oldData,
                 [
                     'display_name' => $displayName,
                     'user_name' => $userName,
@@ -72,12 +190,13 @@ if (isset($_POST['save_user'])) {
 
     } catch (PDOException $ex) {
         $con->rollBack();
-        $_SESSION['error_message'] = "Lỗi khi cập nhật: " . $ex->getMessage();
+        $_SESSION['error_message'] = 'Lỗi khi cập nhật: ' . $ex->getMessage();
     }
 
     header("Location: users.php");
-    exit();
+    exit;
 }
+
 try {
     if (isset($_POST['user_id'])) {
     $user_id = (int)$_POST['user_id'];
@@ -110,6 +229,7 @@ $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `i
     <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <title>Người Dùng - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
     body {
@@ -177,7 +297,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Users</h1>
+                            <!-- <h1>Users</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -191,12 +311,8 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path
-                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
-                            </svg>
-                            Chỉnh sửa thông tin người dùng
+                            <i class="fa-solid fa-pen-to-square"></i>
+                           CHỈNH SỬA THÔNG TIN NGƯỜI DÙNG
                         </h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -206,46 +322,94 @@ include './config/sidebar.php';?>
                     </div>
                     <div class="card-body">
                         <form method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="hidden_id" value="<?php echo $user_id;?>">
+                            <input type="hidden" name="hidden_id" value="<?= $user_id ?>">
+
                             <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên hiển thị</label>
-                                    <input type="text" id="display_name" name="display_name" required="required"
-                                        class="form-control form-control-sm"
-                                        value="<?php echo $row['display_name'];?>" />
+
+                                <!-- Tên hiển thị -->
+                                <div class="col-md-6 mb-3">
+                                    <label>
+                                        Tên hiển thị <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" name="display_name"
+                                        class="form-control form-control-sm
+                                        <?= isset($_SESSION['form_errors']['display_name']) ? 'is-invalid' : '' ?>"
+                                        value="<?= $_SESSION['old']['display_name'] ?? $row['display_name'] ?>">
+
+                                    <?php if (isset($_SESSION['form_errors']['display_name'])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION['form_errors']['display_name'] ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                                <br>
-                                <br>
-                                <br>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên đăng nhập</label>
-                                    <input type="text" id="username" name="username" required="required"
-                                        class="form-control form-control-sm" value="<?php echo $row['user_name'];?>" />
+
+                                <!-- Tên đăng nhập -->
+                                <div class="col-md-6 mb-3">
+                                    <label>
+                                        Tên đăng nhập <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" name="username"
+                                        class="form-control form-control-sm
+                                        <?= isset($_SESSION['form_errors']['username']) ? 'is-invalid' : '' ?>"
+                                        value="<?= $_SESSION['old']['username'] ?? $row['user_name'] ?>">
+
+                                    <?php if (isset($_SESSION['form_errors']['username'])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION['form_errors']['username'] ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Mật khẩu</label>
-                                    <input type="password" id="password" name="password"
-                                        class="form-control form-control-sm" />
+
+                                <!-- Mật khẩu -->
+                                <div class="col-md-6 mb-3">
+                                    <label>
+                                        Mật khẩu
+                                        <small class="text-muted">(để trống nếu không đổi)</small>
+                                    </label>
+                                    <input type="password" name="password"
+                                        class="form-control form-control-sm
+                                        <?= isset($_SESSION['form_errors']['password']) ? 'is-invalid' : '' ?>">
+
+                                    <?php if (isset($_SESSION['form_errors']['password'])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION['form_errors']['password'] ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Vai trò</label>
-                                    <select name="role" id="role" class="form-control form-control-sm">
-                                        <?php echo getRoles((int)$row['role']); ?>
+
+                                <!-- Vai trò -->
+                                <div class="col-md-6 mb-3">
+                                    <label>
+                                        Vai trò <span class="text-danger">*</span>
+                                    </label>
+                                    <select name="role"
+                                        class="form-control form-control-sm
+                                        <?= isset($_SESSION['form_errors']['role']) ? 'is-invalid' : '' ?>">
+                                        <?php echo getRoles($_SESSION['old']['role'] ?? $row['role']); ?>
                                     </select>
+
+                                    <?php if (isset($_SESSION['form_errors']['role'])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION['form_errors']['role'] ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                            </div>
+
+                            <!-- BUTTON -->
+                            <div class="row mt-4">
+                                <div class="col-12 text-center">
+                                    <button type="submit" name="save_user"
+                                        class="btn btn-primary btn-sm px-3">
+                                        <i class="fa-solid fa-pen-to-square"></i> CẬP NHẬT
+                                    </button>
                                 </div>
                             </div>
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-                                <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
-                                    <button type="submit" id="save_user" name="save_user"
-                                        class="btn btn-primary btn-sm btn-block">Cập nhật</button>
-                                </div>
-                            </div>
+
                         </form>
                     </div>
                 </div>
-
         </div>
 
         </section>
@@ -279,6 +443,15 @@ include './config/sidebar.php';?>
     if (message !== '') {
         showCustomMessage(message, messageType);
     }
+    $(document).ready(function () {
+
+        // Khi focus hoặc nhập → chỉ xoá lỗi của ô đó
+        $('input, select').on('focus input change', function () {
+            $(this).removeClass('is-invalid');
+            $(this).closest('.mb-3').find('.invalid-feedback').hide();
+        });
+
+    });
     </script>
 </body>
 
