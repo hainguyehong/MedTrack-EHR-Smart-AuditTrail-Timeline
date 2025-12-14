@@ -2,7 +2,7 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-islogin([1, 2]);  // chỉ cho admin (1) và bác sĩ (2) truy cập
+islogin([2]);  // chỉ cho admin (1) và bác sĩ (2) truy cập
 
 // --- Lấy dữ liệu đặt lịch từ DB (kèm trạng thái mới nhất từ bảng appointment_status_log) ---
 try {
