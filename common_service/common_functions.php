@@ -22,24 +22,37 @@ function getTime($time = '') {
 	return $data;
 }
 
-function getGender($gender = '') {
-	$data = '<option value="">Chọn giới tính</option>';
+// function getGender($gender = '') {
+// 	$data = '<option value="">Chọn giới tính</option>';
 
-	$arr = array("Nam", "Nữ", "Khác");
+// 	$arr = array("Nam", "Nữ", "Khác");
 
-	$i = 0;
-	$size = sizeof($arr);
+// 	$i = 0;
+// 	$size = sizeof($arr);
 
-	for($i = 0; $i < $size; $i++) {
-		if($gender == $arr[$i]) {
-			$data = $data .'<option selected="selected" value="'.$arr[$i].'">'.$arr[$i].'</option>';
-		} else {
-		$data = $data .'<option value="'.$arr[$i].'">'.$arr[$i].'</option>';
-		}
-	}
+// 	for($i = 0; $i < $size; $i++) {
+// 		if($gender == $arr[$i]) {
+// 			$data = $data .'<option selected="selected" value="'.$arr[$i].'">'.$arr[$i].'</option>';
+// 		} else {
+// 		$data = $data .'<option value="'.$arr[$i].'">'.$arr[$i].'</option>';
+// 		}
+// 	}
 
-	return $data;
+// 	return $data;
+// }
+function getGender($selected = '') {
+
+    $genders = ['Nam', 'Nữ', 'Khác'];
+    $html = '<option value="">-- Chọn --</option>';
+
+    foreach ($genders as $g) {
+        $isSelected = ($g === $selected) ? 'selected' : '';
+        $html .= "<option value=\"$g\" $isSelected>$g</option>";
+    }
+
+    return $html;
 }
+
 function getRoles($role = '') {
     $roles = [
         1 => "Admin",

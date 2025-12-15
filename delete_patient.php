@@ -297,36 +297,28 @@ $message = '';
     <!-- ./wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
-    <script>
+    <!-- <script>
     showMenuSelected("#mnu_patients", "#mi_patients");
     var message = '<?php echo $message;?>';
     if (message !== '') {
-        showCustomMessage(message);
+        showCustomMessage(message, 'success');
     }
-    </script>
+    </script> -->
+    <script>
+showMenuSelected("#mnu_patients", "#mi_patients");
 
-    <!-- Modal xác nhận xoá -->
-    <!-- <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Xác nhận xoá</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Bạn có chắc chắn muốn xoá bệnh nhân <strong><?php echo $row['patient_name']; ?></strong> không?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Huỷ</button>
-                    
-                    <button type="submit" form="deleteForm" name="delete_Patient"
-                        class="btn btn-danger btn-sm">Xoá</button>
-                </div>
-            </div>
-        </div>
-    </div> -->
+<?php if (!empty($message)) : ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Bệnh nhân đã được xóa (soft delete) thành công.',
+    showConfirmButton: false,   // ❌ không có nút OK
+    timer: 1200,                // ⏱ tự đóng sau 1.5 giây
+    timerProgressBar: true
+});
+<?php endif; ?>
+</script>
+
+
     <!-- Modal xác nhận xoá bệnh nhân -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">

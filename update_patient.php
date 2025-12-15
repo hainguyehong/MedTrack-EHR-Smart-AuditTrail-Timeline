@@ -4,118 +4,285 @@ include './common_service/common_functions.php';
 islogin([2]); // chỉ cho và bác sĩ (2) truy cập
 $message = '';
 
+// if (isset($_POST['save_Patient'])) {
+//     $hiddenId = $_POST['hidden_id'];
+
+//     $patientName = trim($_POST['patient_name']);
+//     $address = trim($_POST['address']);
+//     $cnic = trim($_POST['cnic']);
+//     $dateBirth = !empty($_POST['date_of_birth'])
+//         ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth'])))
+//         : null;
+//     $phoneNumber = trim($_POST['phone_number']);
+//     $gender = $_POST['gender'];
+
+//     // Chuẩn hóa chuỗi
+//     $patientName = ucwords(strtolower($patientName));
+//     $address = ucwords(strtolower($address));
+
+//     // Kiểm tra dữ liệu đầu vào
+//     if ($patientName != '' && $address != '' && $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
+//         try {
+//             // 🔹 1. Lấy dữ liệu cũ trước khi cập nhật
+//             $stmtOld = $con->prepare("SELECT * FROM patients WHERE id = ?");
+//             $stmtOld->execute([$hiddenId]);
+//             $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+//             if (!$oldData) {
+//                 $_SESSION['error_message'] = "Không tìm thấy hồ sơ bệnh nhân để cập nhật!";
+//                 header("Location: patients.php");
+//                 exit();
+//             }
+
+//             // 🔹 2. Kiểm tra trùng CCCD / username trong user_patients
+//             $checkQuery = "SELECT COUNT(*) FROM user_patients 
+//                            WHERE user_name = :user_name AND id_patient != :id_patient";
+//             $stmtCheck = $con->prepare($checkQuery);
+//             $stmtCheck->execute([
+//                 ':user_name' => $cnic,
+//                 ':id_patient' => $hiddenId
+//             ]);
+//             $exists = $stmtCheck->fetchColumn();
+
+//             if ($exists > 0) {
+//                 $_SESSION['error_message'] = "CCCD/Tên đăng nhập đã tồn tại. Vui lòng chọn giá trị khác.";
+//                 header("Location: patients.php");
+//                 exit();
+//             }
+
+//             $con->beginTransaction();
+
+//             // ✅ Cập nhật bảng patients
+//             $queryPatient = "UPDATE `patients` 
+//                 SET `patient_name` = :patient_name, 
+//                     `address` = :address, 
+//                     `cnic` = :cnic, 
+//                     `date_of_birth` = :date_of_birth, 
+//                     `phone_number` = :phone_number, 
+//                     `gender` = :gender 
+//                 WHERE `id` = :id";
+
+//             $stmtPatient = $con->prepare($queryPatient);
+//             $stmtPatient->execute([
+//                 ':patient_name' => $patientName,
+//                 ':address' => $address,
+//                 ':cnic' => $cnic,
+//                 ':date_of_birth' => $dateBirth,
+//                 ':phone_number' => $phoneNumber,
+//                 ':gender' => $gender,
+//                 ':id' => $hiddenId
+//             ]);
+
+//             // ✅ Cập nhật bảng user_patients
+//             $queryUser = "UPDATE `user_patients` 
+//                 SET `user_name` = :user_name, 
+//                     `display_name` = :display_name 
+//                 WHERE `id_patient` = :id_patient";
+
+//             $stmtUser = $con->prepare($queryUser);
+//             $stmtUser->execute([
+//                 ':user_name' => $cnic,            // CCCD làm username
+//                 ':display_name' => $patientName, // tên hiển thị
+//                 ':id_patient' => $hiddenId
+//             ]);
+
+//             // 🔹 4. Lấy dữ liệu mới sau khi cập nhật
+//             $stmtNew = $con->prepare("SELECT * FROM patients WHERE id = ?");
+//             $stmtNew->execute([$hiddenId]);
+//             $newData = $stmtNew->fetch(PDO::FETCH_ASSOC);
+
+//             // 🔹 5. Ghi log audit
+//             log_audit(
+//                 $con,
+//                 $_SESSION['user_id'] ?? 'unknown', // người thao tác
+//                 'patients',                        // bảng bị tác động
+//                 $hiddenId,                         // id bản ghi
+//                 'update',                          // hành động
+//                 $oldData,                          // dữ liệu cũ
+//                 $newData                           // dữ liệu mới
+//             );
+
+//             // 🔹 6. Commit transaction
+//             $con->commit();
+//             $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
+//         } catch (PDOException $ex) {
+//             $con->rollBack();
+//             $_SESSION['error_message'] = "Lỗi khi cập nhật: " . $ex->getMessage();
+//             header("Location: patients.php");
+//             exit;
+//         }
+//     }
+
+//     header("Location: patients.php");
+//     exit();
+// }
 if (isset($_POST['save_Patient'])) {
-    $hiddenId = $_POST['hidden_id'];
 
-    $patientName = trim($_POST['patient_name']);
-    $address = trim($_POST['address']);
-    $cnic = trim($_POST['cnic']);
-    $dateBirth = !empty($_POST['date_of_birth'])
-        ? date("Y-m-d", strtotime(str_replace('/', '-', $_POST['date_of_birth'])))
-        : null;
-    $phoneNumber = trim($_POST['phone_number']);
-    $gender = $_POST['gender'];
+    $hiddenId      = (int)$_POST['hidden_id'];
+    $patientName   = trim($_POST['patient_name'] ?? '');
+    $address       = trim($_POST['address'] ?? '');
+    $cnic          = trim($_POST['cnic'] ?? '');
+    $dateBirthRaw  = $_POST['date_of_birth'] ?? '';
+    $phoneNumber   = trim($_POST['phone_number'] ?? '');
+    $gender        = $_POST['gender'] ?? '';
 
-    // Chuẩn hóa chuỗi
-    $patientName = ucwords(strtolower($patientName));
-    $address = ucwords(strtolower($address));
+    $errors = [];
 
-    // Kiểm tra dữ liệu đầu vào
-    if ($patientName != '' && $address != '' && $cnic != '' && $dateBirth != '' && $phoneNumber != '' && $gender != '') {
-        try {
-            // 🔹 1. Lấy dữ liệu cũ trước khi cập nhật
-            $stmtOld = $con->prepare("SELECT * FROM patients WHERE id = ?");
-            $stmtOld->execute([$hiddenId]);
-            $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+    /* ================= VALIDATE ================= */
 
-            if (!$oldData) {
-                $_SESSION['error_message'] = "Không tìm thấy hồ sơ bệnh nhân để cập nhật!";
-                header("Location: patients.php");
-                exit();
-            }
+    /* 1. KIỂM TRA BỎ TRỐNG – CHỈ 1 LỖI */
+    if (
+        $patientName === '' ||
+        $address === '' ||
+        $cnic === '' ||
+        $dateBirthRaw === '' ||
+        $phoneNumber === '' ||
+        $gender === ''
+    ) {
+        $errors[] = "Vui lòng nhập đầy đủ thông tin";
+    }
 
-            // 🔹 2. Kiểm tra trùng CCCD / username trong user_patients
-            $checkQuery = "SELECT COUNT(*) FROM user_patients 
-                           WHERE user_name = :user_name AND id_patient != :id_patient";
-            $stmtCheck = $con->prepare($checkQuery);
-            $stmtCheck->execute([
-                ':user_name' => $cnic,
-                ':id_patient' => $hiddenId
-            ]);
-            $exists = $stmtCheck->fetchColumn();
+    /* 2. VALIDATE TÊN */
+    elseif (!preg_match('/^[\p{L}\s]{2,100}$/u', $patientName)) {
+        $errors[] = "Tên bệnh nhân không hợp lệ";
+    }
 
-            if ($exists > 0) {
-                $_SESSION['error_message'] = "CCCD/Tên đăng nhập đã tồn tại. Vui lòng chọn giá trị khác.";
-                header("Location: patients.php");
-                exit();
-            }
+    /* 3. VALIDATE ĐỊA CHỈ */
+    elseif (strlen($address) < 5) {
+        $errors[] = "Địa chỉ không hợp lệ";
+    }
 
-            $con->beginTransaction();
+    /* 4. VALIDATE CCCD */
+    elseif (!preg_match('/^\d{12}$/', $cnic) || $cnic === str_repeat('0', 12)) {
+        $errors[] = "CCCD không hợp lệ";
+    }
 
-            // ✅ Cập nhật bảng patients
-            $queryPatient = "UPDATE `patients` 
-                SET `patient_name` = :patient_name, 
-                    `address` = :address, 
-                    `cnic` = :cnic, 
-                    `date_of_birth` = :date_of_birth, 
-                    `phone_number` = :phone_number, 
-                    `gender` = :gender 
-                WHERE `id` = :id";
-
-            $stmtPatient = $con->prepare($queryPatient);
-            $stmtPatient->execute([
-                ':patient_name' => $patientName,
-                ':address' => $address,
-                ':cnic' => $cnic,
-                ':date_of_birth' => $dateBirth,
-                ':phone_number' => $phoneNumber,
-                ':gender' => $gender,
-                ':id' => $hiddenId
-            ]);
-
-            // ✅ Cập nhật bảng user_patients
-            $queryUser = "UPDATE `user_patients` 
-                SET `user_name` = :user_name, 
-                    `display_name` = :display_name 
-                WHERE `id_patient` = :id_patient";
-
-            $stmtUser = $con->prepare($queryUser);
-            $stmtUser->execute([
-                ':user_name' => $cnic,            // CCCD làm username
-                ':display_name' => $patientName, // tên hiển thị
-                ':id_patient' => $hiddenId
-            ]);
-
-            // 🔹 4. Lấy dữ liệu mới sau khi cập nhật
-            $stmtNew = $con->prepare("SELECT * FROM patients WHERE id = ?");
-            $stmtNew->execute([$hiddenId]);
-            $newData = $stmtNew->fetch(PDO::FETCH_ASSOC);
-
-            // 🔹 5. Ghi log audit
-            log_audit(
-                $con,
-                $_SESSION['user_id'] ?? 'unknown', // người thao tác
-                'patients',                        // bảng bị tác động
-                $hiddenId,                         // id bản ghi
-                'update',                          // hành động
-                $oldData,                          // dữ liệu cũ
-                $newData                           // dữ liệu mới
-            );
-
-            // 🔹 6. Commit transaction
-            $con->commit();
-            $_SESSION['success_message'] = 'Cập nhật dữ liệu thành công.';
-        } catch (PDOException $ex) {
-            $con->rollBack();
-            $_SESSION['error_message'] = "Lỗi khi cập nhật: " . $ex->getMessage();
-            header("Location: patients.php");
-            exit;
+    /* 5. VALIDATE NGÀY SINH (GỘP LỖI) */
+    else {
+        $ts = strtotime(str_replace('/', '-', $dateBirthRaw));
+        if ($ts === false || $ts > time()) {
+            $errors[] = "Ngày sinh không hợp lệ";
+        } else {
+            $dateBirth = date("Y-m-d", $ts);
         }
     }
 
-    header("Location: patients.php");
-    exit();
+    /* 6. VALIDATE SỐ ĐIỆN THOẠI */
+    if (empty($errors) && !preg_match('/^0\d{9,10}$/', $phoneNumber)) {
+        $errors[] = "Số điện thoại không hợp lệ";
+    }
+
+    /* 7. VALIDATE GIỚI TÍNH */
+    if (empty($errors) && !in_array($gender, ['Nam', 'Nữ', 'Khác'])) {
+        $errors[] = "Giới tính không hợp lệ";
+    }
+
+    /* ================= CHECK TRÙNG CCCD ================= */
+    if (empty($errors)) {
+        $stmtCheck = $con->prepare("
+            SELECT COUNT(*) 
+            FROM patients 
+            WHERE cnic = :cnic AND id != :id
+        ");
+        $stmtCheck->execute([
+            ':cnic' => $cnic,
+            ':id'   => $hiddenId
+        ]);
+
+        if ($stmtCheck->fetchColumn() > 0) {
+            $errors[] = "CCCD đã tồn tại";
+        }
+    }
+
+    /* ================= NẾU CÓ LỖI ================= */
+    if (!empty($errors)) {
+        $_SESSION['error_message'] = implode('<br>', $errors);
+        header("Location: update_patient.php?id=" . $hiddenId);
+        exit;
+    }
+
+    /* ================= UPDATE ================= */
+    try {
+        $con->beginTransaction();
+
+        // lấy dữ liệu cũ
+        $stmtOld = $con->prepare("SELECT * FROM patients WHERE id = ?");
+        $stmtOld->execute([$hiddenId]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+        if (!$oldData) {
+            throw new Exception("Không tìm thấy bệnh nhân");
+        }
+
+        // cập nhật patients
+        $stmt = $con->prepare("
+            UPDATE patients SET
+                patient_name  = :patient_name,
+                address       = :address,
+                cnic          = :cnic,
+                date_of_birth = :dob,
+                phone_number  = :phone,
+                gender        = :gender
+            WHERE id = :id
+        ");
+        $stmt->execute([
+            ':patient_name' => ucwords(strtolower($patientName)),
+            ':address'      => $address,
+            ':cnic'         => $cnic,
+            ':dob'          => $dateBirth,
+            ':phone'        => $phoneNumber,
+            ':gender'       => $gender,
+            ':id'           => $hiddenId
+        ]);
+
+        // cập nhật user_patients
+        $stmtUser = $con->prepare("
+            UPDATE user_patients
+            SET user_name = :user_name,
+                display_name = :display_name
+            WHERE id_patient = :id
+        ");
+        $stmtUser->execute([
+            ':user_name'    => $cnic,
+            ':display_name' => $patientName,
+            ':id'           => $hiddenId
+        ]);
+
+        // lấy dữ liệu mới
+        $stmtNew = $con->prepare("SELECT * FROM patients WHERE id = ?");
+        $stmtNew->execute([$hiddenId]);
+        $newData = $stmtNew->fetch(PDO::FETCH_ASSOC);
+
+        // log audit
+        log_audit(
+            $con,
+            $_SESSION['user_id'] ?? 'unknown',
+            'patients',
+            $hiddenId,
+            'update',
+            $oldData,
+            $newData
+        );
+
+        $con->commit();
+
+        // $_SESSION['success_message'] = "Cập nhật bệnh nhân thành công";
+        // header("Location: patients.php");
+        // exit;
+        $_SESSION['success_message'] = "Cập nhật bệnh nhân thành công";
+header("Location: update_patient.php?id=" . $hiddenId);
+exit;
+
+
+
+    } catch (Exception $ex) {
+        $con->rollBack();
+        $_SESSION['error_message'] = "Lỗi hệ thống, vui lòng thử lại";
+        header("Location: update_patient.php?id=" . $hiddenId);
+        exit;
+    }
 }
+
 
 
 try {
@@ -177,6 +344,7 @@ try {
 <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
 <style>
 body {
@@ -320,14 +488,7 @@ include './config/sidebar.php';?>
                                     </select>
                                 </div>
                             </div>
-                            <!-- <div class="clearfix">&nbsp;</div> -->
-                            <!-- <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-                                <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
-                                    <button type="submit" id="save_Patient" name="save_Patient"
-                                        class="btn btn-primary btn-sm btn-block">Cập nhật</button>
-                                </div>
-                            </div> -->
+                
                             <div class="row mt-3">
                                 <div class="col-12 text-center">
                                     <button type="submit"
@@ -391,16 +552,32 @@ if ($message == '' && isset($_GET['message'])) {
 
     <script>
     showMenuSelected("#mnu_patients", "#mi_patients");
+
     var message = '<?php echo addslashes($message); ?>';
     var messageType = '<?php echo $messageType; ?>';
 
     if (message !== '') {
-        showCustomMessage(message, messageType);
+        Swal.fire({
+            icon: messageType,
+            title: 'Cập nhật bệnh nhân thành công',
+            // html: message,
+            showConfirmButton: false,
+            timer: messageType === 'success' ? 1200 : null,
+            timerProgressBar: messageType === 'success'
+        }).then(() => {
+            if (messageType === 'success') {
+                window.location.href = 'patients.php';
+            }
+        });
     }
+
     $('#date_of_birth').datetimepicker({
         format: 'L'
     });
-    </script>
+</script>
+
+
+
 </body>
 
 </html>
