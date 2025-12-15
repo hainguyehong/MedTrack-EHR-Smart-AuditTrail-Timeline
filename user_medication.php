@@ -45,7 +45,7 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
-        <!-- Thêm favicon giống dashboard.php -->
+    <!-- Thêm favicon giống dashboard.php -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
@@ -174,6 +174,44 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
 
     .card-primary.card-outline {
         border-top: 0px solid #007bff;
+    }
+
+    .image-section {
+        margin-top: 24px;
+    }
+
+    .image-box {
+        border: 1px dashed #ced4da;
+        border-radius: 10px;
+        background: #fafafa;
+        padding: 16px;
+        height: 260px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-box img {
+        max-width: 100%;
+        max-height: 220px;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        cursor: zoom-in;
+    }
+
+    .image-empty {
+        color: #6c757d;
+        font-style: italic;
+        text-align: center;
+    }
+
+    .image-empty i {
+        font-size: 42px;
+        display: block;
+        margin-bottom: 8px;
+        color: #adb5bd;
     }
     </style>
 </head>
@@ -307,7 +345,9 @@ include './config/sidebar.php';?>
                                 pd.chuan_doan,
                                 pd.bien_phap,
                                 pd.nhap_vien,
-                                pd.tien_su_benh
+                                pd.tien_su_benh,
+                                pd.anh_sieu_am AS ultrasound,
+                                pd.anh_chup_xq AS xray
                             FROM user_patients AS up
                             JOIN patients AS p ON up.id_patient = p.id
                             JOIN patient_diseases AS pd ON pd.patient_id = p.id
@@ -403,6 +443,52 @@ include './config/sidebar.php';?>
                                                 }
                                             ?>" readonly>
                                 </div>
+                                <!-- ===== HÌNH ẢNH CHẨN ĐOÁN ===== -->
+                                <div class="row image-section">
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Ảnh siêu âm</label>
+                                        <div class="image-box">
+                                            <?php if (!empty($row['ultrasound']) && file_exists($row['ultrasound'])): ?>
+                                            <img src="<?php echo htmlspecialchars($row['ultrasound']); ?>"
+                                                class="preview-img" alt="Ảnh siêu âm">
+                                            <?php else: ?>
+                                            <div class="image-empty">
+                                                <i class="fas fa-image"></i>
+                                                Chưa có ảnh siêu âm
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 mb-3">
+                                        <label>Ảnh X-quang</label>
+                                        <div class="image-box">
+                                            <?php if (!empty($row['xray']) && file_exists($row['xray'])): ?>
+                                            <img src="<?php echo htmlspecialchars($row['xray']); ?>" class="preview-img"
+                                                alt="Ảnh X-quang">
+                                            <?php else: ?>
+                                            <div class="image-empty">
+                                                <i class="fas fa-image"></i>
+                                                Chưa có ảnh X-quang
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <div class="img-modal" id="imgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+                                    z-index:9999;align-items:center;justify-content:center;padding:24px;">
+                                        <div style="position:relative;max-width:min(1000px,95vw);max-height:90vh;">
+                                            <button type="button" id="imgModalClose" style="position:absolute;top:-12px;right:-12px;
+                                        width:36px;height:36px;border:0;border-radius:999px;
+                                        background:#fff;cursor:pointer;font-size:22px;">
+                                                &times;
+                                            </button>
+                                            <img id="imgModalSrc"
+                                                style="max-width:100%;max-height:90vh;border-radius:12px;background:#fff;">
+                                        </div>
+                                    </div>
+
+                                </div>
+
                             </div>
                         </form>
                     </div>
@@ -566,6 +652,32 @@ if (isset($_SESSION['success_message'])) {
                 }
             }).buttons().container().appendTo('#medicine_details_wrapper .col-md-6:eq(0)');
         });
+        const modal = document.getElementById('imgModal');
+        const modalImg = document.getElementById('imgModalSrc');
+        const closeBtn = document.getElementById('imgModalClose');
+
+        document.addEventListener('click', function(e) {
+            const img = e.target.closest('.preview-img');
+            if (!img) return;
+
+            modalImg.src = img.src;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeBtn.onclick = closeModal;
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        function closeModal() {
+            modal.style.display = 'none';
+            modalImg.src = '';
+            document.body.style.overflow = '';
+        }
         </script>
 </body>
 

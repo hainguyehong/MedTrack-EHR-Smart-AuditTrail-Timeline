@@ -1,16 +1,18 @@
 <?php 
 include './config/connection.php';
 include './common_service/common_functions.php';
+
 $message = '';
 islogin([1]); // chỉ cho admin (1)
+
 // Build filters from GET
-$search = trim($_GET['search'] ?? '');
-$timeRange = $_GET['timeRange'] ?? 'all';
-$userFilter = $_GET['userFilter'] ?? 'all';
+$search       = trim($_GET['search'] ?? '');
+$timeRange    = $_GET['timeRange'] ?? 'all';
+$userFilter   = $_GET['userFilter'] ?? 'all';
 $actionFilter = $_GET['actionFilter'] ?? 'all';
 
 // Prepare WHERE clauses
-$where = ["1=1"];
+$where  = ["1=1"];
 $params = [];
 
 // search across record_id, table_name, new_value, old_value
@@ -29,11 +31,12 @@ if ($timeRange === 'today') {
     $start = date('Y-m-d') . ' 00:00:00';
     $where[] = "a.changed_at >= :start";
     $params[':start'] = $start;
+
 } elseif ($timeRange === 'this_week') {
-    // Week starting Monday
     $monday = date('Y-m-d', strtotime('monday this week'));
     $where[] = "a.changed_at >= :start_week";
     $params[':start_week'] = $monday . ' 00:00:00';
+
 } elseif ($timeRange === 'this_month') {
     $first = date('Y-m-01') . ' 00:00:00';
     $where[] = "a.changed_at >= :start_month";
@@ -47,7 +50,7 @@ if ($userFilter !== 'all' && is_numeric($userFilter)) {
 }
 
 // action filter
-if ($actionFilter !== 'all') {
+if ($actionFilter !== 'all' && $actionFilter !== '') {
     $where[] = "a.action = :action";
     $params[':action'] = $actionFilter;
 }
@@ -55,16 +58,18 @@ if ($actionFilter !== 'all') {
 // only include logs from users with role 1 or 2
 $where[] = "(u.role IN (1,2))";
 
-// --- REPLACE: compute total, handle export, then fetch paginated rows ---
+// --- Pagination / Export / Fetch ---
 $perPage = 10;
-$page = max(1, intval($_GET['page'] ?? 1));
-$offset = ($page - 1) * $perPage;
-
-// add serial start for pagination-aware numbering
+$page    = max(1, intval($_GET['page'] ?? 1));
+$offset  = ($page - 1) * $perPage;
 $serialStart = $offset + 1;
 
 // count total matching rows
-$countSql = "SELECT COUNT(*) FROM audit_logs a LEFT JOIN users u ON a.user_id = u.id WHERE " . implode(' AND ', $where);
+$countSql = "SELECT COUNT(*)
+             FROM audit_logs a
+             LEFT JOIN users u ON a.user_id = u.id
+             WHERE " . implode(' AND ', $where);
+
 try {
     $stmtCount = $con->prepare($countSql);
     $stmtCount->execute($params);
@@ -85,6 +90,7 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
             LEFT JOIN users u ON a.user_id = u.id
             WHERE " . implode(' AND ', $where) . "
             ORDER BY a.changed_at DESC";
+
     try {
         $stmtExport = $con->prepare($exportSql);
         $stmtExport->execute($params);
@@ -99,13 +105,14 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
     header('Content-Disposition: attachment; filename=' . $filename);
 
     $out = fopen('php://output', 'w');
-    echo "\xEF\xBB\xBF";
+    echo "\xEF\xBB\xBF"; // BOM for Excel
+
     fputcsv($out, ['ID','Changed At','User ID','User','Table','Record ID','Action','Old Value','New Value']);
     foreach ($exportRows as $r) {
         $pref = '';
         if (isset($r['user_role'])) {
-            if ($r['user_role'] == 1) $pref = 'AD ';
-            elseif ($r['user_role'] == 2) $pref = 'BS ';
+            if ((int)$r['user_role'] === 1) $pref = 'AD ';
+            elseif ((int)$r['user_role'] === 2) $pref = 'BS ';
         }
         $displayWithPrefix = $pref . ($r['display_name'] ?? '');
         fputcsv($out, [
@@ -136,7 +143,6 @@ $sql = "SELECT a.id, a.user_id, COALESCE(u.display_name, CONCAT('User #', a.user
 
 try {
     $stmtLogs = $con->prepare($sql);
-    // bind existing filter params
     foreach ($params as $k => $v) {
         $stmtLogs->bindValue($k, $v);
     }
@@ -151,23 +157,24 @@ try {
 
 // set row serial counter
 $sn = $serialStart;
-// --- END REPLACE ---
 
+// ===== Build base query string for pagination (keep all filters) =====
+$q = $_GET;
+unset($q['page']);
+$baseQuery = http_build_query($q);
+$baseQuery = $baseQuery ? $baseQuery . '&' : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <?php include './config/site_css_links.php';?>
-    <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
-
     <?php include './config/data_tables_css.php';?>
     <title>Audit Trail - MedTrack</title>
 
     <style>
-    /* added .user-img to match users.php visuals */
     .user-img {
         width: 3em;
         object-fit: cover;
@@ -232,39 +239,29 @@ $sn = $serialStart;
         align-items: flex-end;
     }
 
-    /* Button Đặt lại & Xuất Excel */
     .action-btn {
-        border-radius: 20px;     /* ← giống nhau tuyệt đối */
+        border-radius: 20px;
         padding: 6px 18px;
         font-weight: 500;
     }
 
-     label {
+    label {
         font-weight: 700;
         color: #000;
     }
     </style>
 </head>
 
-<!-- <body class="hold-transition sidebar-mini dark-mode layout-fixed layout-navbar-fixed"> -->
-
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
-    <!-- Site wrapper -->
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background:#f8fafc;">
     <div class="wrapper">
-        <!-- Navbar -->
-        <?php include './config/header.php';
-        include './config/sidebar.php';?>
-        <!-- Content Wrapper. Contains page content -->
+        <?php include './config/header.php'; include './config/sidebar.php';?>
+
         <div class="content-wrapper">
             <section class="content-header">
-                <div class="container-fluid">
-                    <!-- <h2 class="mb-2">Audit Trail</h2>
-                    <p class="text-muted">Lịch sử thay đổi hồ sơ bệnh án</p> -->
-                </div>
+                <div class="container-fluid"></div>
             </section>
 
             <section class="content">
-                <!-- Filter card — converted to have same header style as users.php -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fa-solid fa-filter"></i> LỌC DỮ LIỆU</h3>
@@ -274,94 +271,96 @@ $sn = $serialStart;
                             </button>
                         </div>
                     </div>
+
                     <div class="card-body">
                         <form id="filterForm" method="get" class="mb-0">
                             <div class="row">
 
-                                <!-- HÀNG 1 -->
                                 <div class="col-md-6 mb-3">
                                     <label class="small">Tìm kiếm</label>
-                                    <input type="search"
-                                        name="search"
-                                        id="searchInput"
-                                        class="form-control form-control-sm"
-                                        placeholder="Từ khóa, bảng, mã hồ sơ..."
+                                    <input type="search" name="search" id="searchInput"
+                                        class="form-control form-control-sm" placeholder="Từ khóa, bảng, mã hồ sơ..."
                                         value="<?php echo htmlspecialchars($search); ?>">
                                 </div>
 
                                 <div class="col-md-6 mb-3">
                                     <label class="small">Thời gian</label>
                                     <select name="timeRange" id="timeRange" class="form-control form-control-sm">
-                                        <option value="all">Tất cả</option>
+                                        <option value="all" <?= $timeRange=='all'?'selected':'' ?>>Tất cả</option>
                                         <option value="today" <?= $timeRange=='today'?'selected':'' ?>>Hôm nay</option>
-                                        <option value="this_week" <?= $timeRange=='this_week'?'selected':'' ?>>Tuần này</option>
-                                        <option value="this_month" <?= $timeRange=='this_month'?'selected':'' ?>>Tháng này</option>
+                                        <option value="this_week" <?= $timeRange=='this_week'?'selected':'' ?>>Tuần này
+                                        </option>
+                                        <option value="this_month" <?= $timeRange=='this_month'?'selected':'' ?>>Tháng
+                                            này</option>
                                     </select>
                                 </div>
 
-                    <!-- HÀNG 2 -->
-                            <div class="col-md-6 mb-3">
-                                <label class="small">Người dùng</label>
+                                <!-- ✅ FIX: đổ users vào dropdown -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="small">Người dùng</label>
                                     <select name="userFilter" id="userFilter" class="form-control form-control-sm">
                                         <option value="all">Tất cả</option>
-                                        <?php 
-                                        // refill users dropdown — only role 1 and 2, include role for prefix
-                                        try {
-                                            $stmtUsers = $con->prepare("SELECT id, display_name, role FROM users WHERE is_deleted = 0 AND role IN (1,2) ORDER BY display_name");
-                                            $stmtUsers->execute();
-                                            while($u = $stmtUsers->fetch(PDO::FETCH_ASSOC)){
-                                                $sel = ($userFilter == $u['id']) ? 'selected' : '';
-                                                $prefix = '';
-                                                if (isset($u['role'])) {
-                                                    if ($u['role'] == 1) $prefix = 'AD. ';
-                                                    elseif ($u['role'] == 2) $prefix = 'BS. ';
-                                                }
-                                                echo '<option value="'.intval($u['id']).'" '.$sel.'>'.htmlspecialchars($prefix . $u['display_name']).'</option>';
-                                            }
-                                        } catch (Exception $e){
-                                            // ignore
+                                        <?php
+                                    try {
+                                        $stmtUsers = $con->prepare("
+                                            SELECT id, display_name, role
+                                            FROM users
+                                            WHERE is_deleted = 0 AND role IN (1,2)
+                                            ORDER BY display_name
+                                        ");
+                                        $stmtUsers->execute();
+
+                                        while ($u = $stmtUsers->fetch(PDO::FETCH_ASSOC)) {
+                                            $sel = ($userFilter == $u['id']) ? 'selected' : '';
+                                            $prefix = '';
+                                            if ((int)$u['role'] === 1) $prefix = 'AD ';
+                                            elseif ((int)$u['role'] === 2) $prefix = 'BS ';
+
+                                            echo '<option value="'.(int)$u['id'].'" '.$sel.'>'
+                                                . htmlspecialchars($prefix . $u['display_name'])
+                                                . '</option>';
                                         }
-                                        ?>
+                                    } catch (Exception $e) {
+                                        echo '<option value="all" disabled>'
+                                            . 'Lỗi load users: ' . htmlspecialchars($e->getMessage())
+                                            . '</option>';
+                                    }
+                                    ?>
                                     </select>
                                 </div>
 
                                 <div class="col-md-6 mb-3">
                                     <label class="small">Hành động</label>
                                     <select name="actionFilter" id="actionFilter" class="form-control form-control-sm">
-                                        <option value="all">Tất cả</option>
-                                        <option value="insert">Tạo</option>
-                                        <option value="update">Cập nhật</option>
-                                        <option value="delete">Xoá</option>
+                                        <option value="all" <?= $actionFilter=='all'?'selected':'' ?>>Tất cả</option>
+                                        <option value="insert" <?= $actionFilter=='insert'?'selected':'' ?>>Tạo</option>
+                                        <option value="update" <?= $actionFilter=='update'?'selected':'' ?>>Cập nhật
+                                        </option>
+                                        <option value="delete" <?= $actionFilter=='delete'?'selected':'' ?>>Xoá</option>
                                     </select>
                                 </div>
 
-                                <!-- HÀNG 3: BUTTON -->
                                 <div class="col-12 text-center mt-2">
-
-                                    <button type="submit"
-                                            class="btn btn-primary btn-sm px-4 mx-1">
+                                    <button type="submit" class="btn btn-primary btn-sm px-4 mx-1">
                                         <i class="fa-solid fa-filter me-1"></i>Áp dụng
                                     </button>
 
-                                    <button type="button"
-                                        id="resetFilters"
+                                    <button type="button" id="resetFilters"
                                         class="btn btn-secondary btn-sm px-4 mx-1 action-btn">
                                         <i class="fa-solid fa-rotate-left me-1"></i>Đặt lại
                                     </button>
 
-                                    <button type="button"
-                                        id="exportCsv"
+                                    <button type="button" id="exportCsv"
                                         class="btn btn-outline-dark btn-sm px-4 mx-1 action-btn">
                                         <i class="fa-solid fa-file-excel me-1"></i>Xuất Excel
                                     </button>
-
                                 </div>
+
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Results card — add header to match users.php visual -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fa-solid fa-list"></i>DANH SÁCH</h3>
@@ -371,6 +370,7 @@ $sn = $serialStart;
                             </button>
                         </div>
                     </div>
+
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="auditTable" class="table table-striped table-bordered">
@@ -391,62 +391,56 @@ $sn = $serialStart;
                                         <td colspan="7" class="text-center text-muted">Không tìm thấy bản ghi nào</td>
                                     </tr>
                                     <?php } else {
-                                        foreach($logs as $row) {
-                                            // prepare brief preview of new_value (prefer readable json)
-                                            $preview = $row['new_value'] ?? $row['old_value'] ?? '';
-                                            $pretty = $preview;
-                                            // try decode to pretty json
-                                            $decoded = json_decode($preview, true);
-                                            if (json_last_error() === JSON_ERROR_NONE) {
-                                                $pretty = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                                            }
-                                            $short = nl2br(htmlspecialchars(mb_strimwidth($pretty, 0, 240, '...')));
-
-                                            // prefix display name based on role
-                                            $prefix = '';
-                                            if (isset($row['user_role'])) {
-                                                if ($row['user_role'] == 1) $prefix = 'AD ';
-                                                elseif ($row['user_role'] == 2) $prefix = 'BS ';
-                                            }
-                                            $displayNamePref = htmlspecialchars($prefix . ($row['display_name'] ?? ''));
-
-                                            echo '<tr>';
-                                            // serial number column
-                                            echo '<td class="px-2 py-1 align-middle text-center">'.($sn++).'</td>';
-                                            echo '<td>'.htmlspecialchars($row['changed_at']).'</td>';
-                                            echo '<td>'.$displayNamePref.'</td>';
-                                            echo '<td>'.htmlspecialchars($row['action']).'</td>';
-                                            echo '<td>'.htmlspecialchars($row['table_name']).' #'.htmlspecialchars($row['record_id']).'</td>';
-                                            echo '<td><div class="json-preview">'.$short.'</div></td>';
-                                            echo '<td><button class="btn btn-sm btn-outline-primary view-json" data-json="'.htmlspecialchars($pretty, ENT_QUOTES).'">Xem</button></td>';
-                                            echo '</tr>';
+                                    foreach ($logs as $row) {
+                                        $preview = $row['new_value'] ?? $row['old_value'] ?? '';
+                                        $pretty = $preview;
+                                        $decoded = json_decode($preview, true);
+                                        if (json_last_error() === JSON_ERROR_NONE) {
+                                            $pretty = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                                         }
-                                    } ?>
+                                        $short = nl2br(htmlspecialchars(mb_strimwidth($pretty, 0, 240, '...')));
+
+                                        $prefix = '';
+                                        if (isset($row['user_role'])) {
+                                            if ((int)$row['user_role'] === 1) $prefix = 'AD ';
+                                            elseif ((int)$row['user_role'] === 2) $prefix = 'BS ';
+                                        }
+                                        $displayNamePref = htmlspecialchars($prefix . ($row['display_name'] ?? ''));
+
+                                        echo '<tr>';
+                                        echo '<td class="px-2 py-1 align-middle text-center">'.($sn++).'</td>';
+                                        echo '<td>'.htmlspecialchars($row['changed_at']).'</td>';
+                                        echo '<td>'.$displayNamePref.'</td>';
+                                        echo '<td>'.htmlspecialchars($row['action']).'</td>';
+                                        echo '<td>'.htmlspecialchars($row['table_name']).' #'.htmlspecialchars($row['record_id']).'</td>';
+                                        echo '<td><div class="json-preview">'.$short.'</div></td>';
+                                        echo '<td><button class="btn btn-sm btn-outline-primary view-json" data-json="'.htmlspecialchars($pretty, ENT_QUOTES).'">Xem</button></td>';
+                                        echo '</tr>';
+                                    }
+                                } ?>
                                 </tbody>
                             </table>
+
                             <?php if ($totalPages > 1): ?>
                             <nav aria-label="Patients pagination">
                                 <ul class="pagination justify-content-center mt-3">
 
-                                    <!-- Previous -->
                                     <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="?page=<?= $page-1 ?>">«</a>
+                                        <a class="page-link" href="?<?= $baseQuery ?>page=<?= $page-1 ?>">«</a>
                                     </li>
 
                                     <?php
-                                    // hiển thị tối đa 5 trang quanh trang hiện tại
-                                    $start = max(1, $page - 10);
-                                    $end   = min($totalPages, $page + 10 );
-                                    ?>
-                                    <?php for($i = $start; $i <= $end; $i++): ?>
+                                $start = max(1, $page - 10);
+                                $end   = min($totalPages, $page + 10);
+                                for ($i = $start; $i <= $end; $i++):
+                                ?>
                                     <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                        <a class="page-link" href="?<?= $baseQuery ?>page=<?= $i ?>"><?= $i ?></a>
                                     </li>
                                     <?php endfor; ?>
 
-                                    <!-- Next -->
                                     <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
-                                        <a class="page-link" href="?page=<?= $page+1 ?>">»</a>
+                                        <a class="page-link" href="?<?= $baseQuery ?>page=<?= $page+1 ?>">»</a>
                                     </li>
 
                                 </ul>
@@ -456,12 +450,13 @@ $sn = $serialStart;
                                 </div>
                             </nav>
                             <?php endif; ?>
+
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-        <!-- /.content-wrapper -->
+
         <?php include './config/footer.php'; ?>
 
         <!-- Modal for JSON view -->
@@ -487,17 +482,34 @@ $sn = $serialStart;
         </div>
 
     </div>
-    <!-- /.wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- ⚠️ Nếu site_js_links.php đã có jQuery rồi thì BỎ dòng CDN jQuery bên dưới -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
-    // Keep existing helper usage
+    $(function() {
+        $('#userFilter').select2({
+            width: '100%',
+            placeholder: 'Tất cả / gõ tên để tìm',
+            allowClear: false,
+            minimumResultsForSearch: 0
+        });
+    });
+    </script>
+
+    <script>
     document.getElementById('resetFilters').addEventListener('click', function() {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('timeRange').value = 'all';
-        document.getElementById('userFilter').value = 'all';
-        document.getElementById('actionFilter').value = 'all';
+        $('#searchInput').val('');
+        $('#timeRange').val('all').trigger('change');
+        $('#userFilter').val('all').trigger('change');
+        $('#actionFilter').val('all').trigger('change');
         document.getElementById('filterForm').submit();
     });
 
@@ -508,7 +520,6 @@ $sn = $serialStart;
         window.location = url;
     });
 
-    // delegate view-json buttons
     document.addEventListener('click', function(e) {
         if (e.target && e.target.classList.contains('view-json')) {
             const content = e.target.getAttribute('data-json') || '';

@@ -29,4 +29,16 @@ $(document).ready(function() {
         }
     });
 });
+$(document).ready(function() {
+    $('.setupSelect4').select2({
+        placeholder: "Tìm kiếm theo tên ",
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "Không có người dùng";
+            }
+        }
+    });
+});
 </script>

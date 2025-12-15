@@ -83,7 +83,7 @@ if (isset($_POST['save_Patient'])) {
     if ($phoneNumber === '') {
         $errors['phone_number'] = "Vui lòng nhập số điện thoại!";
     } elseif (!preg_match('/^0\d{9,10}$/', $phoneNumber)) {
-        $errors['phone_number'] = "Số điện thoại không hợp lệ (bắt đầu bằng 0, gồm 10-11 số)!";
+        $errors['phone_number'] = "Số điện thoại không hợp lệ (bắt đầu bằng 0, gồm 10 số)!";
     } elseif ($phoneNumber === str_repeat('0', strlen($phoneNumber))) {
         $errors['phone_number'] = "Số điện thoại không hợp lệ (toàn số 0)!";
     }

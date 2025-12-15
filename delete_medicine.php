@@ -24,11 +24,6 @@ try {
         $stmtmedicine->bindParam(':deleted_at', $deleted_at);
         $stmtmedicine->execute();
 
-        // Soft delete các lần khám của bệnh nhân
-        $querydetail = "UPDATE `medicine_details` SET `is_deleted` = 1 WHERE `id` = :id";
-        $stmtdetail = $con->prepare($querydetail);
-        $stmtdetail->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmtdetail->execute();
         if (function_exists('log_audit')) {
             log_audit(
                 $con,
@@ -41,7 +36,6 @@ try {
             );
         }
     $con->commit();
-    // $message = 'Bệnh nhân đã được xoá (soft delete).';
     $_SESSION['success_message'] = 'Xóa thuốc thành công (soft delete).';
 
 } catch(PDOException $ex) {
@@ -181,19 +175,14 @@ include './config/sidebar.php';?>
                             <div class="row align-items-end">
                                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                     <label>Tên loại thuốc</label>
-                                    <input type="text"
-                                        id="medicine_name"
-                                        name="medicine_name"
-                                        class="form-control form-control-sm"
-                                        value="<?php echo $row['medicine_name'];?>"
+                                    <input type="text" id="medicine_name" name="medicine_name"
+                                        class="form-control form-control-sm" value="<?php echo $row['medicine_name'];?>"
                                         readonly />
                                 </div>
 
                                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
                                     <label>&nbsp;</label>
-                                    <button type="button"
-                                        class="btn btn-danger btn-sm px-4"
-                                        data-toggle="modal"
+                                    <button type="button" class="btn btn-danger btn-sm px-4" data-toggle="modal"
                                         data-target="#confirmDeleteModal">
                                         <i class="fa-solid fa-trash mr-1"></i> XOÁ
                                     </button>
@@ -247,49 +236,44 @@ $message = '';
     </script>
 
     <!-- Modal xác nhận xoá thuốc -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
 
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    Xác nhận xoá thuốc
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        Xác nhận xoá thuốc
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xoá thuốc
+                    <strong class="text-danger">
+                        <?php echo $row['medicine_name']; ?>
+                    </strong> không?
+                    <br>
+                    <small class="text-muted delete-note">
+                        (Thuốc sẽ bị đánh dấu xoá – không hiển thị trong hệ thống)
+                    </small>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm px-3" data-dismiss="modal">
+                        <i class="fa-solid fa-xmark mr-1"></i> HỦY
+                    </button>
+
+                    <button type="submit" form="deleteForm" name="delete_medicine" class="btn btn-danger btn-sm px-3">
+                        <i class="fa-solid fa-trash-can mr-1"></i> XOÁ
+                    </button>
+                </div>
+
             </div>
-
-            <div class="modal-body">
-                Bạn có chắc chắn muốn xoá thuốc
-                <strong class="text-danger">
-                    <?php echo $row['medicine_name']; ?>
-                </strong> không?
-                <br>
-                <small class="text-muted delete-note">
-                    (Thuốc sẽ bị đánh dấu xoá – không hiển thị trong hệ thống)
-                </small>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button"
-                    class="btn btn-secondary btn-sm px-3"
-                    data-dismiss="modal">
-                    <i class="fa-solid fa-xmark mr-1"></i> HỦY
-                </button>
-
-                <button type="submit"
-                    form="deleteForm"
-                    name="delete_medicine"
-                    class="btn btn-danger btn-sm px-3">
-                    <i class="fa-solid fa-trash-can mr-1"></i> XOÁ
-                </button>
-            </div>
-
         </div>
     </div>
-</div>
 
 
 </body>

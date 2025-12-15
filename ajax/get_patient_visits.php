@@ -5,7 +5,7 @@ if (!isset($_POST['patient_id'])) {
     exit;
 }
 $patientId = intval($_POST['patient_id']);
-$query = "SELECT id, created_at, huyet_ap, can_nang, chieu_cao, nhiet_do, mach_dap, nhip_tim, trieu_chung, chuan_doan, bien_phap, nhap_vien, tien_su_benh
+$query = "SELECT id, created_at, huyet_ap, can_nang, chieu_cao, nhiet_do, mach_dap, nhip_tim, trieu_chung, chuan_doan, bien_phap, nhap_vien, tien_su_benh, anh_sieu_am AS ultrasound, anh_chup_xq AS xray
           FROM patient_diseases
           WHERE patient_id = :patient_id
           ORDER BY created_at ASC";
@@ -16,5 +16,3 @@ $visits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 echo json_encode($visits);
-
-
