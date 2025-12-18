@@ -285,6 +285,19 @@ if (isset($_POST['submit_prescription'])) {
 
     if (count($medicineIds) == 0) {
         $_SESSION['error_message'] = 'Bạn chưa thêm thuốc nào vào đơn. Vui lòng thêm thuốc trước khi lưu!';
+         // ✅ lưu nháp để đổ lại
+    $_SESSION['prescription_old'] = [
+        'medicineIds' => $medicineIds,
+        'quantities'  => $quantities,
+        'dosages'     => $dosages,
+        'notes'       => $notes,
+        'last' => [
+            'medicine' => $_POST['last_medicine'] ?? '',
+            'quantity' => $_POST['last_quantity'] ?? '',
+            'dosage'   => $_POST['last_dosage'] ?? '',
+            'note'     => $_POST['last_note'] ?? '',
+        ]
+    ];  
         header("Location: patients_visit.php");
         exit();
     }
@@ -347,9 +360,29 @@ if (isset($_POST['submit_prescription'])) {
         
         $_SESSION['success_message'] = 'Đơn thuốc đã được lưu thành công!';
 
+        
+        // ✅ cờ để JS biết đã lưu xong -> xóa localStorage draft
+        $_SESSION['prescription_saved_flag'] = 1;
+
+        // ✅ Xóa nháp session (đơn thuốc)
+        unset($_SESSION['prescription_old']);
+
     } catch (PDOException $ex) {
         $con->rollback();
         $_SESSION['error_message'] = 'Lỗi khi lưu đơn thuốc: ' . $ex->getMessage();
+        
+        $lastMedicine = $_POST['last_medicine'] ?? '';
+        $lastQuantity = $_POST['last_quantity'] ?? '';
+        $lastDosage   = $_POST['last_dosage'] ?? '';
+        $lastNote     = $_POST['last_note'] ?? '';
+
+        $_SESSION['prescription_old']['last'] = [
+            'medicine' => $lastMedicine,
+            'quantity' => $lastQuantity,
+            'dosage'   => $lastDosage,
+            'note'     => $lastNote,
+        ];
+
     }
     
 
@@ -700,7 +733,14 @@ $medicines = getMedicines($con);
 <?php $old = $_SESSION['exam_old'] ?? [];  
 $ultrasoundOld = $old['ultrasound_path'] ?? '';
 $xrayOld = $old['xray_path'] ?? '';
+// $oldPrescription = $_SESSION['prescription_old'] ?? [];
+// $last = $oldPrescription['last'] ?? [];
 ?>
+<?php
+$prescriptionSavedFlag = isset($_SESSION['prescription_saved_flag']) ? 1 : 0;
+unset($_SESSION['prescription_saved_flag']); // ✅ unset ở đây là chuẩn nhất
+?>
+
 <?php //  cờ đã lưu khám bệnh
 $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_id']);
  ?>
@@ -976,40 +1016,6 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
                                 <h5 class="section-title"><i class="fas fa-prescription-bottle-alt"></i> Kê đơn thuốc
                                 </h5>
-
-                                <!-- <div class="row">
-                                    <div class="col-lg-3 col-md-4 mb-3">
-                                        <label>Chọn loại thuốc</label>
-                                        <select id="medicine" class="form-control setupSelect3" name="medicine">
-                                            <option value="">-- Chọn thuốc --</option>
-                                            <?php echo $medicines;?>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-lg-2 col-md-3 mb-3">
-                                        <label>Số lượng</label>
-                                        <input id="quantity" class="form-control" name="quantity" type="number"
-                                            min="1" />
-                                    </div>
-
-                                    <div class="col-lg-2 col-md-3 mb-3">
-                                        <label>Liều dùng</label>
-                                        <input id="dosage" class="form-control" name="dosage" type="number"
-                                            placeholder="2 viên/ngày" />
-                                    </div>
-
-                                    <div class="col-lg-3 col-md-3 mb-3">
-                                        <label>Ghi chú</label>
-                                        <input id="note" name="note" class="form-control" placeholder="Sau ăn" />
-                                    </div>
-
-                                    <div class="col-lg-2 col-md-2 mb-3">
-                                        <label>&nbsp;</label>
-                                        <button id="add_to_list" type="button" class="btn btn-primary btn-block">
-                                            <i class="fa fa-plus"></i> Thêm
-                                        </button>
-                                    </div>
-                                </div> -->
                                 <!-- ===== FORM NHẬP THUỐC ===== -->
 
                                 <!-- DÒNG 1 -->
@@ -1020,11 +1026,25 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                             <option value="">-- Chọn thuốc --</option>
                                             <?php echo $medicines; ?>
                                         </select>
+                                        <script>
+                                        document.addEventListener("DOMContentLoaded", function() {
+                                            const oldMed = "<?= htmlspecialchars($last['medicine'] ?? '') ?>";
+                                            if (oldMed) {
+                                                const sel = document.getElementById("medicine");
+                                                sel.value = oldMed;
+                                                // nếu dùng select2
+                                                if (window.jQuery && jQuery(sel).hasClass("setupSelect3")) {
+                                                    jQuery(sel).trigger("change");
+                                                }
+                                            }
+                                        });
+                                        </script>
                                     </div>
 
                                     <div class="col-lg-6 mb-3">
                                         <label>Số lượng</label>
                                         <input id="quantity" class="form-control" name="quantity" type="number" min="1"
+                                            value="<?= htmlspecialchars($last['quantity'] ?? '') ?>"
                                             placeholder="Ví dụ: 10" />
                                     </div>
                                 </div>
@@ -1034,12 +1054,15 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                     <div class="col-lg-6 mb-3">
                                         <label>Liều dùng</label>
                                         <input id="dosage" class="form-control" name="dosage" type="text"
+                                            value="<?= htmlspecialchars($last['dosage'] ?? '') ?>"
                                             placeholder="Ví dụ: 2" />
                                     </div>
 
                                     <div class="col-lg-6 mb-3">
                                         <label>Ghi chú</label>
-                                        <input id="note" name="note" class="form-control" placeholder="Ví dụ: Sau ăn" />
+                                        <input id="note" name="note" class="form-control"
+                                            value="<?= htmlspecialchars($last['note'] ?? '') ?>"
+                                            placeholder="Ví dụ: Sau ăn" />
                                     </div>
                                 </div>
 
@@ -1080,6 +1103,11 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                     <button type="button" class="btn btn-secondary me-3" id="backToExam">
                                         <i class="fas fa-arrow-left me-2"></i> Quay lại khám bệnh
                                     </button>
+
+                                    <input type="hidden" name="last_medicine" id="last_medicine">
+                                    <input type="hidden" name="last_quantity" id="last_quantity">
+                                    <input type="hidden" name="last_dosage" id="last_dosage">
+                                    <input type="hidden" name="last_note" id="last_note">
 
                                     <button type="submit" id="submitPrescription" name="submit_prescription"
                                         class="btn btn-success">
@@ -1129,6 +1157,9 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
     <?php include './common_service/loaduser.php';?>
 
     <script>
+    var hasError = false;
+    var errorMsg = "";
+
     $(document).ready(function() {
         const oldPatient = "<?= addslashes($old['patient'] ?? '') ?>";
         const oldNv = "<?= addslashes($old['nv'] ?? '') ?>";
@@ -1140,6 +1171,37 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
         if (oldNv !== '') {
             $('#nv').val(oldNv).trigger('change');
         }
+    });
+    $(document).ready(function() {
+
+        // ✅ 1) Nếu vừa lưu đơn thuốc thành công -> xóa nháp localStorage + reset UI
+        const savedFlag = <?= (int)$prescriptionSavedFlag ?>;
+
+        if (savedFlag === 1) {
+            localStorage.removeItem("prescription_draft");
+
+            $("#medicine").val("").trigger("change");
+            $("#quantity").val("");
+            $("#dosage").val("");
+            $("#note").val("");
+
+            $("#current_medicines_list").html(`
+      <tr>
+        <td colspan="6" class="text-center text-muted py-4">
+          Chưa có thuốc nào được thêm vào đơn
+        </td>
+      </tr>
+    `);
+
+            serial = 1;
+        } else {
+            // ✅ 2) Chỉ khi CHƯA lưu thành công mới load nháp
+            loadPrescriptionDraft();
+        }
+
+        // ✅ bind autosave 1 lần
+        $("#medicine, #quantity, #dosage, #note").on("change keyup", savePrescriptionDraft);
+
     });
 
     function previewImage(inputId, previewId) {
@@ -1208,52 +1270,6 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
         });
 
 
-        // Add medication to list
-        // $("#add_to_list").click(function() {
-        //     var medicineId = $("#medicine").val();
-        //     var medicineName = $("#medicine option:selected").text();
-        //     var note = $("#note").val().trim();
-        //     var quantity = $("#quantity").val().trim();
-        //     var dosage = $("#dosage").val().trim();
-
-        //     if (!medicineId) return showCustomMessage("Bạn chưa chọn thuốc!", "warning");
-        //     if (!quantity) return showCustomMessage("Bạn chưa nhập số lượng!", "warning");
-        //     if (!dosage) return showCustomMessage("Bạn chưa nhập liều dùng!", "warning");
-
-
-        //     if ($("#current_medicines_list tr").length == 1 && $("#current_medicines_list td").attr(
-        //             'colspan')) {
-        //         $("#current_medicines_list").empty();
-        //     }
-
-        //     var inputs = '';
-        //     inputs += '<input type="hidden" name="medicineIds[]" value="' + medicineId + '" />';
-        //     inputs += '<input type="hidden" name="notes[]" value="' + note + '" />';
-        //     inputs += '<input type="hidden" name="quantities[]" value="' + quantity + '" />';
-        //     inputs += '<input type="hidden" name="dosages[]" value="' + dosage + '" />';
-
-        //     var tr = '<tr>';
-        //     tr += '<td class="text-center">' + serial + '</td>';
-        //     tr += '<td>' + medicineName + '</td>';
-        //     tr += '<td class="text-center">' + quantity + '</td>';
-        //     tr += '<td>' + dosage + inputs + '</td>';
-        //     tr += '<td>' + note + '</td>';
-        //     tr += '<td class="text-center">';
-        //     tr +=
-        //         '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteCurrentRow(this);">';
-        //     tr += '<i class="fa fa-times"></i></button></td>';
-        //     tr += '</tr>';
-
-        //     $("#current_medicines_list").append(tr);
-        //     serial++;
-
-        //     $("#medicine").val('');
-        //     $("#note").val('');
-        //     $("#quantity").val('');
-        //     $("#dosage").val('');
-
-        //     showCustomMessage("Đã thêm thuốc vào đơn!", "success");
-        // });
         $("#add_to_list").click(function() {
 
             var medicineId = $("#medicine").val();
@@ -1262,6 +1278,11 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
             var dosage = $("#dosage").val().trim();
             var note = $("#note").val().trim();
             var dosageDisplay = dosage + " viên/ngày";
+
+            $("#last_medicine").val(medicineId);
+            $("#last_quantity").val(quantity);
+            $("#last_dosage").val(dosage);
+            $("#last_note").val(note);
 
 
             // ===== 1. VALIDATE RỖNG – CHỈ 1 CÂU =====
@@ -1335,12 +1356,20 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
     `;
 
             $("#current_medicines_list").append(tr);
+            savePrescriptionDraft();
+
             serial++;
 
-            $("#medicine").val('');
-            $("#quantity").val('');
-            $("#dosage").val('');
-            $("#note").val('');
+            // $("#medicine").val('');
+            // $("#quantity").val('');
+            // $("#dosage").val('');
+            // $("#note").val('');
+
+            // vẫn lưu lat_* để PHP giữ lại nếu submit lỗi
+            $("#last_medicine").val(medicineId);
+            $("#last_quantity").val(quantity);
+            $("#last_dosage").val(dosage);
+            $("#last_note").val(note);
 
             showCustomMessage("Đã thêm thuốc vào đơn!", "success");
         });
@@ -1432,6 +1461,8 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                     }
 
                     showCustomMessage("Đã xóa thuốc khỏi đơn.", "success");
+                    savePrescriptionDraft();
+
                 }
             });
             return;
@@ -1439,6 +1470,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
         // fallback confirm thường
         if (!confirm("Bạn có chắc chắn muốn xóa thuốc này không?")) return;
+        savePrescriptionDraft();
 
         $(btn).closest('tr').remove();
         if ($("#current_medicines_list tr").length === 0) {
@@ -1448,6 +1480,25 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
             serial = 1;
         }
     }
+    $(document).ready(function() {
+
+        // Khi chọn thuốc khác -> clear các ô còn lại
+        $("#medicine").on("change", function() {
+            $("#quantity").val("");
+            $("#dosage").val("");
+            $("#note").val("");
+
+            // cập nhật hidden last_* (để submit lưu đơn thuốc vẫn giữ đúng)
+            $("#last_medicine").val($(this).val() || "");
+            $("#last_quantity").val("");
+            $("#last_dosage").val("");
+            $("#last_note").val("");
+
+            // lưu draft lại
+            savePrescriptionDraft();
+        });
+
+    });
 
 
     $(document).ready(function() {
@@ -1594,8 +1645,83 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeModal();
     });
-    </script>
 
+    function savePrescriptionDraft() {
+        const rows = [];
+        $("#current_medicines_list tr").each(function() {
+            const mid = $(this).find("input[name='medicineIds[]']").val();
+            if (!mid) return;
+
+            rows.push({
+                medicineId: mid,
+                quantity: $(this).find("input[name='quantities[]']").val() || "",
+                dosage: $(this).find("input[name='dosages[]']").val() || "",
+                note: $(this).find("input[name='notes[]']").val() || ""
+            });
+        });
+
+        const draft = {
+            input: {
+                medicine: $("#medicine").val() || "",
+                quantity: $("#quantity").val() || "",
+                dosage: $("#dosage").val() || "",
+                note: $("#note").val() || ""
+            },
+            rows: rows
+        };
+
+        localStorage.setItem("prescription_draft", JSON.stringify(draft));
+    }
+
+    function loadPrescriptionDraft() {
+        const raw = localStorage.getItem("prescription_draft");
+        if (!raw) return;
+
+        const draft = JSON.parse(raw);
+
+        // set lại input
+        if (draft.input) {
+            $("#medicine").val(draft.input.medicine).trigger("change");
+            $("#quantity").val(draft.input.quantity);
+            $("#dosage").val(draft.input.dosage);
+            $("#note").val(draft.input.note);
+        }
+
+        // render lại table
+        if (draft.rows && draft.rows.length) {
+            $("#current_medicines_list").empty();
+            serial = 1;
+            draft.rows.forEach(r => {
+                const medicineName = $("#medicine option[value='" + r.medicineId + "']").text() || ("Thuốc #" +
+                    r.medicineId);
+                const dosageDisplay = r.dosage + " viên/ngày";
+
+                let inputs = '';
+                inputs += '<input type="hidden" name="medicineIds[]" value="' + r.medicineId + '" />';
+                inputs += '<input type="hidden" name="quantities[]" value="' + r.quantity + '" />';
+                inputs += '<input type="hidden" name="dosages[]" value="' + r.dosage + '" />';
+                inputs += '<input type="hidden" name="notes[]" value="' + r.note + '" />';
+
+                const tr = `
+        <tr>
+          <td class="text-center">${serial}</td>
+          <td>${medicineName}</td>
+          <td class="text-center">${r.quantity}</td>
+          <td>${dosageDisplay}${inputs}</td>
+          <td>${r.note}</td>
+          <td class="text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteCurrentRow(this)">
+              <i class="fa fa-times"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+                $("#current_medicines_list").append(tr);
+                serial++;
+            });
+        }
+    }
+    </script>
 
     <!-- Bootstrap icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
