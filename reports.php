@@ -18,6 +18,10 @@ include './common_service/date.php';
     <title>Reports - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>
+        * {
+    font-family: sans-serif;
+}
+
     body {
         background: #f8fafc;
     }
@@ -107,7 +111,7 @@ include './config/sidebar.php';?>
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">LỊCH SỬ KHÁM BỆNH TRONG KHOẢNG THỜI GIAN</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left mr-1"></i>LỊCH SỬ KHÁM BỆNH TRONG KHOẢNG THỜI GIAN</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -169,7 +173,7 @@ include './config/sidebar.php';?>
             if (!from && !to) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Thiếu thông tin',
+                    title: 'Lỗi',
                     iconColor: '#dc3545',
                     confirmButtonText: 'Đã hiểu',
                     text: 'Vui lòng chọn Khoảng thời gian trước khi xem báo cáo.'

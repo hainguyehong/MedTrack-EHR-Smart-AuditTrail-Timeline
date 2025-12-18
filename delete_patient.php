@@ -66,7 +66,7 @@ if (isset($_POST['delete_Patient'])) {
 
         $con->commit();
 
-        $_SESSION['success_message'] = 'Bệnh nhân đã được xóa (soft delete) thành công.';
+        $_SESSION['success_message'] = 'Bệnh nhân đã được xóa (soft delete) thành công!';
     } catch (Exception $ex) {
         $con->rollBack();
         $_SESSION['error_message'] = "Lỗi khi xóa bệnh nhân: " . $ex->getMessage();
@@ -114,60 +114,64 @@ $dob = $row['date_of_birth'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <?php include './config/site_css_links.php';?>
-    <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <link rel="icon" type="image/png" href="assets/images/img-tn.png">
+    <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+    <title>Xóa bệnh nhân - MedTrack</title>
     <style>
-    body {
-        background: #f8fafc;
-    }
+        * {
+            font-family: sans-serif;
+        }
+        body {
+            background: #f8fafc;
+        }
 
-    .card-primary.card-outline {
-        border-top: 0px solid #007bff;
-    }
+        .card-primary.card-outline {
+            border-top: 0px solid #007bff;
+        }
 
-    .card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
 
-    .card-header {
-        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-        color: #fff;
-        border-radius: 12px 12px 0 0;
-    }
+        .card-header {
+            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+            color: #fff;
+            border-radius: 12px 12px 0 0;
+        }
 
-    .btn-primary,
-    .btn-danger {
-        border-radius: 20px;
-        transition: 0.2s;
-    }
+        .btn-primary,
+        .btn-danger {
+            border-radius: 20px;
+            transition: 0.2s;
+        }
 
-    .btn-primary:hover,
-    .btn-danger:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
-    }
+        .btn-primary:hover,
+        .btn-danger:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+        }
 
-    .table {
-        background: #fff;
-    }
+        .table {
+            background: #fff;
+        }
 
-    .form-control,
-    .form-select {
-        border-radius: 8px;
-    }
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+        }
 
-    .card-title {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
+        .card-title {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
 
-    label {
-        font-weight: 500;
-    }
+        label {
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -248,14 +252,7 @@ include './config/sidebar.php';?>
                                     </select>
                                 </div>
                             </div>
-                            <!-- <div class="clearfix">&nbsp;</div> -->
-                            <!-- <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-                                <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12" style="margin-top:20px;">
-                                    <button type="button" class="btn btn-danger btn-sm btn-block" data-toggle="modal"
-                                        data-target="#confirmDeleteModal"><i class="fa-solid fa-trash me-1"></i>Xoá</button>
-                                </div>
-                            </div> -->
+
                             <!-- WARNING -->
                             <div class="alert alert-warning mt-4">
                                 <i class="fa-solid fa-triangle-exclamation"></i>
@@ -280,8 +277,6 @@ include './config/sidebar.php';?>
             <br />
             <br />
             <br />
-
-
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
@@ -299,13 +294,6 @@ $message = '';
     <!-- ./wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
-    <!-- <script>
-    showMenuSelected("#mnu_patients", "#mi_patients");
-    var message = '<?php echo $message;?>';
-    if (message !== '') {
-        showCustomMessage(message, 'success');
-    }
-    </script> -->
     <script>
 showMenuSelected("#mnu_patients", "#mi_patients");
 
@@ -362,12 +350,8 @@ Swal.fire({
                         XOÁ
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
-
-
 </body>
-
 </html>

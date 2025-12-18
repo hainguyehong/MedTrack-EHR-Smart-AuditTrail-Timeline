@@ -123,7 +123,12 @@ try {
     <!-- Thêm favicon giống dashboard.php -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
 
         background: #f8fafc;
@@ -361,6 +366,19 @@ try {
                         unset($_SESSION['success_message']);  // Xóa ngay sau khi lấy để F5 không lặp lại
                     }
                     ?>
+                    <?php if (!empty($message)) : ?>
+                    <script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Gửi thông báo thành công',
+                            text: '<?= addslashes($message) ?>',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    </script>
+                    <?php endif; ?>
+
+
                     <!-- /.control-sidebar -->
                     <script>
                     document.querySelectorAll('.send-sms-btn').forEach(btn => {
@@ -410,6 +428,8 @@ try {
                     });
                     </script>
                 </div>
+
+                
 </body>
 
 </html>

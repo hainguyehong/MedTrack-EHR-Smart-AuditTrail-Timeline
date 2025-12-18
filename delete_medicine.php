@@ -80,6 +80,9 @@ if (isset($_POST['id'])) {
     <?php include './config/site_css_links.php';?>
     <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f8fafc;
     }

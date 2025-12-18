@@ -49,6 +49,9 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f4f7fb;
     }
@@ -231,7 +234,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Bệnh Nhân</h1>
+                            <!-- <h1>Bệnh Nhân</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -245,7 +248,7 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
 
                     <div class="card-header">
-                        <h3 class="card-title">Thông tin bệnh nhân</h3>
+                        <h3 class="card-title"> <i class="fa-solid fa-user mr-1"></i>THÔNG TIN BỆNH NHÂN</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -507,7 +510,7 @@ include './config/sidebar.php';?>
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách đơn thuốc</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-list mr-1"></i>DANH SÁCH ĐƠN THUỐC</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">

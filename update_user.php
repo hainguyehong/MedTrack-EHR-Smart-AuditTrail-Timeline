@@ -140,6 +140,10 @@ $row = $stmtUser->fetch(PDO::FETCH_ASSOC);
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <title>Chỉnh sửa người dùng - MedTrack-EHR</title>
     <style>
+        * {
+    font-family: sans-serif;
+}
+
         body { background: #f8fafc; }
         .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .card-header { background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%); color: #fff; border-radius: 12px 12px 0 0; }
@@ -164,12 +168,12 @@ $row = $stmtUser->fetch(PDO::FETCH_ASSOC);
                         <input type="hidden" name="hidden_id" value="<?= htmlspecialchars($user_id) ?>">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label>Tên hiển thị <span class="required">*</span></label>
+                                <label>Tên hiển thị <span class="text-danger">*</span></label>
                                 <input type="text" name="display_name" class="form-control form-control-sm w-100"
                                        value="<?= $_SESSION['old']['display_name'] ?? $row['display_name'] ?>">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Tên đăng nhập <span class="required">*</span></label>
+                                <label>Tên đăng nhập <span class="text-danger">*</span></label>
                                 <input type="text" name="username" class="form-control form-control-sm w-100"
                                        value="<?= $_SESSION['old']['username'] ?? $row['user_name'] ?>">
                             </div>
@@ -178,7 +182,7 @@ $row = $stmtUser->fetch(PDO::FETCH_ASSOC);
                                 <input type="password" name="password" class="form-control form-control-sm w-100">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Vai trò <span class="required">*</span></label>
+                                <label>Vai trò <span class="text-danger">*</span></label>
                                 <select name="role" class="form-control form-control-sm w-100">
                                     <?= getRoles($_SESSION['old']['role'] ?? $row['role']); ?>
                                 </select>
@@ -228,7 +232,8 @@ $(document).ready(function() {
             icon: 'error',
             title: 'Lỗi',
             html: '<?= addslashes($popupMessage) ?>',
-            showConfirmButton: true
+            showConfirmButton: true,
+            confirmButtonText: 'Đã hiểu'
         });
     <?php endif; ?>
 
@@ -237,7 +242,8 @@ $(document).ready(function() {
             icon: 'error',
             title: 'Lỗi',
             html: '<?= addslashes($_SESSION['error_message']) ?>',
-            showConfirmButton: true
+            showConfirmButton: true,
+            confirmButtonText: 'Đã hiểu'
         });
         <?php unset($_SESSION['error_message']); ?>
     <?php endif; ?>

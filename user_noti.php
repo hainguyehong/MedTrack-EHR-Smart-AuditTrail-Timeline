@@ -80,6 +80,9 @@ $rows = $stmtlich->fetchAll(PDO::FETCH_ASSOC);
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f4f7fb;
     }
@@ -237,7 +240,7 @@ $rows = $stmtlich->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Thông báo lịch khám lại -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Thông báo lịch khám lại</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-bell mr-1"></i>THÔNG BÁO LỊCH KHÁM LẠI</h3>
                     </div>
                     <div class="card-body">
                         <?php
@@ -260,7 +263,7 @@ $rows = $stmtlich->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Thông báo trạng thái lịch khám đã đặt -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Trạng thái lịch khám đã đặt</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-bell mr-1"></i>TRẠNG THÁI LỊCH KHÁM ĐÃ ĐẶT</h3>
                     </div>
                     <div class="card-body">
                         <?php

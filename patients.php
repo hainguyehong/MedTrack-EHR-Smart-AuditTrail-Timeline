@@ -34,29 +34,29 @@ if (
     $phoneNumber === '' ||
     $gender === ''
 ) {
-    $errors[] = "Vui lòng nhập đầy đủ thông tin";
+    $errors[] = "Vui lòng nhập đầy đủ thông tin bệnh nhân!";
 }
 
 /* 2. VALIDATE TÊN (CHỈ 1 LỖI) */
 elseif (!preg_match('/^[\p{L}\s]{2,100}$/u', $patientName)) {
-    $errors[] = "Tên bệnh nhân không hợp lệ";
+    $errors[] = "Tên bệnh nhân không hợp lệ!";
 }
 
 /* 3. VALIDATE ĐỊA CHỈ */
 elseif (strlen($address) < 5) {
-    $errors[] = "Địa chỉ không hợp lệ";
+    $errors[] = "Địa chỉ không hợp lệ!";
 }
 
 /* 4. VALIDATE CCCD */
 elseif (!preg_match('/^\d{12}$/', $cnic) || $cnic === str_repeat('0', 12)) {
-    $errors[] = "CCCD không hợp lệ";
+    $errors[] = "CCCD không hợp lệ!";
 }
 
 /* 5. VALIDATE NGÀY SINH (GỘP HẾT LỖI) */
 else {
     $ts = strtotime(str_replace('/', '-', $dateBirthRaw));
     if ($ts === false || $ts > time()) {
-        $errors[] = "Ngày sinh không hợp lệ";
+        $errors[] = "Ngày sinh không hợp lệ!";
     } else {
         $dateBirth = date("Y-m-d", $ts);
     }
@@ -64,12 +64,12 @@ else {
 
 /* 6. VALIDATE SỐ ĐIỆN THOẠI */
 if (empty($errors) && !preg_match('/^0\d{9,10}$/', $phoneNumber)) {
-    $errors[] = "Số điện thoại không hợp lệ";
+    $errors[] = "Số điện thoại không hợp lệ!";
 }
 
 /* 7. VALIDATE GIỚI TÍNH */
 if (empty($errors) && !in_array($gender, ['Nam', 'Nữ', 'Khác'])) {
-    $errors[] = "Giới tính không hợp lệ";
+    $errors[] = "Giới tính không hợp lệ!";
 }
 
    /* ========= CHECK TRÙNG ========= */
@@ -86,7 +86,7 @@ if (empty($errors)) {
     $stmt->execute([':cnic' => $cnic]);
 
     if ($stmt->fetch()) {
-        $errors[] = "CCCD đã tồn tại";
+        $errors[] = "CCCD đã tồn tại, vui lòng nhập CCCD khác!";
     }
 }
 
@@ -102,20 +102,10 @@ if (empty($errors)) {
     $stmt->execute([':phone' => $phoneNumber]);
 
     if ($stmt->fetch()) {
-        $errors[] = "Số điện thoại đã tồn tại";
+        $errors[] = "Số điện thoại đã tồn tại, vui lòng nhập số khác!";
     }
 }
 
-
-
-    /* ========= NẾU CÓ LỖI ========= */
-
-    // if (!empty($errors)) {
-    //     $_SESSION['popup_message'] = implode('<br>', $errors);
-    //     $_SESSION['popup_type'] = 'error';
-    //     header("Location: patients.php");
-    //     exit;
-    // }
     if (!empty($errors)) {
 
     $_SESSION['old_data'] = [
@@ -172,7 +162,7 @@ if (empty($errors)) {
 
         $con->commit();
 
-        $_SESSION['popup_message'] = "Thêm mới bệnh nhân thành công";
+        $_SESSION['popup_message'] = "Thêm mới bệnh nhân thành công!";
         $_SESSION['popup_type'] = 'success';
 
     } catch (PDOException $ex) {
@@ -242,7 +232,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/patients.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Thêm bệnh nhân - MedTrack</title>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed" style="background: #f8fafc;">
@@ -532,123 +522,13 @@ try {
         if (message !== '') {
             showCustomMessage(message, messageType);
         }
+
+
         // Khởi tạo datetimepicker
         $('#date_of_birth').datetimepicker({
             format: 'L'
         });
 
-        //Client-side validation: Hiển thị lỗi đỏ và xóa lỗi khi user thao tác lại
-        // (function() {
-        //     var form = document.getElementById('patientForm');
-        //     form.addEventListener('submit', function(e) {
-        //         // reset lỗi
-        //         document.querySelectorAll('.error-text').forEach(function(el) {
-        //             el.textContent = '';
-        //         });
-        //         var hasError = false;
-        //         // TÊN BỆNH NHÂN
-        //         var name = document.getElementById('patient_name');
-        //         if (!name.value.trim()) {
-        //             document.getElementById('error_patient_name').textContent =
-        //                 'Vui lòng nhập tên bệnh nhân!';
-        //             hasError = true;
-        //         } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(name.value.trim())) {
-        //             document.getElementById('error_patient_name').textContent =
-        //                 'Tên bệnh nhân không hợp lệ!';
-        //             hasError = true;
-        //         }
-        //         // ĐỊA CHỈ
-        //         var address = document.getElementById('address');
-        //         if (!address.value.trim()) {
-        //             document.getElementById('error_address').textContent = 'Vui lòng nhập địa chỉ!';
-        //             hasError = true;
-        //         }
-        //         // CCCD
-        //         var cnic = document.getElementById('cnic');
-        //         if (!cnic.value.trim()) {
-        //             document.getElementById('error_cnic').textContent = 'Vui lòng nhập CCCD!';
-        //             hasError = true;
-        //         } else if (!/^\d{12}$/.test(cnic.value.trim())) {
-        //             document.getElementById('error_cnic').textContent = 'CCCD phải gồm 12 số!';
-        //             hasError = true;
-        //         }
-        //         // NGÀY SINH
-        //         var dobInput = document.querySelector("input[name='date_of_birth']");
-        //         if (!dobInput.value.trim()) {
-        //             document.getElementById('error_date_of_birth').textContent = 'Vui lòng nhập ngày sinh!';
-        //             hasError = true;
-        //         } else {
-        //             // kiểm tra ngày không lớn hơn ngày hiện tại (hỗ trợ dd/mm/yyyy hoặc yyyy-mm-dd)
-        //             var s = dobInput.value.trim();
-        //             var parts;
-        //             var dt;
-        //             if (s.indexOf('/') !== -1) {
-        //                 parts = s.split('/');
-        //                 // dd/mm/yyyy
-        //                 dt = new Date(parts[2], parts[1] - 1, parts[0]);
-        //             } else if (s.indexOf('-') !== -1) {
-        //                 parts = s.split('-');
-        //                 // yyyy-mm-dd
-        //                 dt = new Date(parts[0], parts[1] - 1, parts[2]);
-        //             } else {
-        //                 dt = new Date(s);
-        //             }
-        //             var now = new Date();
-        //             // set giờ về 0:0:0 so sánh ngày
-        //             dt.setHours(0, 0, 0, 0);
-        //             now.setHours(0, 0, 0, 0);
-        //             if (isNaN(dt.getTime())) {
-        //                 document.getElementById('error_date_of_birth').textContent =
-        //                     'Ngày không đúng định dạng!';
-        //                 hasError = true;
-        //             } else if (dt > now) {
-        //                 document.getElementById('error_date_of_birth').textContent =
-        //                     'Ngày sinh không hợp lệ!';
-        //                 hasError = true;
-        //             }
-        //         }
-        //         // SĐT
-        //         var phone = document.getElementById('phone_number');
-        //         if (!phone.value.trim()) {
-        //             document.getElementById('error_phone_number').textContent =
-        //                 'Vui lòng nhập số điện thoại!';
-        //             hasError = true;
-        //         } else if (!/^\d{10,11}$/.test(phone.value.trim())) {
-        //             document.getElementById('error_phone_number').textContent =
-        //                 'Số điện thoại không hợp lệ (10 hoặc 11 số)!';
-        //             hasError = true;
-        //         }
-        //         // GIỚI TÍNH
-        //         var gender = document.getElementById('gender');
-        //         if (!gender.value.trim()) {
-        //             document.getElementById('error_gender').textContent = 'Vui lòng chọn giới tính!';
-        //             hasError = true;
-        //         }
-        //         if (hasError) {
-        //             e.preventDefault();
-        //         }
-        //     });
-
-        //     document.querySelectorAll('#patientForm input, #patientForm select').forEach(function(el) {
-        //         el.addEventListener('input', function() {
-        //             var eid = this.id ? 'error_' + this.id : null;
-        //             if (!eid && this.name === 'date_of_birth') eid = 'error_date_of_birth';
-        //             if (eid) {
-        //                 var errEl = document.getElementById(eid);
-        //                 if (errEl) errEl.textContent = '';
-        //             }
-        //         });
-        //         // clear on focus as well
-        //         el.addEventListener('focus', function() {
-        //             var eid = this.id ? 'error_' + this.id : null;
-        //             if (!eid && this.name === 'date_of_birth') eid = 'error_date_of_birth';
-        //             if (eid) {
-        //                 var errEl = document.getElementById(eid);
-        //                 if (errEl) errEl.textContent = '';
-        //             }
-        //         });
-        //     });
-        // })();
 
         document.querySelectorAll("#patientForm input, #patientForm select").forEach(function(el) {
             ["focus", "change"].forEach(function(evt) {

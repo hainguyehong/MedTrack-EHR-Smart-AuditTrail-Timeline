@@ -157,14 +157,42 @@ $sn = $serialStart;
     <?php include './config/data_tables_css.php';?>
     <title>Users - MedTrack-EHR</title>
     <style>
-        body { background: #f8fafc; }
-        .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .card-header { background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%); color: #fff; border-radius: 12px 12px 0 0; }
-        .btn-primary, .btn-danger { border-radius: 20px; transition: 0.2s; }
-        .btn-primary:hover, .btn-danger:hover { filter: brightness(1.1); box-shadow: 0 2px 8px rgba(0,123,255,0.15); }
-        .form-control, .form-select { border-radius: 8px; }
-        .card-title { font-weight: 600; letter-spacing: 0.5px; }
-        label { font-weight: 500; }
+        * {
+            font-family: sans-serif;
+        }
+
+        body { 
+            background: #f8fafc; 
+        }
+        .card { 
+            background: #fff; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
+        }
+        .card-header { 
+            background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%); 
+            color: #fff; 
+            border-radius: 12px 12px 0 0; 
+        }
+        .btn-primary, .btn-danger { 
+            border-radius: 20px; 
+            transition: 0.2s; 
+        }
+        .btn-primary:hover, .btn-danger:hover { 
+            filter: brightness(1.1); 
+            box-shadow: 0 2px 8px rgba(0,123,255,0.15); 
+        }
+        .form-control, 
+        .form-select { 
+            border-radius: 8px; 
+        }
+        .card-title { 
+            font-weight: 600; 
+            letter-spacing: 0.5px; 
+        }
+        label { 
+            font-weight: 500; 
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
@@ -182,21 +210,21 @@ $sn = $serialStart;
                     <form method="post">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label>Tên hiển thị <span class="required">*</span></label>
+                                <label>Tên hiển thị <span class="text-danger">*</span></label>
                                 <input type="text" name="display_name" class="form-control form-control-sm w-100"
                                        value="<?= $_SESSION['old']['display_name'] ?? '' ?>">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Tên đăng nhập <span class="required">*</span></label>
+                                <label>Tên đăng nhập <span class="text-danger">*</span></label>
                                 <input type="text" name="user_name" class="form-control form-control-sm w-100"
                                        value="<?= $_SESSION['old']['user_name'] ?? '' ?>">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Mật khẩu <span class="required">*</span></label>
+                                <label>Mật khẩu <span class="text-danger">*</span></label>
                                 <input type="password" name="password" class="form-control form-control-sm w-100">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Chọn vai trò <span class="required">*</span></label>
+                                <label>Chọn vai trò <span class="text-danger">*</span></label>
                                 <select name="role" class="form-control form-control-sm w-100">
                                     <?php echo getRoles($_SESSION['old']['role'] ?? null); ?>
                                 </select>
@@ -331,12 +359,20 @@ $(document).ready(function() {
             }
         }
         ?>
+        // Swal.fire({
+        //     icon: 'error',
+        //     title: 'Lỗi',
+        //     html: '<?= addslashes($popupMessage) ?>',
+        //     showConfirmButton: true
+        // });
         Swal.fire({
             icon: 'error',
             title: 'Lỗi',
             html: '<?= addslashes($popupMessage) ?>',
-            showConfirmButton: true
+            showConfirmButton: true,
+            confirmButtonText: 'Đã hiểu'
         });
+
     <?php endif; ?>
 });
 </script>
