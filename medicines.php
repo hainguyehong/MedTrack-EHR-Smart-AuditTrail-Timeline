@@ -68,13 +68,13 @@ try {
     $stmtCount = $con->prepare($countSql);
     $stmtCount->execute();
     $total = (int)$stmtCount->fetchColumn();
+    $totalPages = ($total > 0) ? (int)ceil($total / $perPage) : 1;
 } catch (PDOException $ex) {
     echo $ex->getMessage();
     echo $ex->getTraceAsString();
     $total = 0;
 }
 
-$totalPages = ($total > 0) ? (int)ceil($total / $perPage) : 1;
 
 try {
     $query = "SELECT `id`, `medicine_name` FROM `medicines`
@@ -105,6 +105,9 @@ try {
     <title>Medicines - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f8fafc;
     }
@@ -169,7 +172,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Thêm mới Loại thuốc</h1>
+                            <!-- <h1>Thêm mới Loại thuốc</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -180,7 +183,7 @@ include './config/sidebar.php';?>
                 <!-- <div class="card card-outline card-primary rounded-0 shadow"> -->
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Thêm mới Loại thuốc</h3>
+                        <h3 class="card-title"> <i class="fa-solid fa-book-medical mr-2"></i>THÊM MỚI LOẠI THUỐC</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
@@ -191,15 +194,15 @@ include './config/sidebar.php';?>
                         <form method="post">
                             <div class="row">
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Tên thuốc</label>
-                                    <input type="text" id="medicine_name" name="medicine_name" required="required"
+                                    <label>Tên thuốc <span class="text-danger">*</span></label>
+                                    <input type="text" id="medicine_name" name="medicine_name"
                                         class="form-control form-control-sm" />
                                 </div>
 
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
-                                        class="btn btn-primary btn-sm btn-block">Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block"> <i class="fa-solid fa-book-medical mr-2"></i>Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -212,7 +215,7 @@ include './config/sidebar.php';?>
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách loại thuốc</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-list mr-2"></i>DANH SÁCH LOẠI THUỐC</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -232,89 +235,99 @@ include './config/sidebar.php';?>
                                     <col width="10%">
                                 </colgroup>
 
-                                <thead <tr>
-                                    <th class="text-center">STT</th>
-                                    <th>Tên thuốc</th>
-                                    <th class="text-center">Hành động</th>
+                                <thead 
+                                    <tr>
+                                        <th class="text-center">STT</th>
+                                        <th>Tên thuốc</th>
+                                        <th class="text-center">Hành động</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     <?php 
-          // STT bắt đầu theo trang
-          $serial = $offset + 1;
-          while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-           ?>
+                                    // STT bắt đầu theo trang
+                                    $serial = $offset + 1;
+                                    while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                    ?>
                                     <tr>
-                                        <td class="text-center"><?php echo $serial;?></td>
-                                        <td><?php echo $row['medicine_name'];?></td>
+                                        <td class="text-center"><?php echo $serial; ?></td>
+                                        <td><?php echo $row['medicine_name']; ?></td>
                                         <td class="text-center">
-                                            <a href="update_medicine.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-primary btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="delete_medicine.php?id=<?php echo $row['id'];?>"
-                                                class="btn btn-danger btn-sm">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
+                                            <!-- Nút sửa thuốc -->
+                                            <form method="post" action="update_medicine.php" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                            </form>
+
+                                            <!-- Nút xóa thuốc -->
+                                            <form method="post" action="delete_medicine.php" style="display:inline;">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
+
                                     </tr>
                                     <?php $serial++; } ?>
                                 </tbody>
                             </table>
+                            <?php if ($totalPages > 1): ?>
+                            <nav aria-label="Patients pagination">
+                                <ul class="pagination justify-content-center mt-3">
+
+                                    <!-- Previous -->
+                                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page-1 ?>">«</a>
+                                    </li>
+
+                                    <?php
+                                    // hiển thị tối đa 5 trang quanh trang hiện tại
+                                    $start = max(1, $page - 5);
+                                    $end   = min($totalPages, $page + 5);
+                                    ?>
+                                    <?php for($i = $start; $i <= $end; $i++): ?>
+                                    <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                    </li>
+                                    <?php endfor; ?>
+
+                                    <!-- Next -->
+                                    <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                        <a class="page-link" href="?page=<?= $page+1 ?>">»</a>
+                                    </li>
+
+                                </ul>
+
+                                <div class="text-center text-muted small">
+                                    Trang <?= $page ?> / <?= $totalPages ?> (<?= $total ?> loại thuốc)
+                                </div>
+                            </nav>
+                            <?php endif; ?>
                         </div>
                     </div>
-
-
                     <!-- /.card-footer-->
                 </div>
-                <!-- /.card -->
-                <!-- Pagination (same style as users.php) -->
-                <?php if ($totalPages > 1) { ?>
-                <div class="d-flex justify-content-between align-items-center mt-3"
-                    style="margin-left: 40px;margin-bottom: 50px;">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination mb-0">
-                            <?php
-                                $baseParams = $_GET;
-                                $prev = max(1, $page - 1);
-                                $baseParams['page'] = $prev;
-                                $prevUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                ?>
-                            <li class="page-item <?php echo ($page<=1)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page<=1)?'javascript:void(0);':$prevUrl;?>">«</a>
-                            </li>
-                            <?php
-                                for ($p = 1; $p <= $totalPages; $p++) {
-                                    $baseParams['page'] = $p;
-                                    $url = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                    $active = ($p == $page) ? 'active' : '';
-                                    echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$p.'</a></li>';
-                                }
-                                $next = min($totalPages, $page + 1);
-                                $baseParams['page'] = $next;
-                                $nextUrl = htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($baseParams));
-                                ?>
-                            <li class="page-item <?php echo ($page>=$totalPages)?'disabled':'';?>">
-                                <a class="page-link"
-                                    href="<?php echo ($page>=$totalPages)?'javascript:void(0);':$nextUrl;?>">»</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <?php } ?>
             </section>
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
         <?php 
-include './config/footer.php';
+        include './config/footer.php';
 
         $message = '';
+        $messageType = 'info';
+
         if (isset($_SESSION['success_message'])) {
             $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+            $messageType = 'success';
+            unset($_SESSION['success_message']);
+        } elseif (isset($_SESSION['error_message'])) {
+            $message = $_SESSION['error_message'];
+            $messageType = 'error';
+            unset($_SESSION['error_message']);
         }
 ?>
         <!-- /.control-sidebar -->
@@ -323,37 +336,16 @@ include './config/footer.php';
 
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     showMenuSelected("#mnu_medicines", "#mi_medicines");
 
-    var message = '<?php echo $message;?>';
+    var message = '<?php echo addslashes($message); ?>';
+    var messageType = '<?php echo $messageType; ?>';
+
     if (message !== '') {
-        showCustomMessage(message);
+        showCustomMessage(message, messageType);
     }
-
-
-
-    $(function() {
-        $("#all_medicines").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "paging": false, // paging disabled because server-side paging is used
-            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-            "buttons": ["pdf", "print"],
-            "language": {
-                "info": " Tổng cộng _TOTAL_ loại thuốc",
-                "paginate": {
-                    "previous": "<span style='font-size:18px;'>&#8592;</span>",
-                    "next": "<span style='font-size:18px;'>&#8594;</span>"
-                }
-            },
-        }).buttons().container().appendTo('#all_medicines_wrapper .col-md-6:eq(0)');
-
-    });
-
     $(document).ready(function() {
 
         $("#medicine_name").blur(function() {
@@ -385,6 +377,20 @@ include './config/footer.php';
                 });
             }
 
+        });
+    });
+    $(document).ready(function() {
+        $('#all_medicines').DataTable({
+            paging: false,
+            info: false,
+            lengthChange: false,
+            searching: true,
+            ordering: false,
+            language: {
+                search: "Tìm kiếm thuốc:",
+                zeroRecords: "Không tìm thấy thuốc phù hợp",
+                emptyTable: "Không có dữ liệu"
+            }
         });
     });
     </script>

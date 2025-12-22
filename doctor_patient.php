@@ -2,9 +2,9 @@
 include './config/connection.php';
 include './common_service/common_functions.php';
 include './common_service/date.php';
-islogin([2]); // chỉ cho bs (2) truy cập
+islogin([2]);  // chỉ cho bs (2) truy cập
 $message = '';
-$userId = $_SESSION['user_id']; 
+$userId = $_SESSION['user_id'];
 if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     $patientId = intval($_POST['patient_id']);
 
@@ -18,7 +18,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Lấy đơn thuốc
-    // $query = "SELECT pmh.*, m.medicine_name 
+    // $query = "SELECT pmh.*, m.medicine_name
     //           FROM patient_medication_history pmh
     //           JOIN medicines m ON pmh.medicine_id = m.id
     //           WHERE pmh.patient_id = :patient_id
@@ -32,9 +32,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     //     'patient' => $patient,
     //     'prescriptions' => $prescriptions
     // ]);
-    // exit; 
+    // exit;
     // Lấy đơn thuốc (gộp các thuốc theo cùng ngày khám)
-        $query = 
+    $query =
         "
             SELECT 
                 DATE_FORMAT(pmh.created_at, '%Y-%m-%d %H:%i') AS visit_date,
@@ -49,27 +49,26 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
             ORDER BY visit_date ASC
         ";
 
-        $stmt = $con->prepare($query);
-        $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
-        $stmt->execute();
-        $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $con->prepare($query);
+    $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
+    $stmt->execute();
+    $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Trả về dữ liệu JSON
-        echo json_encode([
-            'patient' => $patient,
-            'prescriptions' => $prescriptions
-        ]);
-        exit;
-
+    // Trả về dữ liệu JSON
+    echo json_encode([
+        'patient' => $patient,
+        'prescriptions' => $prescriptions
+    ]);
+    exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <?php include './config/site_css_links.php';?>
+    <?php include './config/site_css_links.php'; ?>
 
-    <?php include './config/data_tables_css.php';?>
+    <?php include './config/data_tables_css.php'; ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <!-- Thêm favicon -->
@@ -77,14 +76,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
-
         background: #f8fafc;
-
     }
 
     .card {
-
         background: #fff;
 
         border-radius: 12px;
@@ -92,64 +91,42 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
         /* border: 1.5px solid #007bff; */
 
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
     }
 
     .card-header {
-
         background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
 
         color: #fff;
 
         border-radius: 12px 12px 0 0;
-
     }
 
     .btn-primary,
     .btn-danger {
-
         border-radius: 20px;
 
         transition: 0.2s;
-
     }
-
-
 
     .btn-primary:hover,
     .btn-danger:hover {
-
         filter: brightness(1.1);
 
         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
-
-    }
-
-    .form-control,
-    .form-select {
-
-        /* border-radius: 8px; */
-
     }
 
     .card-title {
-
         font-weight: 600;
 
         letter-spacing: 0.5px;
-
     }
 
     label {
-
         font-weight: 500;
-
     }
 
     .card-primary.card-outline {
-
         border-top: 0px solid #007bff;
-
     }
 
     /* Chiều cao giống form-control */
@@ -175,6 +152,75 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
         border-color: #86b7fe !important;
         box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25) !important;
     }
+
+    /* === CARD BODY CHUNG === */
+    .card-body label {
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    /* === TEXTAREA & INPUT READONLY === */
+    .card-body input[readonly],
+    .card-body textarea[readonly] {
+        background-color: #f1f3f5;
+        border: 1px solid #ced4da;
+        color: #212529;
+    }
+
+    /* === IMAGE SECTION === */
+    .image-section {
+        margin-top: 24px;
+    }
+
+    .image-box {
+        border: 2px dashed #0d6efd;
+        border-radius: 12px;
+        background: #f0f7ff;
+        padding: 32px 16px;
+        text-align: center;
+        min-height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .image-box:hover {
+        border-color: #0056b3;
+        background: #e7f1ff;
+    }
+
+    .image-box img {
+        max-width: 100%;
+        max-height: 240px;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        cursor: zoom-in;
+    }
+
+    .image-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .image-empty i {
+        font-size: 56px;
+        margin-bottom: 12px;
+        color: #adb5bd;
+    }
+
+    .image-empty p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+    }
     </style>
 </head>
 
@@ -184,9 +230,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->
-        <?php include './config/header.php';
-include './config/sidebar.php';
-?>
+        <?php
+        include './config/header.php';
+        include './config/sidebar.php';
+        ?>
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
@@ -195,7 +242,7 @@ include './config/sidebar.php';
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Bệnh Nhân</h1>
+                            <!-- <h1>Bệnh Nhân</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -209,7 +256,7 @@ include './config/sidebar.php';
                 <div class="card card-outline card-primary shadow">
 
                     <div class="card-header">
-                        <h3 class="card-title">Thông tin bệnh nhân</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-circle-info mr-2"></i>THÔNG TIN BỆNH NHÂN</h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                 <i class="fas fa-minus"></i>
@@ -219,62 +266,56 @@ include './config/sidebar.php';
                     </div>
                     <div class="card-body">
                         <form method="post">
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-                                    <label>Chọn bệnh nhân</label>
-                                    <select id="patient" name="patient"
-                                        class="form-control form-control-sm rounded-0 setupSelect2">
+
+                            <!-- ===== HÀNG 1: CHỌN BỆNH NHÂN (CĂN GIỮA) ===== -->
+                            <div class="row mb-4 justify-content-center">
+                                <div class="col-md-4">
+                                    <label class="text-center d-block">Chọn bệnh nhân <span
+                                            class="text-danger">*</span></label>
+                                    <select id="patient" name="patient" class="form-control setupSelect2">
                                         <?php echo getPatients($con); ?>
                                     </select>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                            </div>
+
+                            <!-- ===== HÀNG 2: 3 TRƯỜNG ===== -->
+                            <div class="row mb-3">
+                                <div class="col-md-4">
                                     <label>Tên bệnh nhân</label>
                                     <input type="text" id="patient_name" readonly class="form-control" />
                                 </div>
-                                <br>
-                                <br>
-                                <br>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <label>Địa chỉ</label>
-                                    <input type="text" id="address" readonly class="form-control" />
 
-                                </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                                <div class="col-md-4">
                                     <label>CCCD</label>
                                     <input type="text" id="cnic" readonly class="form-control" />
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-                                    <div class="form-group">
-                                        <label>Ngày sinh</label>
-                                        <div class="input-group date">
-                                            <input type="text" id="date_of_birth" readonly class="form-control" />
-                                            <!-- <div class="input-group-append" data-target="#date_of_birth"
-                                                data-toggle="datetimepicker">
-                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                            </div> -->
-                                        </div>
 
-                                    </div>
+                                <div class="col-md-4">
+                                    <label>Ngày sinh</label>
+                                    <input type="text" id="date_of_birth" readonly class="form-control" />
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+                            </div>
+
+                            <!-- ===== HÀNG 3: 3 TRƯỜNG ===== -->
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label>Địa chỉ</label>
+                                    <input type="text" id="address" readonly class="form-control" />
+                                </div>
+
+                                <div class="col-md-4">
                                     <label>Số điện thoại</label>
                                     <input type="text" id="phone_number" readonly class="form-control" />
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+
+                                <div class="col-md-4">
                                     <label>Giới tính</label>
                                     <input type="text" id="gender" readonly class="form-control" />
-
                                 </div>
                             </div>
-                            <div class="clearfix">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-lg-11 col-md-10 col-sm-10 xs-hidden">&nbsp;</div>
-                                <!-- <div class="col-lg-1 col-md-2 col-sm-2 col-xs-12">
-                                    <button type="submit" id="save_Patient" name="save_Patient"
-                                        class="btn btn-primary btn-sm btn-flat btn-block">Lưu</button>
-                                </div> -->
-                            </div>
+
                         </form>
+
                     </div>
                 </div>
             </section>
@@ -289,7 +330,7 @@ include './config/sidebar.php';
                 <!-- Default box -->
                 <div class="card card-outline card-primary rounded-0 shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách đơn thuốc</h3>
+                        <h3 class="card-title"><i class="fa-solid fa-list mr-2"></i>DANH SÁCH ĐƠN THUỐC</h3>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -306,11 +347,7 @@ include './config/sidebar.php';
                                 <thead style="text-align:center;">
                                     <tr>
                                         <th>STT</th>
-
-
                                         <th>Lần khám</th>
-
-
                                         <th>Thời gian kê thuốc</th>
                                         <th>Tên loại thuốc</th>
                                         <th>Số lượng</th>
@@ -322,13 +359,10 @@ include './config/sidebar.php';
                                 <tbody id="prescriptionTable">
                                     <tr>
 
-
                                         <td colspan="7" style="text-align:center;">Chưa có đơn thuốc nào.</td>
-
 
                                     </tr>
                                 </tbody>
-
 
                             </table>
                         </div>
@@ -338,62 +372,48 @@ include './config/sidebar.php';
                 </div>
                 <!-- /.card -->
 
-
             </section>
         </div>
         <!-- /.content -->
 
         <!-- /.content-wrapper -->
-        <?php 
+        <?php
         include './config/footer.php';
 
         //   $message = '';
-        //   if(isset($_GET['message'])) {
+        //   if (isset($_GET['message'])) {
         //     $message = $_GET['message'];
         //   }
         $message = '';
         if (isset($_SESSION['success_message'])) {
             $message = $_SESSION['success_message'];
-            unset($_SESSION['success_message']); // Xóa ngay sau khi lấy để F5 không lặp lại
+            unset($_SESSION['success_message']);  // Xóa ngay sau khi lấy để F5 không lặp lại
         }
         ?>
         <!-- /.control-sidebar -->
 
-
         <?php include './config/site_js_links.php'; ?>
         <?php include './config/data_tables_js.php'; ?>
-
 
         <script src="plugins/moment/moment.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
         <script src="plugins/daterangepicker/daterangepicker.js"></script>
         <script src="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-        <?php include './common_service/loaduser.php';?>
+        <?php include './common_service/loaduser.php'; ?>
 
-        <script src="date.js"></script>
+        <!-- <script src="date.js"></script> -->
 
         <script>
         showMenuSelected("#mnu_patients", "#mi_patients");
 
-        var message = '<?php echo $message;?>';
+        var message = '<?php echo $message; ?>';
         if (message !== '') {
             showCustomMessage(message);
         }
 
-        $('#date_of_birth').datetimepicker({
-            format: 'L'
-        });
-
-
-        $(function() {
-            $("#all_patients").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#all_patients_wrapper .col-md-6:eq(0)');
-
-        });
+        // $('#date_of_birth').datetimepicker({
+        //     format: 'L'
+        // } );
         </script>
 
         <script>
@@ -429,7 +449,7 @@ include './config/sidebar.php';
                             // var tbody = '';
                             // if (response.prescriptions.length > 0) {
                             //     // Nhóm các đơn thuốc theo ngày khám
-                            //     const grouped = {};
+                            //     const grouped = {} ;
                             //     response.prescriptions.forEach(row => {
                             //         // Nếu trong DB có trường visit_date -> dùng nó, nếu không thì lấy created_at
                             //         const dateRaw = row.visit_date || row
@@ -439,7 +459,7 @@ include './config/sidebar.php';
                             //             "Không rõ";
                             //         if (!grouped[date]) grouped[date] = [];
                             //         grouped[date].push(row);
-                            //     });
+                            //     } );
 
                             //     let index = 1;
                             //     $.each(grouped, function(date, items) {
@@ -457,14 +477,13 @@ include './config/sidebar.php';
                             //                 '<td>' + (row.note || '') +
                             //                 '</td>' +
                             //                 '</tr>';
-                            //         });
+                            //         } );
                             //         index++;
-                            //     });
+                            //     } );
                             // } else {
                             //     tbody +=
                             //         '<tr><td colspan="7" class="text-center text-muted">Không có đơn thuốc nào.</td></tr>';
                             // }
-
 
                             // $('#prescriptionTable').html(tbody);
                             // Đổ bảng đơn thuốc
@@ -493,7 +512,7 @@ include './config/sidebar.php';
                                         // Nếu backend dùng dấu phẩy và có khoảng trắng, trim từng phần
                                         const toCleanHtml = function(str) {
                                             if (!str) return '';
-                                            return str.split(',').map(s => s
+                                            return str.split(', ').map(s => s
                                                 .trim()).join(', ');
                                         };
 
@@ -506,18 +525,17 @@ include './config/sidebar.php';
 
                                         tbody += `
                 <tr style="text-align:center;">
-                    <td>${index}</td>
-                    <td>Lần ${index}</td>
-                    <td>${date}</td>
-                    <td>${medicineNames}</td>
-                    <td>${quantities}</td>
-                    <td>${dosages}</td>
-                    <td>${notes}</td>
+                    <td>${index} </td>
+                    <td>Lần ${index} </td>
+                    <td>${date} </td>
+                    <td>${medicineNames} </td>
+                    <td>${quantities} </td>
+                    <td>${dosages} </td>
+                    <td>${notes} </td>
                 </tr>
             `;
                                         index++;
                                     });
-
                                 } else {
                                     // Dạng raw rows (mỗi phần tử là 1 thuốc: medicine_name, quantity, dosage, note, visit_date/created_at)
                                     // Ta sẽ nhóm theo ngày rồi join các trường lại bằng dấu phẩy
@@ -554,13 +572,13 @@ include './config/sidebar.php';
                                         tbody +=
                                             `
                                             <tr style="text-align:center;">
-                                                <td>${index}</td>
-                                                <td>Lần ${index}</td>
-                                                <td>${date}</td>
-                                                <td>${medicineNames}</td>
-                                                <td>${quantities}</td>
-                                                <td>${dosages}</td>
-                                                <td>${notes}</td>
+                                                <td>${index} </td>
+                                                <td>Lần ${index} </td>
+                                                <td>${date} </td>
+                                                <td>${medicineNames} </td>
+                                                <td>${quantities} </td>
+                                                <td>${dosages} </td>
+                                                <td>${notes} </td>
                                             </tr>
                                         `;
                                         index++;
@@ -573,11 +591,9 @@ include './config/sidebar.php';
                                             <td colspan="7" class="text-center text-muted">Không có đơn thuốc nào.</td>
                                         </tr>
                                     `;
-
                             }
 
                             $('#prescriptionTable').html(tbody);
-
 
                             // Lấy thông tin các lần khám bệnh
                             $.ajax({
@@ -597,7 +613,7 @@ include './config/sidebar.php';
 
                                             <div class="card mb-4 collapsed-card">
                                                 <div class="card-header bg-info text-white">
-                                                    <strong>Lần khám ${idx + 1} - ${visit.created_at ? moment(visit.created_at).format('DD/MM/YYYY HH:mm') : ''}</strong>
+                                                    <strong>Lần khám ${idx + 1} - ${visit.created_at ? moment(visit.created_at).format('DD/MM/YYYY HH:mm') : ''} </strong>
                                                     <div class="card-tools">
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                                                            <i class="fas fa-plus" style="color: green;"></i>
@@ -609,49 +625,81 @@ include './config/sidebar.php';
                                                      <div class="row">
                                                          <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                                              <label>Huyết áp (mmHg)</label>
-                                                             <input type="text" class="form-control" value="${visit.huyet_ap || ''}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.huyet_ap || ''} " readonly>
                                                          </div>
                                                          <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                                              <label>Cân nặng (kg)</label>
-                                                             <input type="text" class="form-control" value="${visit.can_nang || ''}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.can_nang || ''} " readonly>
                                                          </div>
                                                          <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                                              <label>Chiều cao (cm)</label>
-                                                             <input type="text" class="form-control" value="${visit.chieu_cao || ''}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.chieu_cao || ''} " readonly>
                                                          </div>
                                                          <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                                              <label>Nhiệt độ (°C)</label>
-                                                             <input type="text" class="form-control" value="${visit.nhiet_do || ''}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.nhiet_do || ''} " readonly>
                                                          </div>
                                                          <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                                              <label>Mạch đập (bpm)</label>
-                                                             <input type="text" class="form-control" value="${visit.mach_dap || ''}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.mach_dap || ''} " readonly>
                                                          </div>
                                                          <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
                                                              <label>Nhịp tim (bpm)</label>
-                                                             <input type="text" class="form-control" value="${visit.nhip_tim || ''}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.nhip_tim || ''} " readonly>
                                                          </div>
                                                      </div>
                                                      <div class="row">
                                                          <div class="col-lg-6 mb-3">
                                                              <label>Triệu chứng</label>
-                                                             <textarea class="form-control" rows="3" readonly>${visit.trieu_chung || ''}</textarea>
+                                                             <textarea class="form-control" rows="3" readonly>${visit.trieu_chung || ''} </textarea>
                                                          </div>
                                                          <div class="col-lg-6 mb-3">
                                                              <label>Tiền sử bệnh</label>
-                                                             <textarea class="form-control" rows="3" readonly>${visit.tien_su_benh || ''}</textarea>
+                                                             <textarea class="form-control" rows="3" readonly>${visit.tien_su_benh || ''} </textarea>
                                                          </div>
                                                          <div class="col-lg-6 mb-3">
                                                              <label>Chuẩn đoán</label>
-                                                             <textarea class="form-control" rows="3" readonly>${visit.chuan_doan || ''}</textarea>
+                                                             <textarea class="form-control" rows="3" readonly>${visit.chuan_doan || ''} </textarea>
                                                          </div>
                                                          <div class="col-lg-6 mb-3">
                                                              <label>Biện pháp xử lý</label>
-                                                             <textarea class="form-control" rows="3" readonly>${visit.bien_phap || ''}</textarea>
+                                                             <textarea class="form-control" rows="3" readonly>${visit.bien_phap || ''} </textarea>
                                                          </div>
+                                                     </div>
+                                                     <div class="row">
                                                          <div class="col-lg-4 mb-3">
                                                              <label>Yêu cầu nhập viện</label>
-                                                             <input type="text" class="form-control" value="${visit.nhap_vien == '1' ? 'Có' : (visit.nhap_vien == '2' ? 'Không' : (visit.nhap_vien || ''))}" readonly>
+                                                             <input type="text" class="form-control" value="${visit.nhap_vien == '1' ? 'Có' : (visit.nhap_vien == '2' ? 'Không' : (visit.nhap_vien || ''))} " readonly>
+                                                         </div>
+                                                     </div>
+                                                     <!-- PHẦN HÌNH ẢNH -->
+                                                     <div class="row image-section">
+                                                         <div class="col-lg-6 mb-3">
+                                                             <label>Ảnh siêu âm</label>
+                                                             <div class="image-box">
+                                                             ${
+                                                                 visit.ultrasound
+                                                                 ? `<img src="${visit.ultrasound} " class="preview-img" alt="Ảnh siêu âm">`
+                                                                 : `<div class="image-empty">
+                                                                     <i class="bi bi-image"></i>
+                                                                     Chưa có ảnh siêu âm
+                                                                     </div>`
+                                                             }
+                                                             </div>
+                                                         </div>
+
+                                                         <div class="col-lg-6 mb-3">
+                                                             <label>Ảnh X-quang</label>
+                                                             <div class="image-box">
+                                                             ${
+                                                                 visit.xray
+                                                                 ? `<img src="${visit.xray} " class="preview-img" alt="Ảnh X-quang">`
+                                                                 : `<div class="image-empty">
+                                                                     <i class="bi bi-image"></i>
+                                                                     Chưa có ảnh X-quang
+                                                                     </div>`
+                                                             }
+                                                             </div>
                                                          </div>
                                                      </div>
                                                  </div>
@@ -661,7 +709,6 @@ include './config/sidebar.php';
                                     } else {
                                         html =
                                             '<div class="alert alert-info text-center">Chưa có bệnh án nào.</div>';
-
                                     }
                                     $('#visit-history-list').html(html);
                                     $('#visit-history-section').show();
@@ -695,7 +742,56 @@ include './config/sidebar.php';
                 }
             }, 50);
         });
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('imgModal');
+            const modalImg = document.getElementById('imgModalSrc');
+            const closeBtn = document.getElementById('imgModalClose');
+
+            // Nếu modal chưa có trong DOM thì không làm gì để tránh lỗi
+            if (!modal || !modalImg || !closeBtn) return;
+
+            function closeModal() {
+                modal.style.display = 'none';
+                modalImg.src = '';
+                document.body.style.overflow = '';
+            }
+
+            document.addEventListener('click', function(e) {
+                const img = e.target.closest('img.preview-img');
+                if (!img) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                modalImg.src = img.src;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }, true);
+
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        });
         </script>
+        <div class="img-modal" id="imgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+            z-index:9999;align-items:center;justify-content:center;padding:24px;">
+            <div style="position:relative;max-width:min(1000px,95vw);max-height:90vh;">
+                <button type="button" id="imgModalClose" style="position:absolute;top:-12px;right:-12px;
+                   width:36px;height:36px;border:0;border-radius:999px;
+                   background:#fff;cursor:pointer;font-size:22px;">
+                    &times;
+                </button>
+                <img id="imgModalSrc" alt="Xem ảnh"
+                    style="max-width:100%;max-height:90vh;border-radius:12px;background:#fff;">
+            </div>
+        </div>
+
+
 </body>
 
 </html>

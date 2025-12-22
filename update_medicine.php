@@ -87,11 +87,18 @@ if (isset($_POST['save_medicine'])) {
 }
 
 
-
-
 try {
 
- $id = $_GET['id'];
+    if (isset($_POST['id'])) {
+        $id = (int)$_POST['id'];
+    } elseif (isset($_GET['id'])) {
+        // fallback nếu ai đó truy cập thủ công bằng GET
+        $id = (int)$_GET['id'];
+    } else {
+        header('Location: medicines.php'); // trang danh sách thuốc
+        exit;
+    }
+
 	$query = "SELECT `id`, `medicine_name` from `medicines`
 	          where `id` = $id";
 	$stmt = $con->prepare($query);
@@ -114,6 +121,9 @@ try {
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f8fafc;
     }
@@ -180,7 +190,7 @@ include './config/sidebar.php';?>
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Loại Thuốc</h1>
+                            <!-- <h1>Loại Thuốc</h1> -->
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -193,12 +203,8 @@ include './config/sidebar.php';?>
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                                fill="#FFFFFF" style="vertical-align: middle; margin-right: 8px;">
-                                <path
-                                    d="M720-400v-120H600v-80h120v-120h80v120h120v80H800v120h-80Zm-360-80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm80-80h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T440-640q0-33-23.5-56.5T360-720q-33 0-56.5 23.5T280-640q0 33 23.5 56.5T360-560Zm0-80Zm0 400Z" />
-                            </svg>
-                            Chỉnh sửa loại thuốc
+                            <i class="fa-solid fa-pen-to-square mr-2"></i>
+                            CHỈNH SỬA LOẠI THUỐC
                         </h3>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -219,7 +225,7 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
-                                        class="btn btn-primary btn-sm btn-block">Cập nhật</button>
+                                        class="btn btn-primary btn-sm btn-block"> <i class="fa-solid fa-pen-to-square"></i>Cập nhật</button>
                                 </div>
                             </div>
                         </form>
@@ -232,14 +238,23 @@ include './config/sidebar.php';?>
  include './config/footer.php';
 
 	$message = '';
-    if (isset($_SESSION['success_message'])) {
-        $message = $_SESSION['success_message'];
-        unset($_SESSION['success_message']);
-    } 
-    // elseif (isset($_SESSION['error_message'])) {
-    //     $message = $_SESSION['error_message'];
-    //     unset($_SESSION['error_message']);
-    // }
+    $messageType = 'info';
+
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    $messageType = 'success';
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $message = $_SESSION['error_message'];
+    $messageType = 'error';
+    unset($_SESSION['error_message']);
+}
+if ($message == '' && isset($_GET['message'])) {
+    $message = $_GET['message'];
+    $messageType = 'info';
+}
 
 ?>
         <!-- /.control-sidebar -->
@@ -247,15 +262,15 @@ include './config/sidebar.php';?>
     <!-- ./wrapper -->
 
     <?php include './config/site_js_links.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
     showMenuSelected("#mnu_medicines", "#mi_medicine_details");
-    var message = '<?php echo $message;?>';
+    var message = '<?php echo addslashes($message); ?>';
+    var messageType = '<?php echo $messageType; ?>';
+
     if (message !== '') {
-        <?php if (isset($_SESSION['error_message'])): ?>
-        showCustomMessage(message, 'error');
-        <?php else: ?>
-        showCustomMessage(message, 'success');
-        <?php endif; ?>
+        showCustomMessage(message, messageType);
     }
     </script>
 

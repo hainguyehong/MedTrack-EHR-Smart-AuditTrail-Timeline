@@ -23,23 +23,26 @@ function getTime($time = '') {
 }
 
 function getGender($gender = '') {
-	$data = '<option value="">Chọn giới tính</option>';
+    $data = '<option value="">Chọn giới tính</option>';
 
-	$arr = array("Nam", "Nữ", "Khác");
+    $arr = array("Nam", "Nữ", "Khác");
 
-	$i = 0;
-	$size = sizeof($arr);
+    $genderNorm = mb_strtolower(trim((string)$gender), 'UTF-8');
 
-	for($i = 0; $i < $size; $i++) {
-		if($gender == $arr[$i]) {
-			$data = $data .'<option selected="selected" value="'.$arr[$i].'">'.$arr[$i].'</option>';
-		} else {
-		$data = $data .'<option value="'.$arr[$i].'">'.$arr[$i].'</option>';
-		}
-	}
+    for ($i = 0; $i < count($arr); $i++) {
+        $opt = $arr[$i];
 
-	return $data;
+        $optNorm = mb_strtolower(trim($opt), 'UTF-8');
+
+        if ($genderNorm === 'nu') $genderNorm = 'nữ';
+
+        $selected = ($genderNorm === $optNorm) ? ' selected="selected"' : '';
+        $data .= '<option value="'.$opt.'"'.$selected.'>'.$opt.'</option>';
+    }
+
+    return $data;
 }
+
 function getRoles($role = '') {
     $roles = [
         1 => "Admin",
@@ -131,14 +134,46 @@ function getPatients($con, $selectedId = '') {
 
 
 
-function getDateTextBox($label, $dateId) { 
-	$d = '<div class="col-lg-3 col-md-3 col-sm-4 col-xs-10"> <div class="form-group"> <label>'.$label.'</label> 
-	<div class="input-group rounded-0 date" id="'.$dateId.'_group" data-target-input="nearest"> <input type="text" class="form-control form-control-sm rounded-0 datetimepicker-input" 
-	data-toggle="datetimepicker" data-target="#'.$dateId.'_group" name="'.$dateId.'" id="'.$dateId.'" required="required" autocomplete="off" data-date-format="DD/MM/YYYY"/> 
-	<div class="input-group-append rounded-0" data-target="#'.$dateId.'_group" data-toggle="datetimepicker">
-	 <div class="input-group-text"><i class="fa fa-calendar"></i></div> </div> </div> </div> </div>'; 
-	 return $d; 
+// function getDateTextBox($label, $dateId) { 
+// 	$d = '<div class="col-lg-3 col-md-3 col-sm-4 col-xs-10"> <div class="form-group"> <label>'.$label.'</label> 
+// 	<div class="input-group rounded-0 date" id="'.$dateId.'_group" data-target-input="nearest"> <input type="text" class="form-control form-control-sm rounded-0 datetimepicker-input" 
+// 	data-toggle="datetimepicker" data-target="#'.$dateId.'_group" name="'.$dateId.'" id="'.$dateId.'" required="required" autocomplete="off" data-date-format="DD/MM/YYYY"/> 
+// 	<div class="input-group-append rounded-0" data-target="#'.$dateId.'_group" data-toggle="datetimepicker">
+// 	 <div class="input-group-text"><i class="fa fa-calendar"></i></div> </div> </div> </div> </div>'; 
+// 	 return $d; 
+// }
+function getDateTextBox($label, $dateId, $required = false) {
+
+    $requiredStar = $required ? ' <span class="text-danger">*</span>' : '';
+
+    return '
+    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10">
+        <div class="form-group">
+            <label>'.$label.$requiredStar.'</label>
+            <div class="input-group date" id="'.$dateId.'_group" data-target-input="nearest">
+                <input type="text"
+                    class="form-control form-control-sm datetimepicker-input"
+                    data-toggle="datetimepicker"
+                    data-target="#'.$dateId.'_group"
+                    name="'.$dateId.'"
+                    id="'.$dateId.'"
+                    '.($required ? 'required' : '').'
+                    autocomplete="off"
+                    data-date-format="DD/MM/YYYY"/>
+
+                <div class="input-group-append"
+                     data-target="#'.$dateId.'_group"
+                     data-toggle="datetimepicker">
+                    <div class="input-group-text">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>';
 }
+
+
 // bảng log_audit
 function log_audit($pdo, $user, $table, $record_id, $action, $old, $new) {
     try {
@@ -159,14 +194,6 @@ function log_audit($pdo, $user, $table, $record_id, $action, $old, $new) {
     }
 }
 
-// function islogin() {
-// 	if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-// 		return true;
-// 	} else {
-// 		header('Location: index.php');
-// 		exit();
-// 	}
-// }
 function islogin(array $allowedRoles = [])
 {
     // Chưa login -> về trang login
@@ -203,4 +230,40 @@ function statusToVietnamese($status) {
         'confirmed'  => 'Đã xác nhận',
         default     => 'Không rõ'
     };
+}
+function uploadImageAndGetRelativePath(string $field, string $relDir, int $maxBytes = 5242880): ?string
+{
+    if (!isset($_FILES[$field]) || $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+
+    $f = $_FILES[$field];
+
+    if ($f['error'] !== UPLOAD_ERR_OK) return null;
+    if ($f['size'] > $maxBytes) return null;
+
+    // chỉ cho phép ảnh
+    $ext = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
+    $allowExt = ['jpg','jpeg','png','webp','gif'];
+    if (!in_array($ext, $allowExt, true)) return null;
+
+    // xác thực thêm bằng mime (tránh file giả ảnh)
+    $mime = @mime_content_type($f['tmp_name']);
+    if ($mime === false || strpos($mime, 'image/') !== 0) return null;
+
+    // đường dẫn vật lý tuyệt đối (không phụ thuộc ổ C/D)
+    $absDir = rtrim(__DIR__, '/\\') . DIRECTORY_SEPARATOR . trim($relDir, '/\\') . DIRECTORY_SEPARATOR;
+    if (!is_dir($absDir)) mkdir($absDir, 0777, true);
+
+    // tên file tránh trùng + an toàn
+    $safeBase = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', pathinfo($f['name'], PATHINFO_FILENAME));
+    $newName  = uniqid($field . "_", true) . "_" . $safeBase . "." . $ext;
+
+    $absPath = $absDir . $newName;
+
+    if (!move_uploaded_file($f['tmp_name'], $absPath)) return null;
+
+    // trả về path tương đối để lưu DB/session và dùng làm src
+    $relDir = rtrim($relDir, '/\\') . '/';
+    return $relDir . $newName;
 }

@@ -173,7 +173,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         <i class="nav-icon fas fa-user-injured"></i>
                         <p>
                             <i class="fas"></i>
-                            Bệnh Nhân
+                            Bệnh nhân
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
@@ -199,7 +199,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                         <li class="nav-item">
                             <a href="next_visitdate.php" class="nav-link" id="next_visit_date">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Danh sách lịch tái khám</p>
+                                <p>Lịch tái khám</p>
                             </a>
                         </li>
                     </ul>
@@ -245,7 +245,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-edit"></i>
                         <p>
-                            Báo Cáo
+                            Báo cáo
                             <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
@@ -277,7 +277,7 @@ $role = isset($_SESSION['role']) ? $_SESSION['role'] : null;
                 <li class="nav-item" id="mnu_audit_logs">
                     <a class="nav-link" href="audit_logs.php" id="mi_audit_logs" title="Audit Trail">
                         <i class="nav-icon fas fa-clipboard-list"></i>
-                        <p>Audit Trail</p>
+                        <p>Audit trail</p>
                     </a>
                 </li>
 

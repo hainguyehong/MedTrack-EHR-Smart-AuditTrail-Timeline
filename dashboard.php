@@ -134,6 +134,10 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
   <link rel="icon" type="image/png" href="assets/images/img-tn.png">
   <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
+        * {
+    font-family: sans-serif;
+}
+
     .dark-mode .bg-fuchsia,
     .dark-mode .bg-maroon {
         color: #fff !important;

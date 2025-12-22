@@ -100,6 +100,9 @@ $query = "SELECT
     <title>Medicine Details - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f8fafc;
     }
