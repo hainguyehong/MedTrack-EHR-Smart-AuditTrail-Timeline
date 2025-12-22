@@ -32,3 +32,4 @@
 2025-12-16 15:02:08 | +84073407956 | Xin chào Bùi Thanh Tùng, bạn có lịch tái khám vào ngày 17/04/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-12-16 15:02:08 | +84522142380 | Xin chào Hồ Thị Phương, bạn có lịch tái khám vào ngày 05/04/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-12-17 15:34:31 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-18 09:25:00 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS

@@ -128,7 +128,7 @@ $chartDataYearlyJson = json_encode($chartDataYearly);
 
 <head>
     <?php include './config/site_css_links.php';?>
-    <title>Thống kê - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Thống kê - MedTrack</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
       <!-- Thêm favicon -->
   <link rel="icon" type="image/png" href="assets/images/img-tn.png">

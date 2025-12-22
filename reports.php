@@ -15,8 +15,7 @@ include './common_service/date.php';
     <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
-    <title>Reports - MedTrack-EHR-Smart-AuditTrail-Timeline
-    </title>
+    <title>Báo cáo - MedTrack</title>
     <style>
         * {
     font-family: sans-serif;

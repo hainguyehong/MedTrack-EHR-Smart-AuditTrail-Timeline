@@ -102,12 +102,11 @@ try {
     <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
-    <title>Medicines - MedTrack-EHR-Smart-AuditTrail-Timeline
-    </title>
+    <title>Danh sách thuốc - MedTrack</title>
     <style>
-        * {
-    font-family: sans-serif;
-}
+    * {
+        font-family: sans-serif;
+    }
     body {
         background: #f8fafc;
     }

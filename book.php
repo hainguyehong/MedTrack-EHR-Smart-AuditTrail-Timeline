@@ -190,7 +190,7 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
     <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
-    <title> Đặt lịch khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title> Đặt lịch khám Bệnh - MedTrack</title>
     <style>
         * {
     font-family: sans-serif;
