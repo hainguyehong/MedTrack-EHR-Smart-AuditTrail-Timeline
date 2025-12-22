@@ -105,6 +105,9 @@ try {
     <title>Medicines - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f8fafc;
     }

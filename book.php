@@ -177,15 +177,6 @@ $stmtBookings = $con->prepare($sql);
 $stmtBookings->bindParam(':patient_id', $currentPatientId, PDO::PARAM_INT);
 $stmtBookings->execute();
 $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
-
-// foreach ($rows as $row) {
-//     $statusVi = statusToVietnamese($row['current_status']);
-
-//     // echo "Booking ID: {$row['id']} <br>";
-//     // echo "Trạng thái: {$statusVi} <br>";
-//     // echo "----------------------<br>";
-// }
-// exit();
 ?>
 
 <!DOCTYPE html>
@@ -201,6 +192,10 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title> Đặt lịch khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+        * {
+    font-family: sans-serif;
+}
+
     body {
         background: #f8fafc;
     }
@@ -420,7 +415,7 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
                                         <!--                                                                                                                                     <?php echo $_SESSION['user_id'] ?> -->
                                     </div>
                                     <div class="col-lg-4 col-md-6 mb-3">
-                                        <label>Ngày khám *</label>
+                                        <label>Ngày khám <span class="text-danger">*</span></label>
                                         <div class="input-group date" id="visit_date" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#visit_date" name="visit_date"
@@ -433,7 +428,7 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
                                         </div>
                                     </div>
                                     <div class="col-lg-4 col-md-6 mb-3">
-                                        <label>Giờ khám</label>
+                                        <label>Giờ khám <span class="text-danger">*</span></label>
                                         <select name="time_visit" class="form-control">
                                             <?php echo getTime(); ?>
                                         </select>
@@ -446,12 +441,12 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
 
                                 <div class="row">
                                     <div class="col-lg-6 mb-3">
-                                        <label> Triệu chứng </label>
+                                        <label> Triệu chứng <span class="text-danger">*</span></label>
                                         <textarea id="trieuchung" class="form-control" name="tc" rows="4"
                                             placeholder="Mô tả triệu chứng của bệnh nhân..."></textarea>
                                     </div>
                                     <div class="col-lg-6 mb-3">
-                                        <label>Nội dung khám </label>
+                                        <label>Nội dung khám <span class="text-danger">*</span></label>
                                         <textarea id="nd" name="nd" class="form-control" rows="4"
                                             placeholder="Nội dung khám (khám tổng quát, khám chuyên khoa, ....)"></textarea>
                                     </div>
@@ -593,10 +588,14 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
     var serial = 1;
     showMenuSelected("#mnu_patients", "#mi_patients_visit");
 
-    var message = '<?php echo $message; ?>';
-    if (message !== '') {
-        showCustomMessage(message);
-    }
+    // var message = '<?php echo $message; ?>';
+    // if (message !== '') {
+    //     showCustomMessage(message);
+    // }
+var message = '<?php echo $message; ?>';
+if (message !== '') {
+    showCustomMessage(message, "success");
+}
 
     $(document).ready(function() {
         // Initialize datetime pickers
@@ -643,11 +642,15 @@ $rows = $stmtBookings->fetchAll(PDO::FETCH_ASSOC);
                             );
                         }
 
-                        Swal.fire(
-                            "Đã xóa!",
-                            "Lịch khám đã được xóa.",
-                            "success"
-                        );
+                        Swal.fire({
+                            icon: "success",
+                            // title: "Đã xóa!",
+                            title: "Lịch khám đã được xóa.",
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true
+                        });
+
                     })
                     .catch(err => {
                         Swal.fire("Lỗi", "Xảy ra lỗi khi xóa: " + err, "error");
@@ -703,6 +706,32 @@ document.getElementById("medicalForm").addEventListener("submit", function (e) {
     // ✅ OK → cho submit
 });
 </script>
+<script>
+function showCustomMessage(message, type = "success") {
+
+    // ✅ THÀNH CÔNG → KHÔNG NÚT, TỰ TẮT 1.5s
+    if (type === "success") {
+        Swal.fire({
+            icon: "success",
+            // title: "Thành công",
+            title: message,
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+        });
+        return;
+    }
+
+    // ❌ LỖI → CÓ NÚT
+    Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: message,
+        confirmButtonText: "Đã hiểu"
+    });
+}
+</script>
+
 
 </body>
 

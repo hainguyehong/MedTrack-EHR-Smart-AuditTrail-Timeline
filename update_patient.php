@@ -282,9 +282,6 @@ exit;
         exit;
     }
 }
-
-
-
 try {
     // Ưu tiên lấy id từ POST (khi click nút ở patients.php)
     if (isset($_POST['id'])) {
@@ -344,58 +341,61 @@ try {
 <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<title>Chỉnh sửa bệnh nhân - MedTrack</title>
 <style>
-body {
-    background: #f8fafc;
-}
+    * {
+    font-family: sans-serif;
+    }
+    body {
+        background: #f8fafc;
+    }
 
-.card-primary.card-outline {
-    border-top: 0px solid #007bff;
-}
+    .card-primary.card-outline {
+        border-top: 0px solid #007bff;
+    }
 
-.card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
 
-.card-header {
-    background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-    color: #fff;
-    border-radius: 12px 12px 0 0;
-}
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
 
-.btn-primary,
-.btn-danger {
-    border-radius: 20px;
-    transition: 0.2s;
-}
+    .btn-primary,
+    .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
 
-.btn-primary:hover,
-.btn-danger:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
-}
+    .btn-primary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
 
-.table {
-    background: #fff;
-}
+    .table {
+        background: #fff;
+    }
 
-.form-control,
-.form-select {
-    border-radius: 8px;
-}
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+    }
 
-.card-title {
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
 
-label {
-    font-weight: 500;
-}
+    label {
+        font-weight: 500;
+    }
 </style>
 
 <head>
@@ -407,7 +407,7 @@ label {
     <div class="wrapper">
         <!-- Navbar -->
         <?php include './config/header.php';
-include './config/sidebar.php';?>
+            include './config/sidebar.php';?>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -509,37 +509,34 @@ include './config/sidebar.php';?>
             <br />
             <br />
             <br />
-
-
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
         <?php 
- include './config/footer.php';
+            include './config/footer.php';
 
-  $message = '';
-$messageType = 'info';
+            $message = '';
+            $messageType = 'info';
 
-if (isset($_SESSION['success_message'])) {
-    $message = $_SESSION['success_message'];
-    $messageType = 'success';
-    unset($_SESSION['success_message']);
-}
+            if (isset($_SESSION['success_message'])) {
+                $message = $_SESSION['success_message'];
+                $messageType = 'success';
+                unset($_SESSION['success_message']);
+            }
 
-if (isset($_SESSION['error_message'])) {
-    $message = $_SESSION['error_message'];
-    $messageType = 'error';
-    unset($_SESSION['error_message']);
-}
-if ($message == '' && isset($_GET['message'])) {
-    $message = $_GET['message'];
-    $messageType = 'info';
-}
-?>
+            if (isset($_SESSION['error_message'])) {
+                $message = $_SESSION['error_message'];
+                $messageType = 'error';
+                unset($_SESSION['error_message']);
+            }
+            if ($message == '' && isset($_GET['message'])) {
+                $message = $_GET['message'];
+                $messageType = 'info';
+            }
+        ?>
         <!-- /.control-sidebar -->
     </div>
     <!-- ./wrapper -->
-
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
     <script src="plugins/moment/moment.min.js"></script>
@@ -552,14 +549,12 @@ if ($message == '' && isset($_GET['message'])) {
 
     <script>
     showMenuSelected("#mnu_patients", "#mi_patients");
-
     var message = '<?php echo addslashes($message); ?>';
     var messageType = '<?php echo $messageType; ?>';
-
     if (message !== '') {
         Swal.fire({
             icon: messageType,
-            title: 'Cập nhật bệnh nhân thành công',
+            title: 'Cập nhật bệnh nhân thành công!',
             // html: message,
             showConfirmButton: false,
             timer: messageType === 'success' ? 1200 : null,
@@ -575,9 +570,5 @@ if ($message == '' && isset($_GET['message'])) {
         format: 'L'
     });
 </script>
-
-
-
 </body>
-
 </html>

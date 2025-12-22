@@ -65,9 +65,9 @@ function showCustomMessage(msg, type = "info", title = "") {
         else {
             Swal.fire({
                 icon: type,
-                title: title || "Thông báo",
+                title: title || "Lỗi",
                 text: msg,
-                confirmButtonText: "OK"
+                confirmButtonText: "Đã hiểu"
             });
         }
 

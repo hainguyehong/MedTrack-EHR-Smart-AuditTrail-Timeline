@@ -4,11 +4,7 @@ include './common_service/common_functions.php';
 include './common_service/date.php';
 islogin([2]);
 $message = '';
-// ===== RESET TRẠNG THÁI KHI LOAD FORM KHÁM MỚI =====
-// if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-//     unset($_SESSION['last_visit_id']);
-//     unset($_SESSION['last_patient_id']);
-// }
+
 // reset CHỈ khi chọn bệnh nhân mới
 if (
     $_SERVER['REQUEST_METHOD'] === 'GET' &&
@@ -39,13 +35,6 @@ if (isset($_POST['submit_exam'])) {
     $nv          = $_POST['nv'] ?? '';
     $disease     = $_POST['disease'] ?? '';
 
-    // bắt buộc chọn bệnh nhân
-    // if (empty($patientId)) {
-    //     $_SESSION['error_message'] = 'Vui lòng chọn bệnh nhân trước khi lưu khám bệnh.';
-    //     header("Location: patients_visit.php");
-    //     exit();
-    // }
-    // ===== VALIDATE BACKEND BẮT BUỘC =====
 // ===== VALIDATE UPLOAD HÌNH ẢNH Y TẾ (ƯU TIÊN CAO) =====
 $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 $maxSize = 2 * 1024 * 1024; // 2MB
@@ -241,7 +230,7 @@ if (!empty($errors)) {
         $_SESSION['last_visit_id']   = $lastInsertId;
         $_SESSION['last_patient_id'] = $patientId;
 
-        $_SESSION['success_message'] = 'Thông tin khám bệnh đã được lưu thành công. Bạn có thể chuyển sang kê đơn thuốc.';
+        $_SESSION['success_message'] = 'Thông tin khám bệnh đã được lưu thành công!';
         $_SESSION['exam_old'] = $_POST;
 
         // lưu lại path ảnh để hiển thị lại
@@ -254,7 +243,7 @@ if (!empty($errors)) {
         
     } catch (PDOException $ex) {
         $con->rollback();
-        $_SESSION['error_message'] = 'Lỗi khi lưu khám bệnh: ' . $ex->getMessage();
+        $_SESSION['error_message'] = 'Lỗi khi lưu thông tin khám bệnh! ' . $ex->getMessage();
         // ✅ lưu data để vẫn hiện lại khi lỗi
         $_SESSION['exam_old'] = $_POST;
     }
@@ -411,6 +400,10 @@ $medicines = getMedicines($con);
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
+    * {
+        font-family: sans-serif;
+    }
+
     body {
         background: #f8fafc;
     }
@@ -1021,7 +1014,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                 <!-- DÒNG 1 -->
                                 <div class="row">
                                     <div class="col-lg-6 mb-3">
-                                        <label>Chọn loại thuốc</label>
+                                        <label>Chọn loại thuốc<span class="text-danger"> *</span></label>
                                         <select id="medicine" class="form-control setupSelect3" name="medicine">
                                             <option value="">-- Chọn thuốc --</option>
                                             <?php echo $medicines; ?>
@@ -1042,7 +1035,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                     </div>
 
                                     <div class="col-lg-6 mb-3">
-                                        <label>Số lượng</label>
+                                        <label>Số lượng<span class="text-danger"> *</span></label>
                                         <input id="quantity" class="form-control" name="quantity" type="number" min="1"
                                             value="<?= htmlspecialchars($last['quantity'] ?? '') ?>"
                                             placeholder="Ví dụ: 10" />
@@ -1052,7 +1045,7 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                                 <!-- DÒNG 2 -->
                                 <div class="row">
                                     <div class="col-lg-6 mb-3">
-                                        <label>Liều dùng</label>
+                                        <label>Liều dùng<span class="text-danger"> *</span></label>
                                         <input id="dosage" class="form-control" name="dosage" type="text"
                                             value="<?= htmlspecialchars($last['dosage'] ?? '') ?>"
                                             placeholder="Ví dụ: 2" />
@@ -1075,17 +1068,17 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
 
 
                                 <div class="mt-4">
-                                    <h6 class="mb-3">Danh sách thuốc đã kê</h6>
+                                    <h3 class="mb-3">Danh sách thuốc đã kê</h3>
                                     <div class="table-responsive">
                                         <table id="medication_list" class="table table-striped table-hover">
                                             <thead>
                                                 <tr>
                                                     <th width="8%">STT</th>
-                                                    <th width="35%">Tên Thuốc</th>
-                                                    <th width="12%">Số Lượng</th>
-                                                    <th width="20%">Liều Dùng</th>
+                                                    <th width="35%">Tên thuốc</th>
+                                                    <th width="12%">Số lượng</th>
+                                                    <th width="20%">Liều dùng</th>
                                                     <th width="15%">Ghi chú</th>
-                                                    <th width="10%">Hành Động</th>
+                                                    <th width="10%">Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="current_medicines_list">
@@ -1296,18 +1289,10 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
             // ===== 2. VALIDATE SỐ LƯỢNG =====
             if (isNaN(quantity) || Number(quantity) <= 0) {
                 return showCustomMessage(
-                    "Số lượng thuốc phải là số lớn hơn 0!",
+                    "Số lượng thuốc phải là số nguyên dương!",
                     "error"
                 );
             }
-
-            // if (isNaN(dosage) || Number(dosage) <= 0) {
-            //     return showCustomMessage(
-            //         "Liều dùng phải là số lớn hơn 0!",
-            //         "error"
-            //     );
-            // }
-
 
             // không cho ký tự đặc biệt
             if (!/^\d+$/.test(quantity)) {
@@ -1316,15 +1301,6 @@ $examSaved = isset($_SESSION['last_visit_id']) && isset($_SESSION['last_patient_
                     "error"
                 );
             }
-
-            // ===== 3. VALIDATE LIỀU DÙNG =====
-            // cho phép chữ, số, /, khoảng trắng
-            // if (!/^[\w\s\/\-\.]+$/.test(dosage)) {
-            //     return showCustomMessage(
-            //         "Liều dùng không được chứa ký tự đặc biệt!",
-            //         "error"
-            //     );
-            // }
 
             // ===== 4. THÊM THUỐC (GIỮ NGUYÊN CODE CŨ) =====
             if ($("#current_medicines_list tr").length == 1 &&

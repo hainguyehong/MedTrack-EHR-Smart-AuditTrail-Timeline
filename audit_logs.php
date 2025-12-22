@@ -175,6 +175,10 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
     <title>Audit Trail - MedTrack</title>
 
     <style>
+        * {
+    font-family: sans-serif;
+}
+
     .user-img {
         width: 3em;
         object-fit: cover;
@@ -248,7 +252,11 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
     label {
         font-weight: 700;
         color: #000;
+        font-size: 18px;
     }
+    .card-body label {
+    font-size: 16px;
+}
     </style>
 </head>
 

@@ -90,6 +90,10 @@ $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `i
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
+        * {
+    font-family: sans-serif;
+}
+
     body {
         background: #f8fafc;
     }

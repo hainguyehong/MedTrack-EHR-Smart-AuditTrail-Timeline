@@ -75,6 +75,9 @@ if (isset($_GET['id'])) {
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
+        * {
+    font-family: sans-serif;
+}
     body {
         background: #f8fafc;
     }

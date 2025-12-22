@@ -90,7 +90,9 @@ if (isset($_SESSION['success_message'])) {
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <style>
-    /* custom CSS nếu cần thêm */
+    * {
+    font-family: sans-serif;
+}
     </style>
 </head>
 
@@ -118,7 +120,7 @@ if (isset($_SESSION['success_message'])) {
     </div>
 
     <!-- Helper toast SweetAlert2 -->
-    <script>
+    <!-- <script>
     const toast = Swal.mixin({
         toast: true,
         position: "top-end",
@@ -130,7 +132,7 @@ if (isset($_SESSION['success_message'])) {
     if (typeof showMenuSelected === 'function') {
         showMenuSelected("#mnu_dashboard", "");
     }
-    </script>
+    </script> -->
 
     <!-- React component (JSX) -->
     <script type="text/babel">
@@ -170,98 +172,200 @@ if (isset($_SESSION['success_message'])) {
         return data;
       };
 
+      // const handleConfirm = async (id) => {
+      //   try {
+      //     await saveStatusToServer(id, "confirmed", doctorNote);
+
+      //     setAppointments(
+      //       appointments.map((apt) =>
+      //         apt.id === id ? { ...apt, status: "confirmed", doctorNote } : apt
+      //       )
+      //     );
+
+      //     setSelectedAppointment(null);
+      //     setDoctorNote("");
+
+      //    toast.fire({
+      //       icon: "success",
+      //       title: "Đã xác nhận lịch khám",
+      //     }); 
+      //   } catch (err) {
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Lỗi",
+      //       text: err.message,
+      //     });
+      //   }
+      // };
       const handleConfirm = async (id) => {
-        try {
-          await saveStatusToServer(id, "confirmed", doctorNote);
+  try {
+    await saveStatusToServer(id, "confirmed", doctorNote);
 
-          setAppointments(
-            appointments.map((apt) =>
-              apt.id === id ? { ...apt, status: "confirmed", doctorNote } : apt
-            )
-          );
+    setAppointments(
+      appointments.map((apt) =>
+        apt.id === id ? { ...apt, status: "confirmed", doctorNote } : apt
+      )
+    );
 
-          setSelectedAppointment(null);
-          setDoctorNote("");
+    setSelectedAppointment(null);
+    setDoctorNote("");
 
-          toast.fire({
-            icon: "success",
-            title: "Đã xác nhận lịch khám",
-          });
-        } catch (err) {
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: err.message,
-          });
-        }
-      };
+    Swal.fire({
+      icon: "success",
+      title: "Đã xác nhận lịch khám",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: err.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
+};
 
-      const handleReject = async (id) => {
-        if (!doctorNote.trim()) {
-          Swal.fire({
-            icon: "warning",
-            title: "Thiếu lý do",
-            text: "Vui lòng nhập lý do từ chối lịch hẹn.",
-          });
-          return;
-        }
-        try {
-          await saveStatusToServer(id, "rejected", doctorNote);
 
-          setAppointments(
-            appointments.map((apt) =>
-              apt.id === id
-                ? {
-                    ...apt,
-                    status: "rejected",
-                    rejectionReason: doctorNote,
-                    doctorNote,
-                  }
-                : apt
-            )
-          );
+      // const handleReject = async (id) => {
+      //   if (!doctorNote.trim()) {
+      //     Swal.fire({
+      //       icon: "warning",
+      //       title: "Thiếu lý do",
+      //       text: "Vui lòng nhập lý do từ chối lịch hẹn.",
+      //     });
+      //     return;
+      //   }
+      //   try {
+      //     await saveStatusToServer(id, "rejected", doctorNote);
 
-          setSelectedAppointment(null);
-          setDoctorNote("");
+      //     setAppointments(
+      //       appointments.map((apt) =>
+      //         apt.id === id
+      //           ? {
+      //               ...apt,
+      //               status: "rejected",
+      //               rejectionReason: doctorNote,
+      //               doctorNote,
+      //             }
+      //           : apt
+      //       )
+      //     );
 
-          toast.fire({
-            icon: "success",
-            title: "Đã từ chối lịch khám",
-          });
-        } catch (err) {
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: err.message,
-          });
-        }
-      };
+      //     setSelectedAppointment(null);
+      //     setDoctorNote("");
 
+      //     toast.fire({
+      //       icon: "success",
+      //       title: "Đã từ chối lịch khám",
+      //     });
+      //   } catch (err) {
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Lỗi",
+      //       text: err.message,
+      //     });
+      //   }
+      // };
+const handleReject = async (id) => {
+  if (!doctorNote.trim()) {
+    Swal.fire({
+      icon: "warning",
+      title: "Thiếu lý do",
+      text: "Vui lòng nhập lý do từ chối lịch hẹn.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    return;
+  }
+
+  try {
+    await saveStatusToServer(id, "rejected", doctorNote);
+
+    setAppointments(
+      appointments.map((apt) =>
+        apt.id === id
+          ? { ...apt, status: "rejected", doctorNote }
+          : apt
+      )
+    );
+
+    setSelectedAppointment(null);
+    setDoctorNote("");
+
+    Swal.fire({
+      icon: "success",
+      title: "Đã từ chối lịch khám",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: err.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
+};
+
+      // const handleSetPending = async (id) => {
+      //   try {
+      //     await saveStatusToServer(id, "pending", doctorNote);
+
+      //     setAppointments(
+      //       appointments.map((apt) =>
+      //         apt.id === id ? { ...apt, status: "pending", doctorNote } : apt
+      //       )
+      //     );
+
+      //     setSelectedAppointment(null);
+      //     setDoctorNote("");
+
+      //     toast.fire({
+      //       icon: "success",
+      //       title: "Đã đưa lịch về trạng thái chờ xác nhận",
+      //     });
+      //   } catch (err) {
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Lỗi",
+      //       text: err.message,
+      //     });
+      //   }
+      // };
       const handleSetPending = async (id) => {
-        try {
-          await saveStatusToServer(id, "pending", doctorNote);
+  try {
+    await saveStatusToServer(id, "pending", doctorNote);
 
-          setAppointments(
-            appointments.map((apt) =>
-              apt.id === id ? { ...apt, status: "pending", doctorNote } : apt
-            )
-          );
+    setAppointments(
+      appointments.map((apt) =>
+        apt.id === id ? { ...apt, status: "pending", doctorNote } : apt
+      )
+    );
 
-          setSelectedAppointment(null);
-          setDoctorNote("");
+    setSelectedAppointment(null);
+    setDoctorNote("");
 
-          toast.fire({
-            icon: "success",
-            title: "Đã đưa lịch về trạng thái chờ xác nhận",
-          });
-        } catch (err) {
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: err.message,
-          });
-        }
-      };
+    Swal.fire({
+      icon: "success",
+      title: "Đã đưa lịch về trạng thái chờ xác nhận",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: err.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
+};
+
 
       // lọc + tìm kiếm
       const filteredAppointments = appointments.filter((apt) => {
@@ -743,7 +847,7 @@ if (isset($_SESSION['success_message'])) {
   </script>
 
     <!-- Hiển thị message từ session bằng SweetAlert2 toast -->
-    <script>
+    <!-- <script>
     (function() {
         var message = <?php echo json_encode($message, JSON_UNESCAPED_UNICODE); ?>;
         if (message) {
@@ -753,7 +857,21 @@ if (isset($_SESSION['success_message'])) {
             });
         }
     })();
-    </script>
+    </script> -->
+    <script>
+(function () {
+    var message = <?php echo json_encode($message, JSON_UNESCAPED_UNICODE); ?>;
+    if (message) {
+        Swal.fire({
+            icon: "info",
+            title: message,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+})();
+</script>
+
 </body>
 
 </html>

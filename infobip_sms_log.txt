@@ -16,3 +16,19 @@
 2025-12-10 23:43:22 | +84344854189 | Xin chào Hoàng Ngọc Mai, bạn có lịch tái khám vào ngày 28/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-12-10 23:43:22 | +84601095574 | Xin chào Hoàng Ngọc Mai, bạn có lịch tái khám vào ngày 28/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
 2025-12-14 23:39:48 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:30:43 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:33:28 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:33:30 | +84081742426 | Xin chào Dương Thị Quỳnh, bạn có lịch tái khám vào ngày 30/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:33:38 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:33:40 | +84081742426 | Xin chào Dương Thị Quỳnh, bạn có lịch tái khám vào ngày 30/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:35:18 | +84213955398 | Xin chào Lưu Văn Thắng, bạn có lịch tái khám vào ngày 11/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:36:20 | +84213955398 | Xin chào Lưu Văn Thắng, bạn có lịch tái khám vào ngày 11/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:36:20 | +84316962685 | Xin chào Trần Văn Hùng, bạn có lịch tái khám vào ngày 11/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:36:25 | +84825004530 | Xin chào Dương Thị Quỳnh, bạn có lịch tái khám vào ngày 04/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-15 23:36:30 | +84601095574 | Xin chào Hoàng Ngọc Mai, bạn có lịch tái khám vào ngày 28/02/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-16 00:04:04 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-16 15:01:50 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-16 15:02:07 | +84339091496 | Xin chào Lê Thị Thu Hà, bạn có lịch tái khám vào ngày 16/04/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-16 15:02:08 | +84073407956 | Xin chào Bùi Thanh Tùng, bạn có lịch tái khám vào ngày 17/04/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-16 15:02:08 | +84522142380 | Xin chào Hồ Thị Phương, bạn có lịch tái khám vào ngày 05/04/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
+2025-12-17 15:34:31 | +84978953924 | Xin chào Ngô Thị Trang, bạn có lịch tái khám vào ngày 28/01/2025. Vui lòng liên hệ phòng khám để xác nhận. | SUCCESS
