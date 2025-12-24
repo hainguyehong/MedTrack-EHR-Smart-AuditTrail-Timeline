@@ -198,7 +198,7 @@ function islogin(array $allowedRoles = [])
 {
     // Chưa login -> về trang login
     if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-        header("Location: index.php"); // trang login của bạn
+        header("Location: index.php"); 
         exit();
     }
 
@@ -231,39 +231,39 @@ function statusToVietnamese($status) {
         default     => 'Không rõ'
     };
 }
-function uploadImageAndGetRelativePath(string $field, string $relDir, int $maxBytes = 5242880): ?string
-{
-    if (!isset($_FILES[$field]) || $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
-        return null;
-    }
+// function uploadImageAndGetRelativePath(string $field, string $relDir, int $maxBytes = 5242880): ?string
+// {
+//     if (!isset($_FILES[$field]) || $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
+//         return null;
+//     }
 
-    $f = $_FILES[$field];
+//     $f = $_FILES[$field];
 
-    if ($f['error'] !== UPLOAD_ERR_OK) return null;
-    if ($f['size'] > $maxBytes) return null;
+//     if ($f['error'] !== UPLOAD_ERR_OK) return null;
+//     if ($f['size'] > $maxBytes) return null;
 
-    // chỉ cho phép ảnh
-    $ext = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
-    $allowExt = ['jpg','jpeg','png','webp','gif'];
-    if (!in_array($ext, $allowExt, true)) return null;
+//     // chỉ cho phép ảnh
+//     $ext = strtolower(pathinfo($f['name'], PATHINFO_EXTENSION));
+//     $allowExt = ['jpg','jpeg','png','webp','gif'];
+//     if (!in_array($ext, $allowExt, true)) return null;
 
-    // xác thực thêm bằng mime (tránh file giả ảnh)
-    $mime = @mime_content_type($f['tmp_name']);
-    if ($mime === false || strpos($mime, 'image/') !== 0) return null;
+//     // xác thực thêm bằng mime (tránh file giả ảnh)
+//     $mime = @mime_content_type($f['tmp_name']);
+//     if ($mime === false || strpos($mime, 'image/') !== 0) return null;
 
-    // đường dẫn vật lý tuyệt đối (không phụ thuộc ổ C/D)
-    $absDir = rtrim(__DIR__, '/\\') . DIRECTORY_SEPARATOR . trim($relDir, '/\\') . DIRECTORY_SEPARATOR;
-    if (!is_dir($absDir)) mkdir($absDir, 0777, true);
+//     // đường dẫn vật lý tuyệt đối (không phụ thuộc ổ C/D)
+//     $absDir = rtrim(__DIR__, '/\\') . DIRECTORY_SEPARATOR . trim($relDir, '/\\') . DIRECTORY_SEPARATOR;
+//     if (!is_dir($absDir)) mkdir($absDir, 0777, true);
 
-    // tên file tránh trùng + an toàn
-    $safeBase = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', pathinfo($f['name'], PATHINFO_FILENAME));
-    $newName  = uniqid($field . "_", true) . "_" . $safeBase . "." . $ext;
+//     // tên file tránh trùng + an toàn
+//     $safeBase = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', pathinfo($f['name'], PATHINFO_FILENAME));
+//     $newName  = uniqid($field . "_", true) . "_" . $safeBase . "." . $ext;
 
-    $absPath = $absDir . $newName;
+//     $absPath = $absDir . $newName;
 
-    if (!move_uploaded_file($f['tmp_name'], $absPath)) return null;
+//     if (!move_uploaded_file($f['tmp_name'], $absPath)) return null;
 
-    // trả về path tương đối để lưu DB/session và dùng làm src
-    $relDir = rtrim($relDir, '/\\') . '/';
-    return $relDir . $newName;
-}
+//     // trả về path tương đối để lưu DB/session và dùng làm src
+//     $relDir = rtrim($relDir, '/\\') . '/';
+//     return $relDir . $newName;
+// }

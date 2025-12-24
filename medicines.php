@@ -2,8 +2,9 @@
 include './config/connection.php';
 include './common_service/date.php';
 include './common_service/common_functions.php';
-islogin([2]); // chỉ cho admin (2) truy cập
+islogin([2]); // chỉ cho bs (2) truy cập
 $message = '';
+
 if (isset($_POST['save_medicine'])) {
     $medicineName = trim($_POST['medicine_name']);
     $medicineName = ucwords(strtolower($medicineName));
@@ -105,9 +106,10 @@ try {
     <title>Medicines - MedTrack-EHR-Smart-AuditTrail-Timeline
     </title>
     <style>
-        * {
-    font-family: sans-serif;
-}
+    * {
+        font-family: sans-serif;
+    }
+
     body {
         background: #f8fafc;
     }
@@ -202,7 +204,8 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
-                                        class="btn btn-primary btn-sm btn-block"> <i class="fa-solid fa-book-medical mr-2"></i>Lưu</button>
+                                        class="btn btn-primary btn-sm btn-block"> <i
+                                            class="fa-solid fa-book-medical mr-2"></i>Lưu</button>
                                 </div>
                             </div>
                         </form>
@@ -235,11 +238,10 @@ include './config/sidebar.php';?>
                                     <col width="10%">
                                 </colgroup>
 
-                                <thead 
-                                    <tr>
-                                        <th class="text-center">STT</th>
-                                        <th>Tên thuốc</th>
-                                        <th class="text-center">Hành động</th>
+                                <thead <tr>
+                                    <th class="text-center">STT</th>
+                                    <th>Tên thuốc</th>
+                                    <th class="text-center">Hành động</th>
                                     </tr>
                                 </thead>
 

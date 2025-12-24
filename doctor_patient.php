@@ -5,6 +5,7 @@ include './common_service/date.php';
 islogin([2]);  // chỉ cho bs (2) truy cập
 $message = '';
 $userId = $_SESSION['user_id'];
+
 if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     $patientId = intval($_POST['patient_id']);
 
@@ -17,22 +18,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     $stmt->execute();
     $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Lấy đơn thuốc
-    // $query = "SELECT pmh.*, m.medicine_name
-    //           FROM patient_medication_history pmh
-    //           JOIN medicines m ON pmh.medicine_id = m.id
-    //           WHERE pmh.patient_id = :patient_id
-    //           ORDER BY pmh.created_at ASC";
-    // $stmt = $con->prepare($query);
-    // $stmt->bindParam(':patient_id', $patientId, PDO::PARAM_INT);
-    // $stmt->execute();
-    // $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // echo json_encode([
-    //     'patient' => $patient,
-    //     'prescriptions' => $prescriptions
-    // ]);
-    // exit;
     // Lấy đơn thuốc (gộp các thuốc theo cùng ngày khám)
     $query =
         "
@@ -76,9 +61,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-        * {
-    font-family: sans-serif;
-}
+    * {
+        font-family: sans-serif;
+    }
+
     body {
         background: #f8fafc;
     }
