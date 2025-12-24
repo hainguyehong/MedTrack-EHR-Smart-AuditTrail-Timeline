@@ -183,38 +183,52 @@ $patient = $stmtPatient1->fetch(PDO::FETCH_ASSOC);
         margin-top: 24px;
     }
 
+    /* Updated imaging styles (aligned with doctor_patient.php) */
     .image-box {
-        border: 1px dashed #ced4da;
-        border-radius: 10px;
-        background: #fafafa;
-        padding: 16px;
-        height: 260px;
-
+        border: 2px dashed #3b82f6;
+        background: #f5f9ff;
+        padding: 18px;
+        height: 320px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 12px;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .image-box:hover {
+        background: #eef5ff;
+        border-color: #2563eb;
     }
 
     .image-box img {
         max-width: 100%;
-        max-height: 220px;
+        max-height: 260px;
         object-fit: contain;
-        border-radius: 8px;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        border: 1px solid #d7e6ff;
+        box-shadow: 0 10px 28px rgba(37, 99, 235, 0.12);
         cursor: zoom-in;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .image-box img:hover {
+        transform: scale(1.02);
+        box-shadow: 0 14px 36px rgba(37, 99, 235, 0.18);
     }
 
     .image-empty {
-        color: #6c757d;
+        color: #6b7280;
         font-style: italic;
         text-align: center;
+        line-height: 1.6;
     }
 
     .image-empty i {
-        font-size: 42px;
+        font-size: 44px;
         display: block;
-        margin-bottom: 8px;
-        color: #adb5bd;
+        margin-bottom: 10px;
+        color: #9cb7ff;
     }
     </style>
 </head>
@@ -446,52 +460,51 @@ include './config/sidebar.php';?>
                                                 }
                                             ?>" readonly>
                                 </div>
-                                <!-- ===== HÌNH ẢNH CHẨN ĐOÁN ===== -->
-                                <div class="row image-section">
-                                    <div class="col-lg-6 mb-3">
-                                        <label>Ảnh siêu âm</label>
-                                        <div class="image-box">
-                                            <?php if (!empty($row['ultrasound']) && file_exists($row['ultrasound'])): ?>
-                                            <img src="<?php echo htmlspecialchars($row['ultrasound']); ?>"
-                                                class="preview-img" alt="Ảnh siêu âm">
-                                            <?php else: ?>
-                                            <div class="image-empty">
-                                                <i class="fas fa-image"></i>
-                                                Chưa có ảnh siêu âm
-                                            </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
+                            </div> <!-- end row -->
 
-                                    <div class="col-lg-6 mb-3">
-                                        <label>Ảnh X-quang</label>
-                                        <div class="image-box">
-                                            <?php if (!empty($row['xray']) && file_exists($row['xray'])): ?>
-                                            <img src="<?php echo htmlspecialchars($row['xray']); ?>" class="preview-img"
-                                                alt="Ảnh X-quang">
-                                            <?php else: ?>
-                                            <div class="image-empty">
-                                                <i class="fas fa-image"></i>
-                                                Chưa có ảnh X-quang
-                                            </div>
-                                            <?php endif; ?>
+                            <!-- ===== HÌNH ẢNH CHẨN ĐOÁN ===== -->
+                            <div class="row image-section">
+                                <div class="col-lg-6 mb-3">
+                                    <label>Ảnh siêu âm</label>
+                                    <div class="image-box">
+                                        <?php if (!empty($row['ultrasound']) && file_exists($row['ultrasound'])): ?>
+                                        <img src="<?php echo htmlspecialchars($row['ultrasound']); ?>"
+                                            class="preview-img" alt="Ảnh siêu âm">
+                                        <?php else: ?>
+                                        <div class="image-empty">
+                                            <i class="fas fa-image"></i>
+                                            Chưa có ảnh siêu âm
                                         </div>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="img-modal" id="imgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
-                                    z-index:9999;align-items:center;justify-content:center;padding:24px;">
-                                        <div style="position:relative;max-width:min(1000px,95vw);max-height:90vh;">
-                                            <button type="button" id="imgModalClose" style="position:absolute;top:-12px;right:-12px;
-                                        width:36px;height:36px;border:0;border-radius:999px;
-                                        background:#fff;cursor:pointer;font-size:22px;">
-                                                &times;
-                                            </button>
-                                            <img id="imgModalSrc"
-                                                style="max-width:100%;max-height:90vh;border-radius:12px;background:#fff;">
-                                        </div>
-                                    </div>
-
                                 </div>
 
+                                <div class="col-lg-6 mb-3">
+                                    <label>Ảnh X-quang</label>
+                                    <div class="image-box">
+                                        <?php if (!empty($row['xray']) && file_exists($row['xray'])): ?>
+                                        <img src="<?php echo htmlspecialchars($row['xray']); ?>" class="preview-img"
+                                            alt="Ảnh X-quang">
+                                        <?php else: ?>
+                                        <div class="image-empty">
+                                            <i class="fas fa-image"></i>
+                                            Chưa có ảnh X-quang
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="img-modal" id="imgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+                                z-index:9999;align-items:center;justify-content:center;padding:24px;">
+                                    <div style="position:relative;max-width:min(1000px,95vw);max-height:90vh;">
+                                        <button type="button" id="imgModalClose" style="position:absolute;top:-12px;right:-12px;
+                                    width:36px;height:36px;border:0;border-radius:999px;
+                                    background:#fff;cursor:pointer;font-size:22px;">
+                                            &times;
+                                        </button>
+                                        <img id="imgModalSrc"
+                                            style="max-width:100%;max-height:90vh;border-radius:12px;background:#fff;">
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
