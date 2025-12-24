@@ -395,7 +395,7 @@ $medicines = getMedicines($con);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 
-    <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Khám bệnh - MedTrack</title>
     <!-- Thêm favicon giống dashboard.php -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">

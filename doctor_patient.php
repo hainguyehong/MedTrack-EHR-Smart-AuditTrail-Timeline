@@ -59,8 +59,12 @@ if (isset($_POST['action']) && $_POST['action'] === 'get_patient_data') {
     <!-- Thêm favicon -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
-    <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Quản lý bệnh nhân - MedTrack</title>
     <style>
+    * {
+        font-family: sans-serif;
+    }
+
     * {
         font-family: sans-serif;
     }

@@ -78,7 +78,7 @@ if (isset($_POST['id'])) {
 
 <head>
     <?php include './config/site_css_links.php';?>
-    <title>Thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Xóa thuốc - MedTrack</title>
     <style>
         * {
     font-family: sans-serif;

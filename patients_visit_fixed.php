@@ -219,7 +219,7 @@ $medicines = getMedicines($con);
     <?php include './config/site_css_links.php' ?>
     <!-- <link rel="icon" type="image/png" href="assets/images/logoo.png" /> -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <title>Khám Bệnh - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Khám bệnh - MedTrack</title>
     <style>
         * {
     font-family: sans-serif;

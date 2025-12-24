@@ -85,7 +85,7 @@ $query = "SELECT `id`, `display_name`, `user_name`, `role` FROM `users` WHERE `i
 
 <head>
     <?php include './config/site_css_links.php';?>
-    <title>Người Dùng - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Xóa người dùng - MedTrack</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">

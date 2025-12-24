@@ -119,7 +119,7 @@ try {
     <?php include './config/data_tables_css.php'; ?>
 
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <title>Bệnh Nhân - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
+    <title>Danh sách lịch tái khám - MedTrack</title>
     <!-- Thêm favicon giống dashboard.php -->
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">

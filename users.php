@@ -155,7 +155,7 @@ $sn = $serialStart;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <?php include './config/data_tables_css.php';?>
-    <title>Users - MedTrack-EHR</title>
+    <title>Thêm người dùng - MedTrack</title>
     <style>
         * {
             font-family: sans-serif;
