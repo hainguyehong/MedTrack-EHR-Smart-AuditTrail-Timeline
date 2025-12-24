@@ -270,7 +270,7 @@ if (isset($_POST['save_Patient'])) {
         // header("Location: patients.php");
         // exit;
         $_SESSION['success_message'] = "Cập nhật bệnh nhân thành công";
-header("Location: update_patient.php?id=" . $hiddenId);
+header("Location: update_patient.php");
 exit;
 
 
@@ -344,58 +344,59 @@ try {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <title>Chỉnh sửa bệnh nhân - MedTrack</title>
 <style>
-    * {
+* {
     font-family: sans-serif;
-    }
-    body {
-        background: #f8fafc;
-    }
+}
 
-    .card-primary.card-outline {
-        border-top: 0px solid #007bff;
-    }
+body {
+    background: #f8fafc;
+}
 
-    .card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
+.card-primary.card-outline {
+    border-top: 0px solid #007bff;
+}
 
-    .card-header {
-        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
-        color: #fff;
-        border-radius: 12px 12px 0 0;
-    }
+.card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
 
-    .btn-primary,
-    .btn-danger {
-        border-radius: 20px;
-        transition: 0.2s;
-    }
+.card-header {
+    background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+}
 
-    .btn-primary:hover,
-    .btn-danger:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
-    }
+.btn-primary,
+.btn-danger {
+    border-radius: 20px;
+    transition: 0.2s;
+}
 
-    .table {
-        background: #fff;
-    }
+.btn-primary:hover,
+.btn-danger:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
 
-    .form-control,
-    .form-select {
-        border-radius: 8px;
-    }
+.table {
+    background: #fff;
+}
 
-    .card-title {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
+.form-control,
+.form-select {
+    border-radius: 8px;
+}
 
-    label {
-        font-weight: 500;
-    }
+.card-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+label {
+    font-weight: 500;
+}
 </style>
 
 <head>
@@ -488,13 +489,11 @@ try {
                                     </select>
                                 </div>
                             </div>
-                
+
                             <div class="row mt-3">
                                 <div class="col-12 text-center">
-                                    <button type="submit"
-                                            id="save_Patient"
-                                            name="save_Patient"
-                                            class="btn btn-primary btn-sm px-3">
+                                    <button type="submit" id="save_Patient" name="save_Patient"
+                                        class="btn btn-primary btn-sm px-3">
                                         <i class="fa-solid fa-pen-to-square me-1"></i>
                                         Cập nhật
                                     </button>
@@ -569,6 +568,7 @@ try {
     $('#date_of_birth').datetimepicker({
         format: 'L'
     });
-</script>
+    </script>
 </body>
+
 </html>

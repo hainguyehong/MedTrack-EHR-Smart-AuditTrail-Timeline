@@ -134,88 +134,125 @@ $row = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <?php include './config/site_css_links.php';?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/images/img-tn.png">
     <title>Chỉnh sửa người dùng - MedTrack-EHR</title>
     <style>
-        * {
-    font-family: sans-serif;
-}
+    * {
+        font-family: sans-serif;
+    }
 
-        body { background: #f8fafc; }
-        .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .card-header { background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%); color: #fff; border-radius: 12px 12px 0 0; }
-        .btn-primary, .btn-danger { border-radius: 20px; transition: 0.2s; }
-        .btn-primary:hover, .btn-danger:hover { filter: brightness(1.1); box-shadow: 0 2px 8px rgba(0,123,255,0.15); }
-        .form-control, .form-select { border-radius: 8px; }
-        .card-title { font-weight: 600; letter-spacing: 0.5px; }
-        label { font-weight: 500; }
+    body {
+        background: #f8fafc;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #007bff 60%, #00c6ff 100%);
+        color: #fff;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        border-radius: 20px;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+    }
+
+    .card-title {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    label {
+        font-weight: 500;
+    }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
-<div class="wrapper">
-    <?php include './config/header.php'; include './config/sidebar.php';?>
-    <div class="content-wrapper">
-        <section class="content">
-            <div class="card card-outline card-primary shadow">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-pen-to-square"></i> CHỈNH SỬA NGƯỜI DÙNG</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <input type="hidden" name="hidden_id" value="<?= htmlspecialchars($user_id) ?>">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Tên hiển thị <span class="text-danger">*</span></label>
-                                <input type="text" name="display_name" class="form-control form-control-sm w-100"
-                                       value="<?= $_SESSION['old']['display_name'] ?? $row['display_name'] ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Tên đăng nhập <span class="text-danger">*</span></label>
-                                <input type="text" name="username" class="form-control form-control-sm w-100"
-                                       value="<?= $_SESSION['old']['username'] ?? $row['user_name'] ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Mật khẩu <small class="text-muted">(để trống nếu không đổi)</small></label>
-                                <input type="password" name="password" class="form-control form-control-sm w-100">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Vai trò <span class="text-danger">*</span></label>
-                                <select name="role" class="form-control form-control-sm w-100">
-                                    <?= getRoles($_SESSION['old']['role'] ?? $row['role']); ?>
-                                </select>
-                            </div>
-                            <div class="col-12 text-center mt-3">
-                                <button type="submit" name="save_user" class="btn btn-primary btn-sm px-4">
-                                    <i class="fa-solid fa-pen-to-square"></i> CẬP NHẬT
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </section>
-    </div>
-    <?php include './config/footer.php'; ?>
-</div>
 
-<?php include './config/site_js_links.php'; ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-$(document).ready(function() {
-    <?php if (isset($_SESSION['success_message'])): ?>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+    <div class="wrapper">
+        <?php include './config/header.php'; include './config/sidebar.php';?>
+        <div class="content-wrapper">
+            <section class="content">
+                <div class="card card-outline card-primary shadow">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fa-solid fa-pen-to-square"></i> CHỈNH SỬA NGƯỜI DÙNG</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input type="hidden" name="hidden_id" value="<?= htmlspecialchars($user_id) ?>">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label>Tên hiển thị <span class="text-danger">*</span></label>
+                                    <input type="text" name="display_name" class="form-control form-control-sm w-100"
+                                        value="<?= $_SESSION['old']['display_name'] ?? $row['display_name'] ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Tên đăng nhập <span class="text-danger">*</span></label>
+                                    <input type="text" name="username" class="form-control form-control-sm w-100"
+                                        value="<?= $_SESSION['old']['username'] ?? $row['user_name'] ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Mật khẩu <small class="text-muted">(để trống nếu không đổi)</small></label>
+                                    <input type="password" name="password" class="form-control form-control-sm w-100">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Vai trò <span class="text-danger">*</span></label>
+                                    <select name="role" class="form-control form-control-sm w-100">
+                                        <?= getRoles($_SESSION['old']['role'] ?? $row['role']); ?>
+                                    </select>
+                                </div>
+                                <div class="col-12 text-center mt-3">
+                                    <button type="submit" name="save_user" class="btn btn-primary btn-sm px-4">
+                                        <i class="fa-solid fa-pen-to-square"></i> CẬP NHẬT
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <?php include './config/footer.php'; ?>
+    </div>
+
+    <?php include './config/site_js_links.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    $(document).ready(function() {
+        <?php if (isset($_SESSION['success_message'])): ?>
         Swal.fire({
             icon: 'success',
             title: '<?= addslashes($_SESSION['success_message']) ?>',
             showConfirmButton: false,
             timer: 1200
-        }).then(() => { window.location.href = 'users.php'; });
+        }).then(() => {
+            window.location.href = 'users.php';
+        });
         <?php unset($_SESSION['success_message']); ?>
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
+        <?php if (isset($_SESSION['form_errors']) && !empty($_SESSION['form_errors'])): ?>
         <?php
         $errors = $_SESSION['form_errors'];
         unset($_SESSION['form_errors']);
@@ -235,9 +272,9 @@ $(document).ready(function() {
             showConfirmButton: true,
             confirmButtonText: 'Đã hiểu'
         });
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <?php if (isset($_SESSION['error_message'])): ?>
+        <?php if (isset($_SESSION['error_message'])): ?>
         Swal.fire({
             icon: 'error',
             title: 'Lỗi',
@@ -246,8 +283,9 @@ $(document).ready(function() {
             confirmButtonText: 'Đã hiểu'
         });
         <?php unset($_SESSION['error_message']); ?>
-    <?php endif; ?>
-});
-</script>
+        <?php endif; ?>
+    });
+    </script>
 </body>
-</html> 
+
+</html>

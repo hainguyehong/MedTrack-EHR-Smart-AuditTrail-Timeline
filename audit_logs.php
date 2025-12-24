@@ -1,168 +1,216 @@
-<?php 
-include './config/connection.php';
-include './common_service/common_functions.php';
+<?php
+declare(strict_types=1);
 
-$message = '';
-islogin([1]); // chỉ cho admin (1)
+require './config/connection.php';
+require './common_service/common_functions.php';
 
-// Build filters from GET
+islogin([1]); // chỉ admin
+
+const AUDIT_IGNORE_FIELDS = [
+    'updated_at',
+    'deleted_at'
+];
+
+/**
+ * =============================
+ * INPUT FILTERS
+ * =============================
+ */
 $search       = trim($_GET['search'] ?? '');
 $timeRange    = $_GET['timeRange'] ?? 'all';
 $userFilter   = $_GET['userFilter'] ?? 'all';
 $actionFilter = $_GET['actionFilter'] ?? 'all';
+$export       = ($_GET['export'] ?? '0') === '1';
 
-// Prepare WHERE clauses
-$where  = ["1=1"];
+/**
+ * =============================
+ * BUILD WHERE (CHUẨN AUDIT LOG)
+ * =============================
+ */
+$where  = [];
 $params = [];
 
-// search across record_id, table_name, new_value, old_value
+/* chỉ log user role 1,2 */
+$where[] = "u.role IN (1,2)";
+
+/* search theo table / record */
 if ($search !== '') {
-    $where[] = "(
-        a.record_id LIKE :search
-        OR a.table_name LIKE :search
-        OR a.new_value LIKE :search
-        OR a.old_value LIKE :search
-    )";
-    $params[':search'] = "%{$search}%";
+
+    //  nếu toàn số → record_id
+    if (ctype_digit($search)) {
+        $where[] = "a.record_id = :record_id";
+        $params[':record_id'] = (int)$search;
+    }
+    else {
+        // 2 serach chung
+        $where[] = "(
+            a.table_name   LIKE :kw
+            OR a.action    LIKE :kw
+            OR u.display_name LIKE :kw
+            OR a.old_value LIKE :kw
+            OR a.new_value LIKE :kw
+        )";
+
+        $params[':kw'] = '%' . $search . '%';
+    }
 }
 
-// time ranges
-if ($timeRange === 'today') {
-    $start = date('Y-m-d') . ' 00:00:00';
-    $where[] = "a.changed_at >= :start";
-    $params[':start'] = $start;
 
-} elseif ($timeRange === 'this_week') {
-    $monday = date('Y-m-d', strtotime('monday this week'));
-    $where[] = "a.changed_at >= :start_week";
-    $params[':start_week'] = $monday . ' 00:00:00';
-
-} elseif ($timeRange === 'this_month') {
-    $first = date('Y-m-01') . ' 00:00:00';
-    $where[] = "a.changed_at >= :start_month";
-    $params[':start_month'] = $first;
-}
-
-// user filter
+/* theo user */
 if ($userFilter !== 'all' && is_numeric($userFilter)) {
     $where[] = "a.user_id = :user_id";
     $params[':user_id'] = (int)$userFilter;
 }
 
-// action filter
-if ($actionFilter !== 'all' && $actionFilter !== '') {
+/* theo action */
+if ($actionFilter !== 'all') {
     $where[] = "a.action = :action";
     $params[':action'] = $actionFilter;
 }
 
-// only include logs from users with role 1 or 2
-$where[] = "(u.role IN (1,2))";
-
-// --- Pagination / Export / Fetch ---
-$perPage = 10;
-$page    = max(1, intval($_GET['page'] ?? 1));
-$offset  = ($page - 1) * $perPage;
-$serialStart = $offset + 1;
-
-// count total matching rows
-$countSql = "SELECT COUNT(*)
-             FROM audit_logs a
-             LEFT JOIN users u ON a.user_id = u.id
-             WHERE " . implode(' AND ', $where);
-
-try {
-    $stmtCount = $con->prepare($countSql);
-    $stmtCount->execute($params);
-    $totalLogs = (int)$stmtCount->fetchColumn();
-} catch (PDOException $ex) {
-    echo "<div class='alert alert-danger'>Lỗi khi đếm audit logs: " . htmlspecialchars($ex->getMessage()) . "</div>";
-    $totalLogs = 0;
+/* theo time */
+switch ($timeRange) {
+    case 'today':
+        $where[] = "DATE(a.changed_at) = CURDATE()";
+        break;
+    case 'this_week':
+        $where[] = "YEARWEEK(a.changed_at, 1) = YEARWEEK(CURDATE(), 1)";
+        break;
+    case 'this_month':
+        $where[] = "MONTH(a.changed_at) = MONTH(CURDATE())
+                    AND YEAR(a.changed_at) = YEAR(CURDATE())";
+        break;
 }
 
-$totalPages = ($totalLogs > 0) ? (int)ceil($totalLogs / $perPage) : 1;
+/* build final where */
+$whereSql = 'WHERE ' . implode(' AND ', $where);
 
-// If export requested -> export ALL matching rows (no limit)
-if (isset($_GET['export']) && $_GET['export'] == '1') {
-    $exportSql = "SELECT a.id, a.user_id, COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name, 
-            u.role AS user_role,
-            a.table_name, a.record_id, a.action, a.old_value, a.new_value, a.changed_at
-            FROM audit_logs a
-            LEFT JOIN users u ON a.user_id = u.id
-            WHERE " . implode(' AND ', $where) . "
-            ORDER BY a.changed_at DESC";
+/**
+ * =============================
+ * PAGINATION
+ * =============================
+ */
+$perPage = 10;
+$page    = max(1, (int)($_GET['page'] ?? 1));
+$offset  = ($page - 1) * $perPage;
+$sn = $offset + 1;
 
-    try {
-        $stmtExport = $con->prepare($exportSql);
-        $stmtExport->execute($params);
-        $exportRows = $stmtExport->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $ex) {
-        echo "<div class='alert alert-danger'>Lỗi khi xuất CSV: " . htmlspecialchars($ex->getMessage()) . "</div>";
-        exit;
-    }
+/**
+ * =============================
+ * COUNT TOTAL
+ * =============================
+ */
+$countSql = "
+    SELECT COUNT(*)
+    FROM audit_logs a
+    LEFT JOIN users u ON a.user_id = u.id
+    $whereSql
+";
 
-    $filename = 'audit_logs_' . date('Ymd_His') . '.csv';
+$stmt = $con->prepare($countSql);
+$stmt->execute($params);
+$totalLogs  = (int)$stmt->fetchColumn();
+$totalPages = max(1, (int)ceil($totalLogs / $perPage));
+
+/**
+ * =============================
+ * EXPORT CSV (DÙNG CHUNG WHERE)
+ * =============================
+ */
+if ($export) {
+    $sql = "
+        SELECT a.id, a.changed_at, a.user_id,
+               COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name,
+               u.role AS user_role,
+               a.table_name, a.record_id, a.action,
+               a.old_value, a.new_value
+        FROM audit_logs a
+        LEFT JOIN users u ON a.user_id = u.id
+        $whereSql
+        ORDER BY a.changed_at DESC
+    ";
+
+    $stmt = $con->prepare($sql);
+    $stmt->execute($params);
+
     header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename=' . $filename);
+    header('Content-Disposition: attachment; filename=audit_logs_' . date('Ymd_His') . '.csv');
+    echo "\xEF\xBB\xBF";
 
     $out = fopen('php://output', 'w');
-    echo "\xEF\xBB\xBF"; // BOM for Excel
+    $old = auditCleanFields(json_decode($r['old_value'], true));
+    $new = auditCleanFields(json_decode($r['new_value'], true));
+   fputcsv($out, [
+    $r['id'],
+    $r['changed_at'],
+    $r['user_id'],
+    $prefix . $r['display_name'],
+    $r['table_name'],
+    $r['record_id'],
+    $r['action'],
+    json_encode($old, JSON_UNESCAPED_UNICODE),
+    json_encode($new, JSON_UNESCAPED_UNICODE),
+]);
 
-    fputcsv($out, ['ID','Changed At','User ID','User','Table','Record ID','Action','Old Value','New Value']);
-    foreach ($exportRows as $r) {
-        $pref = '';
-        if (isset($r['user_role'])) {
-            if ((int)$r['user_role'] === 1) $pref = 'AD ';
-            elseif ((int)$r['user_role'] === 2) $pref = 'BS ';
-        }
-        $displayWithPrefix = $pref . ($r['display_name'] ?? '');
+    while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $prefix = match ((int)$r['user_role']) {
+            1 => 'AD ',
+            2 => 'BS ',
+            default => ''
+        };
+
         fputcsv($out, [
             $r['id'],
             $r['changed_at'],
             $r['user_id'],
-            $displayWithPrefix,
+            $prefix . $r['display_name'],
             $r['table_name'],
             $r['record_id'],
             $r['action'],
-            $r['old_value'],
-            $r['new_value']
+            json_encode(json_decode($r['old_value']), JSON_UNESCAPED_UNICODE),
+            json_encode(json_decode($r['new_value']), JSON_UNESCAPED_UNICODE),
         ]);
     }
+
     fclose($out);
     exit;
 }
 
-// fetch paginated rows (latest first)
-$sql = "SELECT a.id, a.user_id, COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name, 
-        u.role AS user_role,
-        a.table_name, a.record_id, a.action, a.old_value, a.new_value, a.changed_at
-        FROM audit_logs a
-        LEFT JOIN users u ON a.user_id = u.id
-        WHERE " . implode(' AND ', $where) . "
-        ORDER BY a.changed_at DESC
-        LIMIT :limit OFFSET :offset";
+/**
+ * =============================
+ * FETCH DATA
+ * =============================
+ */
+$sql = "
+    SELECT a.id, a.changed_at, a.user_id,
+           COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name,
+           u.role AS user_role,
+           a.table_name, a.record_id, a.action,
+           a.old_value, a.new_value
+    FROM audit_logs a
+    LEFT JOIN users u ON a.user_id = u.id
+    $whereSql
+    ORDER BY a.changed_at DESC
+    LIMIT :limit OFFSET :offset
+";
 
-try {
-    $stmtLogs = $con->prepare($sql);
-    foreach ($params as $k => $v) {
-        $stmtLogs->bindValue($k, $v);
-    }
-    $stmtLogs->bindValue(':limit', (int)$perPage, PDO::PARAM_INT);
-    $stmtLogs->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-    $stmtLogs->execute();
-    $logs = $stmtLogs->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $ex) {
-    echo "<div class='alert alert-danger'>Lỗi khi truy vấn audit logs: " . htmlspecialchars($ex->getMessage()) . "</div>";
-    $logs = [];
+$stmt = $con->prepare($sql);
+foreach ($params as $k => $v) {
+    $stmt->bindValue($k, $v);
 }
+$stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 
-// set row serial counter
-$sn = $serialStart;
+$logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ===== Build base query string for pagination (keep all filters) =====
+/* giữ filter khi phân trang */
 $q = $_GET;
 unset($q['page']);
 $baseQuery = http_build_query($q);
 $baseQuery = $baseQuery ? $baseQuery . '&' : '';
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -175,9 +223,9 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
     <title>Audit Trail - MedTrack</title>
 
     <style>
-        * {
-    font-family: sans-serif;
-}
+    * {
+        font-family: sans-serif;
+    }
 
     .user-img {
         width: 3em;
@@ -254,9 +302,10 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
         color: #000;
         font-size: 18px;
     }
+
     .card-body label {
-    font-size: 16px;
-}
+        font-size: 16px;
+    }
     </style>
 </head>
 
@@ -341,11 +390,12 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
                                     <label class="small">Hành động</label>
                                     <select name="actionFilter" id="actionFilter" class="form-control form-control-sm">
                                         <option value="all" <?= $actionFilter=='all'?'selected':'' ?>>Tất cả</option>
-                                        <option value="insert" <?= $actionFilter=='insert'?'selected':'' ?>>Tạo</option>
-                                        <option value="update" <?= $actionFilter=='update'?'selected':'' ?>>Cập nhật
+                                        <option value="CREATE" <?= $actionFilter=='CREATE'?'selected':'' ?>>Tạo</option>
+                                        <option value="UPDATE" <?= $actionFilter=='UPDATE'?'selected':'' ?>>Cập nhật
                                         </option>
-                                        <option value="delete" <?= $actionFilter=='delete'?'selected':'' ?>>Xoá</option>
+                                        <option value="DELETE" <?= $actionFilter=='DELETE'?'selected':'' ?>>Xoá</option>
                                     </select>
+
                                 </div>
 
                                 <div class="col-12 text-center mt-2">
@@ -383,49 +433,63 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
                         <div class="table-responsive">
                             <table id="auditTable" class="table table-striped table-bordered">
                                 <thead>
-                                    <tr>
-                                        <th class="p-1 text-center">STT</th>
+                                    <tr class="p-1 text-center">
+                                        <th>STT</th>
                                         <th>Thời gian</th>
                                         <th>Người dùng</th>
                                         <th>Hành động</th>
                                         <th>Hồ sơ</th>
+                                        <!-- <th>Chi tiết</th> -->
                                         <th>Chi tiết</th>
-                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php if (empty($logs)) { ?>
                                     <tr>
-                                        <td colspan="7" class="text-center text-muted">Không tìm thấy bản ghi nào</td>
+                                        <td colspan="6" class="text-center text-muted">Không tìm thấy bản ghi nào</td>
                                     </tr>
                                     <?php } else {
-                                    foreach ($logs as $row) {
-                                        $preview = $row['new_value'] ?? $row['old_value'] ?? '';
-                                        $pretty = $preview;
-                                        $decoded = json_decode($preview, true);
-                                        if (json_last_error() === JSON_ERROR_NONE) {
-                                            $pretty = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                                        }
-                                        $short = nl2br(htmlspecialchars(mb_strimwidth($pretty, 0, 240, '...')));
+                                        foreach ($logs as $row) {
 
-                                        $prefix = '';
-                                        if (isset($row['user_role'])) {
-                                            if ((int)$row['user_role'] === 1) $prefix = 'AD ';
-                                            elseif ((int)$row['user_role'] === 2) $prefix = 'BS ';
-                                        }
-                                        $displayNamePref = htmlspecialchars($prefix . ($row['display_name'] ?? ''));
+                                            $prefix = match ((int)$row['user_role']) {
+                                                1 => 'AD ',
+                                                2 => 'BS ',
+                                                default => ''
+                                            };
 
-                                        echo '<tr>';
-                                        echo '<td class="px-2 py-1 align-middle text-center">'.($sn++).'</td>';
-                                        echo '<td>'.htmlspecialchars($row['changed_at']).'</td>';
-                                        echo '<td>'.$displayNamePref.'</td>';
-                                        echo '<td>'.htmlspecialchars($row['action']).'</td>';
-                                        echo '<td>'.htmlspecialchars($row['table_name']).' #'.htmlspecialchars($row['record_id']).'</td>';
-                                        echo '<td><div class="json-preview">'.$short.'</div></td>';
-                                        echo '<td><button class="btn btn-sm btn-outline-primary view-json" data-json="'.htmlspecialchars($pretty, ENT_QUOTES).'">Xem</button></td>';
-                                        echo '</tr>';
-                                    }
-                                } ?>
+                                            echo '<tr>';
+                                            echo '<td class="text-center">'.($sn++).'</td>';
+                                            echo '<td>'.htmlspecialchars($row['changed_at']).'</td>';
+                                            echo '<td>'.htmlspecialchars($prefix . $row['display_name']).'</td>';
+
+                                            echo '<td class="fw-bold">'.htmlspecialchars($row['action']).'</td>';
+
+                                            echo '<td>'
+                                                .htmlspecialchars($row['table_name'])
+                                                .' #'
+                                                .htmlspecialchars((string)$row['record_id'])
+
+                                                .'</td>';
+
+                                            // echo '<td>'.renderAuditDetail($row).'</td>';
+
+                                            echo '<td class="text-center">
+                                                    <button class="btn btn-sm btn-outline-primary view-json"
+                                                        data-json="'.htmlspecialchars(
+                                                            json_encode([
+                                                                'old' => auditCleanFields(json_decode($row['old_value'], true)),
+                                                                'new' => auditCleanFields(json_decode($row['new_value'], true)),
+                                                            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                                                            ENT_QUOTES
+                                                        ).'">
+                                                        Xem chi tiết
+                                                    </button>
+                                                    </td>';
+
+                                            echo '</tr>';
+                                        }
+                                        } ?>
+
                                 </tbody>
                             </table>
 
@@ -472,7 +536,7 @@ $baseQuery = $baseQuery ? $baseQuery . '&' : '';
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Chi tiết JSON</h5>
+                        <h5 class="modal-title">Lịch sử thay đổi</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                             onclick="closeModal()">
                             <span aria-hidden="true">&times;</span>

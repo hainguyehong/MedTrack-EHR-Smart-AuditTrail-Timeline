@@ -267,3 +267,74 @@ function statusToVietnamese($status) {
 //     $relDir = rtrim($relDir, '/\\') . '/';
 //     return $relDir . $newName;
 // }
+function auditCleanFields(?array $data): ?array
+{
+    if (!is_array($data)) return $data;
+
+    $ignore = ['updated_at', 'deleted_at'];
+
+    foreach ($ignore as $f) {
+        unset($data[$f]);
+    }
+
+    return $data;
+}
+
+function renderAuditDetail(array $row): string // xem chi tiết log audit
+{
+    $action = $row['action'];
+
+    $old = auditCleanFields(json_decode($row['old_value'] ?? '', true));
+    $new = auditCleanFields(json_decode($row['new_value'] ?? '', true));
+
+    if ($action === 'UPDATE' && is_array($old) && is_array($new)) {
+
+        $html = '<table class="table table-sm table-bordered mb-0">';
+        $html .= '<tr><th>Field</th><th>Old</th><th>New</th></tr>';
+
+        $hasChange = false;
+
+        foreach ($new as $field => $newVal) {
+
+            $oldVal = $old[$field] ?? null;
+            if ($oldVal != $newVal) {
+
+                $hasChange = true;
+
+                $oldStr = is_scalar($oldVal)
+                    ? (string)$oldVal
+                    : json_encode($oldVal, JSON_UNESCAPED_UNICODE);
+
+                $newStr = is_scalar($newVal)
+                    ? (string)$newVal
+                    : json_encode($newVal, JSON_UNESCAPED_UNICODE);
+
+                $html .= '<tr>';
+                $html .= '<td>'.htmlspecialchars($field).'</td>';
+                $html .= '<td class="text-danger">'.htmlspecialchars($oldStr).'</td>';
+                $html .= '<td class="text-success">'.htmlspecialchars($newStr).'</td>';
+                $html .= '</tr>';
+            }
+        }
+
+        if (!$hasChange) {
+            return '<em class="text-muted">Không có thay đổi nghiệp vụ</em>';
+        }
+
+        return $html . '</table>';
+    }
+
+    if ($action === 'CREATE' && is_array($new)) {
+        return '<pre>'.htmlspecialchars(
+            json_encode($new, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        ).'</pre>';
+    }
+
+    if ($action === 'DELETE' && is_array($old)) {
+        return '<pre>'.htmlspecialchars(
+            json_encode($old, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        ).'</pre>';
+    }
+
+    return '<em class="text-muted">No detail</em>';
+}

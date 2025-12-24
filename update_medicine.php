@@ -121,9 +121,10 @@ try {
     <link rel="apple-touch-icon" href="assets/images/img-tn.png">
     <title>Chỉnh sửa thuốc - MedTrack-EHR-Smart-AuditTrail-Timeline</title>
     <style>
-        * {
-    font-family: sans-serif;
-}
+    * {
+        font-family: sans-serif;
+    }
+
     body {
         background: #f8fafc;
     }
@@ -225,7 +226,8 @@ include './config/sidebar.php';?>
                                 <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2">
                                     <label>&nbsp;</label>
                                     <button type="submit" id="save_medicine" name="save_medicine"
-                                        class="btn btn-primary btn-sm btn-block"> <i class="fa-solid fa-pen-to-square"></i>Cập nhật</button>
+                                        class="btn btn-primary btn-sm btn-block" style="width: 100%;"> <i
+                                            class="fa-solid fa-pen-to-square"></i>Cập nhật</button>
                                 </div>
                             </div>
                         </form>
