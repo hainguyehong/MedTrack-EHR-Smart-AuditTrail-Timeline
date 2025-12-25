@@ -118,6 +118,7 @@ $totalPages = max(1, (int)ceil($totalLogs / $perPage));
  * =============================
  */
 if ($export) {
+
     $sql = "
         SELECT a.id, a.changed_at, a.user_id,
                COALESCE(u.display_name, CONCAT('User #', a.user_id)) AS display_name,
@@ -135,29 +136,41 @@ if ($export) {
 
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=audit_logs_' . date('Ymd_His') . '.csv');
+
+    // BOM cho Excel
     echo "\xEF\xBB\xBF";
 
     $out = fopen('php://output', 'w');
-    $old = auditCleanFields(json_decode($r['old_value'], true));
-    $new = auditCleanFields(json_decode($r['new_value'], true));
-   fputcsv($out, [
-    $r['id'],
-    $r['changed_at'],
-    $r['user_id'],
-    $prefix . $r['display_name'],
-    $r['table_name'],
-    $r['record_id'],
-    $r['action'],
-    json_encode($old, JSON_UNESCAPED_UNICODE),
-    json_encode($new, JSON_UNESCAPED_UNICODE),
-]);
+
+    // Header CSV
+    fputcsv($out, [
+        'ID',
+        'Changed At',
+        'User ID',
+        'User',
+        'Table',
+        'Record ID',
+        'Action',
+        'Old Value',
+        'New Value'
+    ]);
 
     while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
         $prefix = match ((int)$r['user_role']) {
             1 => 'AD ',
             2 => 'BS ',
             default => ''
         };
+
+       
+        $old = auditCleanFields(
+            json_decode($r['old_value'] ?? '{}', true)
+        );
+
+        $new = auditCleanFields(
+            json_decode($r['new_value'] ?? '{}', true)
+        );
 
         fputcsv($out, [
             $r['id'],
@@ -167,14 +180,15 @@ if ($export) {
             $r['table_name'],
             $r['record_id'],
             $r['action'],
-            json_encode(json_decode($r['old_value']), JSON_UNESCAPED_UNICODE),
-            json_encode(json_decode($r['new_value']), JSON_UNESCAPED_UNICODE),
+            json_encode($old, JSON_UNESCAPED_UNICODE),
+            json_encode($new, JSON_UNESCAPED_UNICODE),
         ]);
     }
 
     fclose($out);
     exit;
 }
+
 
 /**
  * =============================
